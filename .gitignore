@@ -1,0 +1,31 @@
+# Personal configuration — the repository ships .example files instead
+config.toml
+keymap.toml
+*.local.toml
+.env
+
+# Draw ledger and anything the oracle produces at runtime
+ledger/
+*.wav
+*.iq
+
+# Speech and language models
+models/
+*.bin
+*.gguf
+
+# Working notes, not part of the project
+IDEAS.md
+final_idea.md
+additional_ideas.md
+awesome_mystic.md
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+.venv/

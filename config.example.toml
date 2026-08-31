@@ -1,0 +1,43 @@
+# Copy to ~/.config/heidr/config.toml and edit.
+# Every value here is a default; delete a line to keep the built-in value.
+# API keys are never read from this file, only from environment variables.
+
+[ui]
+theme = "auto"          # auto, full, tty
+language = "en"
+splash = true
+
+[audio]
+volume = 0.6            # 0.0 to 1.0, also bound to - and + in the interface
+target_rms = 0.12       # level the automatic gain control aims for
+limiter_ceiling = 0.95  # hard ceiling, never exceeded
+attack_ms = 50
+release_ms = 400
+
+[llm]
+provider = "ollama"     # ollama, openai_compat, anthropic
+model = "qwen3.5:9B"
+base_url = "http://localhost:11434"
+api_key_env = "HEIDR_LLM_KEY"
+
+[stt]
+provider = "vosk"       # vosk, whisper_cpp, api
+model_path = ""         # directory for vosk, .bin file for whisper.cpp
+
+[rite]
+silence_chance = 0.125  # how often the oracle refuses to answer
+recent_penalty = 4      # weight divisor for modules drawn in the last three rites
+
+[ledger]
+path = "~/.local/share/heidr/ledger"
+
+# Per module settings. The section name is the module name.
+[modules.fm_voice]
+sweep = "random"        # forward, backward, bounce, random
+dwell_s = 4
+band = "88.0-108.0"
+
+[modules.sw_voice]
+sweep = "bounce"
+dwell_s = 6
+band = "3.9-4.0"

@@ -1,0 +1,35 @@
+[project]
+name = "heidr"
+version = "0.1.0"
+description = "A modal terminal oracle that draws its answers from the physical world"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "GPL-3.0-or-later" }
+dependencies = [
+    "textual>=0.80",
+    "rich>=13.0",
+    "tomli-w>=1.0",
+    "requests>=2.31",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+audio = ["sounddevice>=0.4"]
+vosk = ["vosk>=0.3"]
+effects = ["terminaltexteffects>=0.12"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24"]
+
+[project.scripts]
+heidr = "heidr.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["heidr*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: needs real network, radio hardware or an audio device"]
+addopts = "-m 'not live'"
