@@ -149,3 +149,24 @@ async def test_a_working_provider_reaches_the_context(default_config):
     async with app.run_test():
         context = app.probe()
         assert context.llm.name == "ollama"
+
+
+@pytest.mark.asyncio
+async def test_volume_keys_move_the_one_output_level(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        start = pilot.app.levels.volume
+        await pilot.press("minus", "minus")
+
+        assert pilot.app.levels.volume < start
+        assert pilot.app.query_one(StatusLine).volume == pilot.app.levels.volume
+        assert default_config.get("audio.volume") == pilot.app.levels.volume
+
+
+@pytest.mark.asyncio
+async def test_muting_reaches_the_output_and_not_only_the_status_line(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("m")
+        assert pilot.app.levels.muted is True
+
+        await pilot.press("colon", *"mute", "enter")
+        assert pilot.app.levels.muted is False

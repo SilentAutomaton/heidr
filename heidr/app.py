@@ -6,7 +6,7 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import capabilities, config, keymap, llm, registry, rite, session
+from heidr import audio, capabilities, config, keymap, llm, registry, rite, session
 from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
@@ -31,6 +31,7 @@ class HeidrApp(App):
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
         self.bus = Bus()
+        self.levels = audio.Levels.from_config(self.settings)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
         registry.discover(self.user_dir / "modules")
         # Probing the network and the radio takes time, so capabilities stay
@@ -65,7 +66,7 @@ class HeidrApp(App):
     def on_mount(self) -> None:
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
-        status.volume = self.settings.get("audio.volume", 0.6)
+        status.volume = self.levels.volume
         status.provider = self.settings.get("llm.provider", "")
 
     def watch_edit_mode(self, value: str) -> None:
@@ -151,8 +152,8 @@ class HeidrApp(App):
         self.query_one("#body", Static).update(self._help_text())
 
     def do_mute(self) -> None:
-        status = self.query_one(StatusLine)
-        status.muted = not status.muted
+        self.levels.muted = not self.levels.muted
+        self.query_one(StatusLine).muted = self.levels.muted
 
     def do_volume_up(self) -> None:
         self._change_volume(0.05)
@@ -161,9 +162,15 @@ class HeidrApp(App):
         self._change_volume(-0.05)
 
     def _change_volume(self, step: float) -> None:
-        status = self.query_one(StatusLine)
-        status.volume = min(1.0, max(0.0, status.volume + step))
-        self.settings.set("audio.volume", round(status.volume, 2))
+        if step > 0:
+            self.levels.louder(step)
+        else:
+            self.levels.quieter(-step)
+        self._show_volume()
+
+    def _show_volume(self) -> None:
+        self.query_one(StatusLine).volume = self.levels.volume
+        self.settings.set("audio.volume", self.levels.volume)
 
     # Commands
 
@@ -187,9 +194,8 @@ class HeidrApp(App):
         if not argument.isdigit():
             line.say("Volume takes a number from 0 to 100, as in :vol 40.")
             return
-        status = self.query_one(StatusLine)
-        status.volume = min(100, int(argument)) / 100
-        self.settings.set("audio.volume", round(status.volume, 2))
+        self.levels.volume = min(100, int(argument)) / 100
+        self._show_volume()
 
     def _set_option(self, argument: str, line: CommandLine) -> None:
         option, separator, value = argument.partition("=")
