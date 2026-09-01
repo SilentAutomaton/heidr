@@ -155,3 +155,48 @@ async def test_the_module_list_scrolls_to_the_cursor(default_config):
 
         shown = str(pilot.app.query_one("#body").content)
         assert pilot.app.rows[pilot.app.cursor][1] in shown
+
+
+# Moving through a list
+
+
+@pytest.mark.asyncio
+async def test_the_arrows_move_the_cursor(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("down", "down")
+        assert pilot.app.cursor == 2
+
+        await pilot.press("up")
+        assert pilot.app.cursor == 1
+
+
+@pytest.mark.asyncio
+async def test_the_arrows_move_through_the_menu_too(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("down", "down", "enter")
+
+        assert pilot.app.view == "modules"
+
+
+@pytest.mark.asyncio
+async def test_a_page_moves_by_the_height_of_the_panel(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("pagedown")
+
+        wanted = min(pilot.app._room(), len(pilot.app.rows) - 1)
+        assert pilot.app.cursor == wanted
+
+
+@pytest.mark.asyncio
+async def test_a_page_stops_at_both_ends(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        for _ in range(20):
+            await pilot.press("pagedown")
+        assert pilot.app.cursor == len(pilot.app.rows) - 1
+
+        for _ in range(20):
+            await pilot.press("pageup")
+        assert pilot.app.cursor == 0

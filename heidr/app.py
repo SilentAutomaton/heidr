@@ -569,6 +569,16 @@ class HeidrApp(App):
     def do_line_up(self) -> None:
         self._move_cursor(-1)
 
+    def do_page_down(self) -> None:
+        self._move_cursor(self._room())
+
+    def do_page_up(self) -> None:
+        self._move_cursor(-self._room())
+
+    def _room(self) -> int:
+        # The same arithmetic the body uses, so a page is what is on screen.
+        return max(1, self.size.height - CHROME_ROWS - PANEL_PADDING - 1)
+
     def _move_cursor(self, step: int) -> None:
         if not self.rows:
             return
