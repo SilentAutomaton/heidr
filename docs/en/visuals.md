@@ -127,6 +127,30 @@ people cannot look at. Fail any one of them and the effect is simply not among
 the choices, the same way a radio module is not among the choices without a
 dongle.
 
+## The window title
+
+The title is the only thing visible when the window is not. While a rite runs it
+reads:
+
+```
+⠹ HEID//R — fm_voice 2/4
+```
+
+The spinner comes first, then the sign, then the module at work and how far it
+has got. In between rites it is the sign alone, with no trailing dashes or
+zeroes, and the program restores it on the way out so nothing is left spinning
+in a window list.
+
+The spinner is braille where the terminal draws braille and `|/-\` where it does
+not. Progress comes from a `progress` event carrying a done and a total. The
+sweep across the band sends it, because it is the longest thing the program
+does; a module that sends nothing shows the stage of the rite instead, `2/3`.
+Inventing a percentage for work that cannot measure itself would be worse than
+saying nothing.
+
+`App.title` is set as well, and the escape sequence is written directly, since
+a bare console ignores what it does not know.
+
 ## Sources
 
 The register of the listening screen — an ASCII spectrum scrolling in the

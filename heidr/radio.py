@@ -208,7 +208,11 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
 
     heard: list[np.ndarray] = []
     blocks = 0
-    for frequency in stops:
+    for number, frequency in enumerate(stops, start=1):
+        # The sweep is the longest thing the program does, so it says how far
+        # along it is; the window title is the only place that shows when the
+        # window is hidden.
+        ctx.emit("progress", (number, len(stops)))
         if ctx.cancelled():
             # Between stops, not after all of them: twenty seconds is a long
             # time to keep someone who has changed their mind.

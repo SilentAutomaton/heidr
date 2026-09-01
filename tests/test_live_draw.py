@@ -26,10 +26,16 @@ def offline(monkeypatch):
 
 
 @pytest.fixture
-def only(temporary_slot):
-    """Register one rite and nothing else, so the draw is predictable."""
+def only(temporary_slot, default_config):
+    """Register one rite and nothing else, so the draw is predictable.
+
+    Silence is switched off with it: the lot that decides whether the oracle
+    speaks is drawn from the clock, and a test that waits for a reading cannot
+    be at the mercy of it.
+    """
 
     def install(world_run, reading_run=None):
+        default_config.set("rite.silence_chance", 0.0)
         registry.question("q")(lambda ctx, text: Key(seed=1, anchors=()))
         registry.world("w")(world_run)
         registry.reading("r")(reading_run or (lambda ctx, text, material: iter(())))
@@ -273,3 +279,62 @@ def test_the_session_stops_between_stages(stub_context, tmp_path, monkeypatch):
 
     with pytest.raises(Cancelled):
         session.perform(stopped, Ledger(tmp_path / "ledger"), QUESTION)
+
+
+# The window says what is happening while it is hidden
+
+
+@pytest.mark.asyncio
+async def test_the_window_title_is_the_name_when_nothing_runs(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        assert pilot.app._title() == "HEID//R"
+
+
+@pytest.mark.asyncio
+async def test_the_window_title_spins_and_names_the_stage(default_config, offline, only):
+    holding = threading.Event()
+
+    def slow(ctx, key):
+        ctx.emit("progress", (2, 4))
+        holding.wait(timeout=10)
+        return Material("found", source="fake")
+
+    only(slow)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        for _ in range(100):
+            await pilot.pause()
+            if pilot.app.progress is not None:
+                break
+        title = pilot.app._title()
+
+        assert title.endswith("w 2/4")
+        assert title[0] in "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏|/-\\"
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        assert pilot.app._title() == "HEID//R"
+
+
+@pytest.mark.asyncio
+async def test_a_stage_that_says_nothing_counts_itself(default_config, offline, only):
+    holding = threading.Event()
+
+    def slow(ctx, key):
+        holding.wait(timeout=10)
+        return Material("found", source="fake")
+
+    only(slow)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        await pilot.pause()
+
+        assert pilot.app._title().endswith("/3")
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()

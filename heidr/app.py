@@ -1,4 +1,5 @@
 import random
+import sys
 import threading
 from dataclasses import replace
 from pathlib import Path
@@ -44,6 +45,11 @@ IDLE = "plasma"
 # says so.
 CHROME_ROWS = 2
 PANEL_PADDING = 2
+# The spinner runs in braille where the terminal draws braille and in plain
+# strokes where it does not: the same ladder as everything else here.
+SPINNERS = {"braille": "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏", "ascii": "|/-\\"}
+SPIN_HZ = 10
+SLOTS = 3
 TRAIL = {"blocks": " \u203a ", "braille": " \u203a ", "box": " > ", "ascii": " > "}
 
 THEMES = Path(__file__).resolve().parent / "ui"
@@ -67,6 +73,9 @@ class HeidrApp(App):
         self.cursors: dict[str, int] = {}
         self.body_text = ""
         self.tick = 0
+        self.spin = 0
+        self.progress: tuple[int, int] | None = None
+        self.shown_title = ""
         self.bus = Bus()
         self.drawing = False
         self.stop_draw = threading.Event()
@@ -146,6 +155,8 @@ class HeidrApp(App):
         # The panel is plain text, so the figure in it is moved by a timer of
         # its own rather than by the canvas.
         self.set_interval(1 / 3, self._breathe)
+        self.set_interval(1 / SPIN_HZ, self._show_title)
+        self._show_title()
 
     def _breathe(self) -> None:
         # The timer outlives the screen for a moment when the program leaves.
@@ -292,6 +303,7 @@ class HeidrApp(App):
 
     def _listen_to_the_draw(self) -> None:
         self.bus.subscribe("stage", lambda name: self._on_thread(self._stage, name))
+        self.bus.subscribe("progress", lambda done: self._on_thread(self._progress, done))
         self.bus.subscribe("token", lambda line: self._on_thread(self._token, line))
 
     def _on_thread(self, handler, payload) -> None:
@@ -306,12 +318,44 @@ class HeidrApp(App):
         module = self._module_named(str(name))
         if module is not None and module.name not in self.stages:
             self.stages.append(module.name)
+            self.progress = None
             self._show_transcript()
         if module is not None:
             if module.visual:
                 self.show_visual(module.visual)
             else:
                 self.show_idle()
+
+    def _progress(self, done) -> None:
+        self.progress = tuple(done)
+
+    def _title(self) -> str:
+        """What the window is called, which is all you see when it is hidden."""
+        if not self.drawing:
+            return NAME
+        frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
+        done, total = self.progress or (len(self.stages), SLOTS)
+        stage = self.stages[-1] if self.stages else ""
+        return f"{frames[self.spin % len(frames)]} {NAME} — {stage} {done}/{total}".rstrip()
+
+    def _show_title(self) -> None:
+        self.spin += 1
+        wanted = self._title()
+        if wanted == self.shown_title:
+            return
+        self.shown_title = wanted
+        self.title = wanted
+        # Textual does not promise to put the title on the window, so it is
+        # written here as well. A console that does not know the sequence
+        # ignores it, which is the behaviour wanted.
+        sys.__stdout__.write(f"\x1b]2;{wanted}\x07")
+        sys.__stdout__.flush()
+
+    def on_unmount(self) -> None:
+        # Nothing is left spinning in the window list after the program goes.
+        self.shown_title = ""
+        self.drawing = False
+        self._show_title()
 
     def _module_named(self, name: str):
         # Stages announce themselves with extra words sometimes, so match the
