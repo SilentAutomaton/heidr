@@ -344,3 +344,39 @@ def test_the_quarters_light_opposite_halves():
 
     assert first.index("█") > last.index("█")
     assert first.rstrip()[-1] == "█" and last.strip()[0] == "█"
+
+
+# The animation has to reach the screen, not only the widget
+
+
+def composited(app) -> list[str]:
+    """What the terminal would really receive, layer by layer flattened."""
+    return ["".join(segment.text for segment in row) for row in app.screen._compositor.render_strips()]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("size", [(40, 12), (60, 20), (80, 24), (120, 40), (200, 50)])
+async def test_the_animation_is_visible_around_the_panel(default_config, size):
+    """A widget above the canvas hides its characters, transparent or not.
+
+    This is the test that was missing when the animations disappeared for a
+    whole cycle: the old one checked widget sizes, which were correct all along.
+    """
+    async with make_app(default_config).run_test(size=size) as pilot:
+        # Plasma fills every cell, so absence here means absence everywhere.
+        pilot.app.show_visual("plasma")
+        await pilot.pause()
+        rows = composited(pilot.app)
+        ramp = set(pilot.app.query_one("#visual", Canvas).painter.ramp) - {" "}
+
+        assert any(character in ramp for character in rows[0])
+        assert any(character in ramp for row in rows for character in row[:2])
+
+
+@pytest.mark.asyncio
+async def test_the_panel_never_covers_the_whole_screen(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.pause()
+        body = pilot.app.query_one("#body")
+
+        assert body.region.width < pilot.app.size.width

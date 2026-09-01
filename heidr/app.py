@@ -129,14 +129,15 @@ class HeidrApp(App):
         return self.context
 
     def compose(self) -> ComposeResult:
-        # The animation fills the screen and the panel sits on top of it, so a
-        # painter has the whole terminal to grow into and the text stays
-        # readable on its own opaque ground.
+        # The animation fills the screen and the panel floats on top of it,
+        # sized by what it holds. Nothing else may cover the canvas: a widget
+        # above it hides its characters even when its background is
+        # transparent, which is how the animations vanished once already.
         yield Canvas(self.terminal.glyphs, id="visual")
-        with Vertical(id="frame"):
-            yield Static(self._splash(), id="body")
-        yield StatusLine(id="status")
-        yield CommandLine(id="cmdline")
+        yield Static(self._splash(), id="body")
+        with Vertical(id="chrome"):
+            yield StatusLine(id="status")
+            yield CommandLine(id="cmdline")
 
     def on_mount(self) -> None:
         self.show_idle()

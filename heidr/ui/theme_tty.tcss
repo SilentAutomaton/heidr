@@ -5,6 +5,7 @@ Screen {
     background: black;
     color: white;
     layers: back front;
+    align: center middle;
 }
 
 #visual {
@@ -20,17 +21,11 @@ Screen {
     width: 100%;
 }
 
-#frame {
-    layer: front;
-    height: 1fr;
-    align: center middle;
-    background: transparent;
-}
-
 #body {
+    layer: front;
     width: auto;
     height: auto;
-    max-width: 100%;
+    max-width: 90%;
     max-height: 100%;
     padding: 1 2;
     background: black;
@@ -38,8 +33,13 @@ Screen {
     overflow: hidden;
 }
 
-StatusLine {
+#chrome {
     layer: front;
+    dock: bottom;
+    height: 2;
+}
+
+StatusLine {
     height: 1;
     background: white;
     color: black;
@@ -47,7 +47,6 @@ StatusLine {
 }
 
 CommandLine {
-    layer: front;
     height: 1;
     background: black;
     color: white;

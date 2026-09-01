@@ -1,6 +1,7 @@
 Screen {
     background: $surface;
     layers: back front;
+    align: center middle;
 }
 
 #visual {
@@ -17,18 +18,13 @@ Screen {
 }
 
 /* The panel floats in the middle of the animation and grows with what it
-   holds, up to the size of the terminal. */
-#frame {
-    layer: front;
-    height: 1fr;
-    align: center middle;
-    background: transparent;
-}
-
+   holds, up to the size of the terminal. It must never fill the screen: what
+   it covers, it hides. */
 #body {
+    layer: front;
     width: auto;
     height: auto;
-    max-width: 100%;
+    max-width: 90%;
     max-height: 100%;
     padding: 1 2;
     background: $surface;
@@ -36,8 +32,13 @@ Screen {
     overflow: hidden;
 }
 
-StatusLine {
+#chrome {
     layer: front;
+    dock: bottom;
+    height: 2;
+}
+
+StatusLine {
     height: 1;
     background: $primary-darken-2;
     color: $text;
@@ -45,7 +46,6 @@ StatusLine {
 }
 
 CommandLine {
-    layer: front;
     height: 1;
     background: $surface;
     color: $text-muted;
