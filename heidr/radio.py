@@ -1,5 +1,7 @@
+import math
 import random
 import shutil
+import statistics
 import subprocess
 import time
 from typing import Iterator
@@ -12,6 +14,9 @@ from heidr.stt.base import RATE as SPEECH_RATE
 
 BLOCK = 4096
 GRID = 200
+HEADER = 6
+MARGIN_DB = 8.0
+SEPARATION_HZ = 200_000
 
 
 def band_edges(band: str) -> tuple[float, float]:
@@ -20,27 +25,96 @@ def band_edges(band: str) -> tuple[float, float]:
     return float(low) * 1e6, float(high) * 1e6
 
 
-def plan(band: str, sweep: str, stops: int, rng: random.Random) -> list[float]:
+def plan(
+    band: str,
+    sweep: str,
+    stops: int,
+    rng: random.Random,
+    among: list[float] | None = None,
+) -> list[float]:
     """Which frequencies to visit, in which order.
 
     Four sweep modes, after gqrx-ghostbox by Doug Haber (ISC).
     https://github.com/DougHaber/gqrx-ghostbox
+
+    Without `among` the band is divided evenly and the sweep walks the grid,
+    landing wherever it lands. With `among` — a list of frequencies a scan found
+    carriers on — the same four orders are applied to those instead.
     """
-    low, high = band_edges(band)
     stops = max(1, stops)
+    grid = sorted(among) if among is not None else _even_grid(band, sweep, stops)
+    if not grid:
+        return []
 
     if sweep == "random":
-        grid = [low + (high - low) * index / (GRID - 1) for index in range(GRID)]
         return rng.sample(grid, min(stops, len(grid)))
 
     if sweep == "bounce":
         half = max(2, stops // 2 + stops % 2)
-        up = [low + (high - low) * index / (half - 1) for index in range(half)]
+        up = grid[:half] if among is not None else grid
         return (up + up[-2::-1])[:stops]
 
-    step = (high - low) / max(stops - 1, 1)
-    ascending = [low + step * index for index in range(stops)]
+    ascending = grid[:stops]
     return ascending if sweep == "forward" else ascending[::-1]
+
+
+def _even_grid(band: str, sweep: str, stops: int) -> list[float]:
+    low, high = band_edges(band)
+    count = GRID if sweep == "random" else (max(2, stops // 2 + stops % 2) if sweep == "bounce" else stops)
+    return [low + (high - low) * index / max(count - 1, 1) for index in range(count)]
+
+
+def power_bins(csv: str) -> list[tuple[int, float]]:
+    """Every bin of an rtl_power sweep as a frequency and a power in decibels."""
+    bins = []
+    for line in csv.splitlines():
+        fields = [field.strip() for field in line.split(",")]
+        if len(fields) <= HEADER:
+            continue
+        low, step = int(fields[2]), float(fields[4])
+        for index, reading in enumerate(fields[HEADER:]):
+            try:
+                power = float(reading)
+            except ValueError:
+                continue
+            if math.isfinite(power):
+                bins.append((int(low + index * step), power))
+    return bins
+
+
+def stations(
+    bins: list[tuple[int, float]],
+    margin: float = MARGIN_DB,
+    separation: int = SEPARATION_HZ,
+    limit: int = 20,
+) -> list[tuple[int, float]]:
+    """Carriers that stand above the noise floor, strongest first.
+
+    A broadcast sits ten decibels or more above the median of the band, so the
+    median is the floor and anything well above it is a transmitter. Bins closer
+    together than one channel belong to the same station, and only its loudest
+    bin is kept.
+    """
+    if not bins:
+        return []
+    floor = statistics.median(power for _hertz, power in bins)
+    strong = sorted(
+        (pair for pair in bins if pair[1] >= floor + margin), key=lambda pair: pair[1], reverse=True
+    )
+
+    found: list[tuple[int, float]] = []
+    for hertz, power in strong:
+        if all(abs(hertz - taken) >= separation for taken, _ in found):
+            found.append((hertz, power))
+        if len(found) >= limit:
+            break
+    return found
+
+
+def scan(band: str, step: str, seconds: int) -> str:
+    command = ["rtl_power", "-f", f"{band}:{step}", "-i", str(seconds), "-1", "-"]
+    finished = subprocess.run(command, capture_output=True, text=True, timeout=seconds + 30)
+    return finished.stdout
 
 
 def capture(frequency: float, mode: str, rate: int, seconds: float, gain: str = "") -> Iterator[np.ndarray]:
@@ -75,8 +149,14 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     """
     settings = ctx.settings
     rng = random.Random(key.seed)
-    stops = plan(settings["band"], settings["sweep"], int(settings["stops"]), rng)
     rate = int(settings["rate"])
+    stops = plan(
+        settings["band"],
+        settings["sweep"],
+        int(settings["stops"]),
+        rng,
+        among=_carriers(ctx) if settings.get("tuned") else None,
+    )
     output = output or audio.Output(audio.Levels.from_config(ctx.config), rate)
 
     heard: list[np.ndarray] = []
@@ -96,6 +176,20 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
             "other program, then draw again."
         )
     return transcribe(ctx, heard), stops
+
+
+def _carriers(ctx) -> list[float]:
+    """Scan first, so the dwell happens on transmitters rather than on air.
+
+    Landing on empty spectrum wastes the dwell and gives the recogniser nothing
+    but hiss to invent words out of. A scan costs a few seconds once and makes
+    every stop a real broadcast.
+    """
+    found = stations(
+        power_bins(scan(ctx.settings["band"], ctx.settings["scan_step"], int(ctx.settings["scan_s"])))
+    )
+    ctx.emit("stage", f"scan found {len(found)} carriers")
+    return [float(hertz) for hertz, _power in found]
 
 
 def downsample(block: np.ndarray, factor: int) -> np.ndarray:

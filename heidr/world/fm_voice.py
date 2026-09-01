@@ -17,6 +17,9 @@ available = radio.available
         "mode": "wbfm",
         "rate": 32000,
         "bins": 64,
+        "tuned": True,
+        "scan_step": "100k",
+        "scan_s": 4,
     },
 )
 def run(ctx, key: Key) -> Material:

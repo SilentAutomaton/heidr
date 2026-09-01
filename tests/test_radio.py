@@ -111,6 +111,7 @@ def test_a_sweep_plays_transcribes_and_reports(stub_context, events, monkeypatch
     ctx.stt = FakeSpeech(["a voice from the band"])
     found, scoped = ready(ctx, "fm_voice")
     scoped.stt = ctx.stt
+    scoped.settings["tuned"] = False
 
     tone = np.sin(np.linspace(0, 50, 4096)).astype(np.float32)
     monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([tone, tone]))
@@ -123,6 +124,27 @@ def test_a_sweep_plays_transcribes_and_reports(stub_context, events, monkeypatch
     assert [name for name, _ in events].count("spectrum") == 12
     assert any(name == "stage" for name, _ in events)
     assert output.stream is None
+
+
+def test_a_tuned_sweep_dwells_only_where_the_scan_found_carriers(stub_context, events, monkeypatch):
+    ctx = stub_context.with_capabilities("sdr", "stt")
+    ctx.stt = FakeSpeech(["one clear station"])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+
+    monkeypatch.setattr(radio, "scan", lambda band, step, seconds: SWEEP_CSV)
+    visited = []
+
+    def capture(frequency, mode, rate, seconds, gain=""):
+        visited.append(frequency)
+        return iter([np.zeros(4096, dtype=np.float32)])
+
+    monkeypatch.setattr(radio, "capture", capture)
+
+    found.run(scoped, Key(seed=3))
+
+    assert sorted(visited) == [88300000.0, 88800000.0]
+    assert any("scan found 2 carriers" in str(payload) for name, payload in events if name == "stage")
 
 
 def test_a_silent_band_still_produces_material(stub_context, monkeypatch):
@@ -146,6 +168,7 @@ def test_a_radio_that_gives_nothing_at_all_says_why(stub_context, monkeypatch):
     found, scoped = ready(ctx, "fm_voice")
     scoped.stt = ctx.stt
 
+    scoped.settings["tuned"] = False
     monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([]))
 
     with pytest.raises(Unavailable) as refused:
@@ -159,3 +182,70 @@ def test_voice_modules_need_both_a_radio_and_a_recogniser(stub_context):
         module = registry.MODULES["world"][name]
         assert module.available(stub_context) is False
         assert module.available(stub_context.with_capabilities("sdr")) is False
+
+
+SWEEP_CSV = """\
+2026-09-01, 06:00:00, 88000000, 88300000, 100000.00, 40, 1.0, 1.2, 0.8
+2026-09-01, 06:00:00, 88300000, 88600000, 100000.00, 40, 14.0, 13.2, 1.1
+2026-09-01, 06:00:00, 88600000, 88900000, 100000.00, 40, 0.9, 1.4, 12.5
+"""
+
+
+def test_every_bin_of_a_sweep_is_read():
+    bins = radio.power_bins(SWEEP_CSV)
+
+    assert len(bins) == 9
+    assert bins[0] == (88000000, 1.0)
+    assert bins[3] == (88300000, 14.0)
+
+
+def test_carriers_stand_above_the_noise_floor():
+    found = radio.stations(radio.power_bins(SWEEP_CSV))
+
+    # 88.3 and 88.4 are one transmitter, so only its loudest bin counts.
+    assert [hertz for hertz, _power in found] == [88300000, 88800000]
+
+
+def test_a_wider_separation_merges_more():
+    found = radio.stations(radio.power_bins(SWEEP_CSV), separation=1_000_000)
+
+    assert found == [(88300000, 14.0)]
+
+
+def test_a_quiet_band_yields_no_carriers():
+    quiet = "2026-09-01, 06:00:00, 88000000, 88200000, 100000.00, 40, 1.0, 1.1"
+
+    assert radio.stations(radio.power_bins(quiet)) == []
+    assert radio.stations([]) == []
+
+
+def test_bins_the_scanner_could_not_measure_are_dropped():
+    unreadable = "2026-09-01, 06:00:00, 88000000, 88200000, 100000.00, 40, nan, 3.0"
+
+    assert radio.power_bins(unreadable) == [(88100000, 3.0)]
+
+
+def test_a_tuned_sweep_visits_only_the_carriers_found():
+    carriers = [95.0e6, 101.0e6, 106.2e6]
+
+    stops = radio.plan(BAND, "forward", 2, random.Random(1), among=carriers)
+
+    assert stops == [95.0e6, 101.0e6]
+
+
+def test_a_tuned_random_sweep_stays_among_the_carriers():
+    carriers = [95.0e6, 101.0e6, 106.2e6]
+
+    stops = radio.plan(BAND, "random", 3, random.Random(4), among=carriers)
+
+    assert sorted(stops) == carriers
+
+
+def test_a_tuned_sweep_asks_for_more_stops_than_there_are_stations():
+    stops = radio.plan(BAND, "forward", 9, random.Random(1), among=[95.0e6])
+
+    assert stops == [95.0e6]
+
+
+def test_a_scan_that_finds_nothing_leaves_no_stops():
+    assert radio.plan(BAND, "forward", 4, random.Random(1), among=[]) == []
