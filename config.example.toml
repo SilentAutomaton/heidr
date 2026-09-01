@@ -57,3 +57,22 @@ reversals = true
 
 [modules.iching]
 corpus = ""             # path to your own hexagram texts
+
+[modules.rtl_peak]
+band = "88M:108M"
+step = "100k"
+seconds = 20
+
+[modules.ism]
+frequency = "433.92M"
+seconds = 45
+
+[modules.adsb_local]
+# dump1090 must already be running and serving BaseStation format.
+host = "127.0.0.1"
+port = 30003
+seconds = 45
+
+[modules.sdr_noise]
+frequency = "88000000"  # something with nothing on it
+seconds = 3.0
