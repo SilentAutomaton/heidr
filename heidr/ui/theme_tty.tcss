@@ -27,7 +27,7 @@ CommandLine {
 }
 
 #visual {
-    height: 8;
+    height: 40%;
     color: white;
     overflow: hidden;
 }

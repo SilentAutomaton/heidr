@@ -32,14 +32,20 @@ def _typed(value: str):
 
 MIN_COLUMNS = 40
 MIN_ROWS = 12
-# The animation pane, the status line and the command line. The stylesheets
-# must agree, and a test says so.
-VISUAL_ROWS = 8
+# The animation takes a share of the screen rather than a fixed strip, so every
+# painter grows when the terminal does. The stylesheets must agree, and a test
+# says so.
+VISUAL_SHARE = 40
 # Drawn by lot, like everything else here. The fallback is fixed so that a
 # missing animation cannot send the chooser round in circles.
 IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon")
 IDLE = "plasma"
-CHROME_ROWS = VISUAL_ROWS + 2
+# The status line and the command line, which never change height.
+CHROME_ROWS = 2
+
+
+def visual_rows(height: int) -> int:
+    return height * VISUAL_SHARE // 100
 THEMES = Path(__file__).resolve().parent / "ui"
 
 
@@ -230,6 +236,10 @@ class HeidrApp(App):
         self.show_idle()
         if drawn.rite.silent:
             self.query_one(CommandLine).say(text("status.silent"))
+        elif not drawn.lines:
+            # A reading that yields nothing is not an error, but the screen
+            # would otherwise look the same as one that simply finished.
+            self.query_one(CommandLine).say(text("status.no_answer"))
 
     def do_stop(self) -> None:
         if self.drawing:
@@ -296,7 +306,7 @@ class HeidrApp(App):
             return text("error.small_terminal", cols=MIN_COLUMNS, rows=MIN_ROWS)
         if self.view in ("modules", "settings", "ledger"):
             # One more line is kept for the "n of m" footer.
-            room = size.height - CHROME_ROWS - 1
+            room = size.height - visual_rows(size.height) - CHROME_ROWS - 1
             return browser.render(self.rows, self.cursor, getattr(self, "empty", ""), room)
         if self.view == "text":
             return self.body_text

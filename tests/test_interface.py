@@ -280,9 +280,9 @@ def test_the_stylesheets_agree_with_the_layout_arithmetic():
     """The body's height is computed, so the pane it is computed from must match."""
     from pathlib import Path
 
-    from heidr.app import VISUAL_ROWS
+    from heidr.app import VISUAL_SHARE
 
     for name in ("theme_full.tcss", "theme_tty.tcss"):
         style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
         block = style.split("#visual")[1]
-        assert f"height: {VISUAL_ROWS};" in block
+        assert f"height: {VISUAL_SHARE}%;" in block
