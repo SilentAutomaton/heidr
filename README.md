@@ -124,6 +124,9 @@ typed before; commands and questions are kept in two files under
 edits the configuration, `:ledger` reads past draws, `:checkhealth` explains
 what is missing, `:w` saves, `:q` leaves.
 
+Every stage brings its own animation, and adding one is a single file too:
+see [docs/en/animations.md](docs/en/animations.md).
+
 Adding a module is one file: see [docs/en/module-guide.md](docs/en/module-guide.md).
 Dropping that file into `~/.config/heidr/modules/` is enough — the core is never
 edited.
