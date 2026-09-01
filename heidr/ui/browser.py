@@ -40,6 +40,16 @@ def setting_rows(config) -> list[tuple[str, str]]:
     return rows
 
 
+def ledger_rows(ledger) -> list[tuple[str, str]]:
+    """Past draws, newest last, the way the files sit on disk."""
+    rows = []
+    for entry in ledger.entries():
+        date = entry.get("Date")[:16].replace("T", " ")
+        rite = entry.get("Rite") or "-"
+        rows.append((entry.identifier, f"{entry.identifier}  {date}  {entry.get('Status'):<8} {rite}"))
+    return rows
+
+
 def render(rows: list[tuple[str, str]], cursor: int, empty: str) -> str:
     if not rows:
         return empty

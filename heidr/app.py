@@ -141,8 +141,10 @@ class HeidrApp(App):
             line.close()
             self.edit_mode = "NORMAL"
         elif event.key == "enter":
-            accept(line.close())
+            # Leave the line first, so a command that changes the mode wins.
+            typed = line.close()
             self.edit_mode = "NORMAL"
+            accept(typed)
         elif event.key == "backspace":
             line.backspace()
         elif event.character and event.character.isprintable():
@@ -245,6 +247,13 @@ class HeidrApp(App):
         checks = health.report(self.probe(), self.terminal, self.ledger)
         self.query_one("#body", Static).update(health.as_text(checks))
 
+    def do_draw(self) -> None:
+        # A draw needs a question, so asking for one is the whole of it.
+        self.do_ask()
+
+    def do_ledger(self) -> None:
+        self._open_browser("ledger", browser.ledger_rows(self.ledger), text("empty.ledger"))
+
     def do_modules(self) -> None:
         self._open_browser("modules", browser.module_rows(self.probe()), text("empty.modules"))
 
@@ -270,7 +279,7 @@ class HeidrApp(App):
         self._move_cursor(-1)
 
     def _move_cursor(self, step: int) -> None:
-        if self.view not in ("modules", "settings") or not self.rows:
+        if self.view not in ("modules", "settings", "ledger") or not self.rows:
             return
         self.cursor = max(0, min(len(self.rows) - 1, self.cursor + step))
         self._show_rows()
@@ -280,6 +289,16 @@ class HeidrApp(App):
             self._toggle_module()
         elif self.view == "settings":
             self._edit_setting()
+        elif self.view == "ledger":
+            self._show_entry()
+
+    def _show_entry(self) -> None:
+        identifier, _line = self.rows[self.cursor]
+        found = [entry for entry in self.ledger.entries() if entry.identifier == identifier]
+        if not found:
+            return
+        self.view = "rite"
+        self.query_one("#body", Static).update(found[0].body or text("status.silent"))
 
     def _toggle_module(self) -> None:
         key, _line = self.rows[self.cursor]
@@ -334,6 +353,10 @@ class HeidrApp(App):
             self.do_modules()
         elif name == "checkhealth":
             self.do_checkhealth()
+        elif name == "ledger":
+            self.do_ledger()
+        elif name in ("ask", "draw"):
+            self.do_ask()
         elif name == "settings":
             self.do_settings()
         elif name in ("w", "write"):
@@ -382,5 +405,8 @@ class HeidrApp(App):
             for key, action in sorted(self.keymap[section].items()):
                 lines.append(f"  {key:<16} {action}")
             lines.append("")
-        lines.append("Commands: :q :help :vol N :mute :set option=value")
+        lines.append(
+            "Commands: :ask :draw :ledger :modules :settings :set option=value "
+            ":vol N :mute :checkhealth :w :help :q"
+        )
         return "\n".join(lines)
