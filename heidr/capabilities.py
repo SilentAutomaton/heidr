@@ -60,7 +60,13 @@ def _graphics(env: dict[str, str], term: str) -> str:
     return "none"
 
 
-def detect_capabilities(config, timeout: float = 0.4) -> frozenset[str]:
+def detect_capabilities(timeout: float = 0.4) -> frozenset[str]:
+    """What this machine can do right now.
+
+    Only the things that can be answered by looking. Whether a language model or
+    a speech provider really works is settled by building one, not by reading a
+    name out of the configuration, so those two are added later by the app.
+    """
     found = set()
     if _network_reachable(timeout):
         found.add("net")
@@ -68,10 +74,6 @@ def detect_capabilities(config, timeout: float = 0.4) -> frozenset[str]:
         found.add("sdr")
     if _audio_present():
         found.add("audio")
-    if config.get("llm.provider"):
-        found.add("llm")
-    if config.get("stt.provider"):
-        found.add("stt")
     return frozenset(found & set(CAPABILITIES))
 
 

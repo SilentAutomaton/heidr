@@ -19,6 +19,9 @@ class Anthropic:
         self.key = config.secret("llm.api_key_env")
         self.key_name = config.get("llm.api_key_env", "")
 
+    def available(self) -> bool:
+        return bool(self.key)
+
     def stream(self, messages: list[Message]) -> Iterator[str]:
         if not self.key:
             raise Unavailable(

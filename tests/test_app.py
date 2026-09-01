@@ -191,3 +191,13 @@ async def test_voice_input_says_what_is_missing(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("i", "ctrl+v")
         assert "speech provider" in pilot.app.query_one(CommandLine).message
+
+
+@pytest.mark.asyncio
+async def test_an_explicit_capability_set_keeps_providers_out(default_config):
+    """A test must never reach a real daemon, so the override is the whole truth."""
+    async with make_app(default_config).run_test() as pilot:
+        context = pilot.app.probe()
+
+        assert context.capabilities == frozenset()
+        assert context.llm is None and context.stt is None

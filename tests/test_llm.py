@@ -131,3 +131,22 @@ def test_build_lists_the_choices_when_the_name_is_wrong(default_config):
 def test_broken_json_in_a_stream_is_skipped():
     lines = [b'data: {"choices":[{"delta":{"content":"kept"}}]}', b"data: {not json", b"noise"]
     assert [p for p in base.sse_payloads(iter(lines))]
+
+
+def test_a_daemon_that_is_not_listening_is_not_available(default_config):
+    default_config.set("llm.base_url", "http://127.0.0.1:1")
+    assert ollama.Ollama(default_config).available() is False
+
+
+def test_a_hosted_service_needs_a_key_to_count(default_config, monkeypatch):
+    default_config.set("llm.base_url", "https://api.groq.com/openai")
+    monkeypatch.delenv("HEIDR_LLM_KEY", raising=False)
+    assert openai_compat.OpenAICompatible(default_config).available() is False
+
+    monkeypatch.setenv("HEIDR_LLM_KEY", "secret-value")
+    assert openai_compat.OpenAICompatible(default_config).available() is True
+
+
+def test_anthropic_counts_only_with_a_key(default_config, monkeypatch):
+    monkeypatch.delenv("HEIDR_LLM_KEY", raising=False)
+    assert anthropic.Anthropic(default_config).available() is False

@@ -58,32 +58,36 @@ class HeidrApp(App):
         super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss")
 
     def probe(self) -> Context:
-        found = self.capabilities_found
-        if found is None:
-            found = capabilities.detect_capabilities(self.settings)
+        allowed = self.capabilities_found
+        found = allowed if allowed is not None else capabilities.detect_capabilities()
 
-        # A provider that cannot be built is not a provider, so the modules
-        # that need one drop out of the lottery instead of failing halfway
-        # through a rite.
-        provider = None
-        if "llm" in found:
-            try:
-                provider = llm.build(self.settings)
-            except Unavailable:
-                found = found - {"llm"}
+        # A provider that cannot be built is not a provider. The capability is
+        # granted by building one, so a module that needs it is never handed a
+        # provider that does not work.
+        provider = self._provider(llm.build, "llm", allowed)
+        listener = self._provider(stt.build, "stt", allowed)
 
-        listener = None
-        if "stt" in found:
-            try:
-                listener = stt.build(self.settings)
-            except Unavailable:
-                listener = None
-            if listener is None or not listener.available():
-                listener = None
-                found = found - {"stt"}
+        found = found - {"llm", "stt"}
+        if provider is not None:
+            found = found | {"llm"}
+        if listener is not None:
+            found = found | {"stt"}
 
         self.context = replace(self.context, capabilities=found, llm=provider, stt=listener)
         return self.context
+
+    def _provider(self, make, capability: str, allowed):
+        # An explicit capability set is the whole truth, which is how a test
+        # keeps the interface away from a real daemon.
+        if allowed is not None and capability not in allowed:
+            return None
+        try:
+            built = make(self.settings)
+        except Unavailable:
+            return None
+        if hasattr(built, "available") and not built.available():
+            return None
+        return built
 
     def compose(self) -> ComposeResult:
         with Vertical():

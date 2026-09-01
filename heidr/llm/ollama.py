@@ -1,4 +1,6 @@
+import socket
 from typing import Iterator
+from urllib.parse import urlparse
 
 import requests
 
@@ -12,6 +14,15 @@ class Ollama:
         self.base_url = config.get("llm.base_url", "http://localhost:11434").rstrip("/")
         self.model = config.get("llm.model", "")
         self.timeout = config.get("llm.timeout", 120)
+
+    def available(self) -> bool:
+        # Building the object proves nothing; the daemon has to answer.
+        parsed = urlparse(self.base_url)
+        try:
+            socket.create_connection((parsed.hostname, parsed.port or 11434), timeout=0.4).close()
+            return True
+        except OSError:
+            return False
 
     def stream(self, messages: list[Message]) -> Iterator[str]:
         reply = requests.post(
