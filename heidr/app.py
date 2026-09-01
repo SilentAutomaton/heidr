@@ -35,6 +35,9 @@ MIN_ROWS = 12
 # The animation pane, the status line and the command line. The stylesheets
 # must agree, and a test says so.
 VISUAL_ROWS = 8
+# Drawn by lot, like everything else here. The fallback is fixed so that a
+# missing animation cannot send the chooser round in circles.
+IDLE_POOL = ("drift", "life", "rain", "starfield", "moon")
 IDLE = "drift"
 CHROME_ROWS = VISUAL_ROWS + 2
 THEMES = Path(__file__).resolve().parent / "ui"
@@ -116,7 +119,7 @@ class HeidrApp(App):
             yield CommandLine(id="cmdline")
 
     def on_mount(self) -> None:
-        self.show_visual(IDLE)
+        self.show_idle()
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -215,7 +218,7 @@ class HeidrApp(App):
 
     def _draw_over(self, message: str) -> None:
         self.drawing = False
-        self.show_visual(IDLE)
+        self.show_idle()
         self.query_one(CommandLine).say(message)
 
     def _drawn(self, drawn) -> None:
@@ -224,7 +227,7 @@ class HeidrApp(App):
         self.view = "rite"
         self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
         self._show_transcript()
-        self.show_visual(IDLE)
+        self.show_idle()
         if drawn.rite.silent:
             self.query_one(CommandLine).say(text("status.silent"))
 
@@ -283,6 +286,11 @@ class HeidrApp(App):
         return "\n".join(self.transcript) if self.transcript else self._splash()
 
     # Visualisations
+
+    def show_idle(self) -> None:
+        import random
+
+        self.show_visual(random.choice(IDLE_POOL))
 
     def show_visual(self, name: str) -> None:
         """Swap the painter on the one canvas; nothing is mounted or removed."""

@@ -108,17 +108,22 @@ def test_an_animation_fits_the_space_it_is_given(name, size):
 
 
 @pytest.mark.parametrize("name", sorted(registry.ANIMATIONS))
-def test_an_animation_repeats_for_the_same_frame(name):
-    for entry in registry.ANIMATIONS[name]:
-        if name == "reveal":
-            continue  # noise by design; its own test covers what is stable
-        first = entry.make()
-        second = entry.make()
-        for painter in (first, second):
-            painter.feed([0.2, 0.8] * 8)
+def test_repainting_the_same_frame_changes_nothing(name):
+    """A tick is one step. Drawing it twice must not advance anything.
 
-        shape = frame(40, 6, tick=5, ramp=first.ramp)
-        assert first.paint(shape) == second.paint(shape)
+    Textual repaints whenever it likes — on a resize, on a scroll — and an
+    animation that stepped on every repaint would run at the speed of the
+    terminal rather than its own.
+    """
+    if name == "reveal":
+        return  # noise by design; its own tests cover what is stable
+
+    for entry in registry.ANIMATIONS[name]:
+        painter = entry.make()
+        painter.feed([0.2, 0.8] * 8)
+        shape = frame(40, 6, tick=5, ramp=painter.ramp)
+
+        assert painter.paint(shape) == painter.paint(shape)
 
 
 def test_an_animation_with_no_data_yet_draws_nothing_rather_than_failing():
@@ -222,3 +227,77 @@ async def test_swapping_a_painter_unsubscribes_the_old_one(default_config):
         pilot.app.bus.emit("spectrum", [1.0] * 4)
 
         assert list(first.rows) == []
+
+
+# Life
+
+
+def test_a_block_is_a_still_life():
+    from heidr.visuals.art.life import step
+
+    block = {(1, 1), (1, 2), (2, 1), (2, 2)}
+
+    assert step(block, 8, 8) == block
+
+
+def test_a_blinker_has_a_period_of_two():
+    from heidr.visuals.art.life import step
+
+    vertical = {(2, 1), (2, 2), (2, 3)}
+    horizontal = step(vertical, 8, 8)
+
+    assert horizontal == {(1, 2), (2, 2), (3, 2)}
+    assert step(horizontal, 8, 8) == vertical
+
+
+def test_a_lonely_cell_dies():
+    from heidr.visuals.art.life import step
+
+    assert step({(3, 3)}, 8, 8) == set()
+
+
+def test_the_board_is_sown_again_when_it_settles():
+    from heidr.visuals.art.life import Life
+
+    painter = Life()
+    painter.reseed(20, 8)
+    painter.cells = {(1, 1), (1, 2), (2, 1), (2, 2)}
+    for tick in range(6):
+        painter.paint(frame(20, 8, tick=tick, ramp=painter.ramp))
+
+    assert painter.cells != {(1, 1), (1, 2), (2, 1), (2, 2)}
+
+
+# Moon
+
+
+def test_a_full_moon_is_lit_all_over():
+    import math
+
+    from heidr.visuals.art.moon import disc
+
+    drawn = "".join(disc(28, 9, math.pi, BLOCKS))
+
+    assert "▂" not in drawn
+    assert "█" in drawn
+
+
+def test_a_new_moon_is_dark_all_over():
+    from heidr.visuals.art.moon import disc
+
+    drawn = "".join(disc(28, 9, 0.01, BLOCKS))
+
+    assert "█" not in drawn
+    assert "▂" in drawn
+
+
+def test_the_quarters_light_opposite_halves():
+    import math
+
+    from heidr.visuals.art.moon import disc
+
+    first = disc(28, 9, math.pi / 2, BLOCKS)[4]
+    last = disc(28, 9, 3 * math.pi / 2, BLOCKS)[4]
+
+    assert first.index("█") > last.index("█")
+    assert first.rstrip()[-1] == "█" and last.strip()[0] == "█"
