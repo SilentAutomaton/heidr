@@ -23,6 +23,8 @@ api_key_env = "HEIDR_LLM_KEY"
 [stt]
 provider = "vosk"       # vosk, whisper_cpp, api
 model_path = ""         # directory for vosk, .bin file for whisper.cpp
+api_key_env = "HEIDR_STT_KEY"
+window_s = 30           # whisper.cpp window length
 
 [rite]
 silence_chance = 0.125  # how often the oracle refuses to answer

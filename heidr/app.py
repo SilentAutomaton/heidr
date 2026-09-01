@@ -6,7 +6,7 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import audio, capabilities, config, keymap, llm, registry, rite, session
+from heidr import audio, capabilities, config, keymap, llm, registry, rite, session, stt
 from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
@@ -44,17 +44,27 @@ class HeidrApp(App):
         if found is None:
             found = capabilities.detect_capabilities(self.settings)
 
+        # A provider that cannot be built is not a provider, so the modules
+        # that need one drop out of the lottery instead of failing halfway
+        # through a rite.
         provider = None
         if "llm" in found:
             try:
                 provider = llm.build(self.settings)
             except Unavailable:
-                # A provider that cannot be built is not a provider, so the
-                # readings that need one drop out of the lottery instead of
-                # failing halfway through a rite.
                 found = found - {"llm"}
 
-        self.context = replace(self.context, capabilities=found, llm=provider)
+        listener = None
+        if "stt" in found:
+            try:
+                listener = stt.build(self.settings)
+            except Unavailable:
+                listener = None
+            if listener is None or not listener.available():
+                listener = None
+                found = found - {"stt"}
+
+        self.context = replace(self.context, capabilities=found, llm=provider, stt=listener)
         return self.context
 
     def compose(self) -> ComposeResult:

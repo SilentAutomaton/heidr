@@ -22,7 +22,7 @@ DEFAULTS: dict[str, Any] = {
         "base_url": "http://localhost:11434",
         "api_key_env": "HEIDR_LLM_KEY",
     },
-    "stt": {"provider": "vosk", "model_path": ""},
+    "stt": {"provider": "vosk", "model_path": "", "api_key_env": "HEIDR_STT_KEY"},
     "rite": {"silence_chance": 0.125, "recent_penalty": 4},
     "ledger": {"path": "~/.local/share/heidr/ledger"},
     "modules": {},

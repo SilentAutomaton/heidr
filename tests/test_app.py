@@ -170,3 +170,17 @@ async def test_muting_reaches_the_output_and_not_only_the_status_line(default_co
 
         await pilot.press("colon", *"mute", "enter")
         assert pilot.app.levels.muted is False
+
+
+@pytest.mark.asyncio
+async def test_a_speech_provider_without_a_model_removes_the_capability(default_config):
+    app = HeidrApp(
+        settings=default_config,
+        user_dir=Path("/nonexistent"),
+        terminal=FULL,
+        capabilities_found=frozenset({"stt"}),
+    )
+    async with app.run_test():
+        context = app.probe()
+        assert "stt" not in context.capabilities
+        assert context.stt is None
