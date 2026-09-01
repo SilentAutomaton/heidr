@@ -5,6 +5,8 @@ import pytest
 from heidr import config, registry
 from heidr.contracts import Context
 
+registry.discover()
+
 
 @pytest.fixture
 def config_dirs(tmp_path):
@@ -40,9 +42,12 @@ def stub_context(default_config, events):
 
 @pytest.fixture
 def temporary_slot():
-    """Let a test register modules without leaking them into the next one."""
+    """Give the test an empty registry, and put the real one back afterwards."""
     modules = copy.deepcopy(registry.MODULES)
     visuals = copy.deepcopy(registry.VISUALS)
+    for slot in registry.MODULES:
+        registry.MODULES[slot] = {}
+    registry.VISUALS.clear()
     yield
     registry.MODULES.clear()
     registry.MODULES.update(modules)

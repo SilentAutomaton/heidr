@@ -33,3 +33,6 @@ include = ["heidr*"]
 testpaths = ["tests"]
 markers = ["live: needs real network, radio hardware or an audio device"]
 addopts = "-m 'not live'"
+
+[tool.setuptools.package-data]
+heidr = ["data/*.txt", "ui/*.tcss"]
