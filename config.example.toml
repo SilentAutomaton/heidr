@@ -35,14 +35,16 @@ path = "~/.local/share/heidr/ledger"
 
 # Per module settings. The section name is the module name.
 [modules.fm_voice]
-sweep = "random"        # forward, backward, bounce, random
-dwell_s = 4
 band = "88.0-108.0"
+sweep = "random"        # forward, backward, bounce, random
+stops = 6
+dwell_s = 4
 
 [modules.sw_voice]
-sweep = "bounce"
-dwell_s = 6
 band = "3.9-4.0"
+sweep = "bounce"
+stops = 6
+dwell_s = 6
 
 [modules.sky]
 # Your position. Without it the sky module stays out of the lottery.
