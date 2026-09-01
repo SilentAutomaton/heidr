@@ -19,6 +19,7 @@
 | [no-more-secrets](https://github.com/bartobri/no-more-secrets) | Brian Barto | GPL-3.0 | Проявление текста после нажатия клавиши |
 | [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) | Doug Haber | ISC | Режимы развёртки по частотам и задержка на частоте |
 | [dreamdir](https://github.com/sobjornstad/dreamdir) | Soren Bjornstad | MIT | Формат журнала: один текстовый файл на запись |
+| [asciimatics](https://github.com/peterbrittain/asciimatics) | Peter Brittain | Apache-2.0 | Плазменное поле и вращающаяся шестерня, переписанные под художников |
 
 ## Идеи и методы
 
@@ -36,6 +37,9 @@
 | [Stellium](https://github.com/katelouie/stellium) | katelouie | не проверена | Планетарные часы: семь управителей от восхода до восхода, дневные и ночные считаются отдельно |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic, Bo Tso | GPL | Перевод в дискордианский календарь |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | Северная звезда: смысл находится в том, что люди сказали случайно, а не порождается |
+| [Урок про плазму](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Четыре синусоиды, расходящиеся из четырёх точек, — это и есть плазма |
+| [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | Регистр падающих столбцов глифов |
+| Игра «Жизнь» Конвея | Джон Конвей, 1970 | общественное достояние | Правила, которые не нам менять |
 
 ## Внешние программы, вызываемые как процессы
 

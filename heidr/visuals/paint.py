@@ -61,3 +61,24 @@ def centre(grid: list[list[str]], art: list[str]) -> list[list[str]]:
 
 def lines(grid: list[list[str]]) -> list[str]:
     return ["".join(line) for line in grid]
+
+
+def line(grid: list[list[str]], x0: int, y0: int, x1: int, y1: int, mark: str) -> list[list[str]]:
+    """Bresenham, because several animations plot curves point by point."""
+    dx, dy = abs(x1 - x0), -abs(y1 - y0)
+    step_x = 1 if x0 < x1 else -1
+    step_y = 1 if y0 < y1 else -1
+    error = dx + dy
+
+    while True:
+        if 0 <= y0 < len(grid) and 0 <= x0 < len(grid[y0]):
+            grid[y0][x0] = mark
+        if x0 == x1 and y0 == y1:
+            return grid
+        doubled = error * 2
+        if doubled >= dy:
+            error += dy
+            x0 += step_x
+        if doubled <= dx:
+            error += dx
+            y0 += step_y

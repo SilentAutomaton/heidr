@@ -16,6 +16,7 @@ in public and reimplemented here.
 | [no-more-secrets](https://github.com/bartobri/no-more-secrets) | Brian Barto | GPL-3.0 | Keypress gated decryption reveal |
 | [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) | Doug Haber | ISC | Frequency sweep modes and dwell time design |
 | [dreamdir](https://github.com/sobjornstad/dreamdir) | Soren Bjornstad | MIT | Plain text one-file-per-entry ledger format |
+| [asciimatics](https://github.com/peterbrittain/asciimatics) | Peter Brittain | Apache-2.0 | The plasma field and the turning cog, adapted into painters |
 
 ## Ideas and methods
 
@@ -33,6 +34,9 @@ in public and reimplemented here.
 | [Stellium](https://github.com/katelouie/stellium) | katelouie | not verified | Planetary hours: seven rulers cycling from sunrise to sunrise, day and night hours counted apart |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic, Bo Tso | GPL | Discordian calendar conversion |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | The north star: meaning is found in what people said by accident, never generated |
+| [Plasma tutorial](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Four sine waves radiating from four points, which is what a plasma field is |
+| [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | The register of falling glyph columns |
+| Conway's Game of Life | John Conway, 1970 | public domain | The rules, which are not ours to adjust |
 
 ## External programs called as subprocesses
 

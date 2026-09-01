@@ -4,7 +4,7 @@ import pytest
 
 from heidr import registry
 from heidr.capabilities import Terminal
-from heidr.visuals.art import drift, reveal
+from heidr.visuals.art import plasma, reveal
 from heidr.visuals.canvas import Canvas, Frame
 from heidr.visuals.paint import ASCII, BLOCKS, BRAILLE, blank, centre, lines, resample, row, stamp
 
@@ -133,19 +133,40 @@ def test_an_animation_with_no_data_yet_draws_nothing_rather_than_failing():
                 assert entry.make().paint(frame()) == []
 
 
-# Drift
+# Plasma
 
 
-def test_the_drift_field_fills_the_space_it_is_given():
-    rows = drift.field(width=12, height=3, phase=0.0)
+def test_the_plasma_field_fills_the_space_it_is_given():
+    rows = plasma.field(width=12, height=3, phase=0.0)
 
     assert len(rows) == 3 and all(len(line) == 12 for line in rows)
     assert all(0.0 <= value <= 1.0 for line in rows for value in line)
 
 
-def test_the_drift_field_moves_with_its_phase():
-    assert drift.field(10, 2, phase=0.0) != drift.field(10, 2, phase=1.0)
-    assert drift.field(10, 2, phase=0.0) == drift.field(10, 2, phase=0.0)
+def test_the_plasma_field_moves_with_its_phase():
+    assert plasma.field(10, 2, phase=0.0) != plasma.field(10, 2, phase=5.0)
+    assert plasma.field(10, 2, phase=0.0) == plasma.field(10, 2, phase=0.0)
+
+
+def test_the_cog_turns():
+    from heidr.visuals.art.cog import cog
+    from heidr.visuals.paint import lines
+
+    assert lines(cog(40, 11, 0, "#")) != lines(cog(40, 11, 9, "#"))
+
+
+def test_a_line_reaches_both_ends():
+    from heidr.visuals.paint import blank, line, lines
+
+    drawn = lines(line(blank(5, 3), 0, 0, 4, 2, "#"))
+
+    assert drawn[0][0] == "#" and drawn[2][4] == "#"
+
+
+def test_a_line_outside_the_grid_does_not_fall_over():
+    from heidr.visuals.paint import blank, line, lines
+
+    assert lines(line(blank(3, 2), -5, -5, 9, 9, "#"))
 
 
 # Reveal
@@ -223,7 +244,7 @@ async def test_swapping_a_painter_unsubscribes_the_old_one(default_config):
         pilot.app.show_visual("waterfall")
         first = pilot.app.query_one("#visual", Canvas).painter
 
-        pilot.app.show_visual("drift")
+        pilot.app.show_visual("plasma")
         pilot.app.bus.emit("spectrum", [1.0] * 4)
 
         assert list(first.rows) == []

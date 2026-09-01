@@ -37,8 +37,8 @@ MIN_ROWS = 12
 VISUAL_ROWS = 8
 # Drawn by lot, like everything else here. The fallback is fixed so that a
 # missing animation cannot send the chooser round in circles.
-IDLE_POOL = ("drift", "life", "rain", "starfield", "moon")
-IDLE = "drift"
+IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon")
+IDLE = "plasma"
 CHROME_ROWS = VISUAL_ROWS + 2
 THEMES = Path(__file__).resolve().parent / "ui"
 
