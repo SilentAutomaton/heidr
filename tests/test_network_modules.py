@@ -1,4 +1,4 @@
-from heidr import registry
+from heidr import net, registry
 from heidr.contracts import Key
 from heidr.world import chain, quake, sky
 
@@ -13,7 +13,7 @@ def online(ctx):
 
 
 def test_quake_picks_an_event_by_the_key(stub_context, fake_get, fixture_json):
-    fake_get(quake, {"earthquake.usgs.gov": fixture_json("usgs")})
+    fake_get(net, {"earthquake.usgs.gov": fixture_json("usgs")})
     found, ctx = ready(stub_context, "quake")
 
     first = found.run(ctx, Key(seed=0))
@@ -25,14 +25,14 @@ def test_quake_picks_an_event_by_the_key(stub_context, fake_get, fixture_json):
 
 
 def test_quake_survives_a_missing_magnitude(stub_context, fake_get, fixture_json):
-    fake_get(quake, {"earthquake.usgs.gov": fixture_json("usgs")})
+    fake_get(net, {"earthquake.usgs.gov": fixture_json("usgs")})
     found, ctx = ready(stub_context, "quake")
 
     assert found.run(ctx, Key(seed=2)).numbers == (0, 33)
 
 
 def test_quake_on_a_quiet_hour_returns_empty_material(stub_context, fake_get, fixture_json):
-    fake_get(quake, {"earthquake.usgs.gov": fixture_json("usgs_empty")})
+    fake_get(net, {"earthquake.usgs.gov": fixture_json("usgs_empty")})
     found, ctx = ready(stub_context, "quake")
 
     assert found.run(ctx, Key(seed=1)).extra["events"] == 0
@@ -40,7 +40,7 @@ def test_quake_on_a_quiet_hour_returns_empty_material(stub_context, fake_get, fi
 
 def test_chain_reads_the_merkle_root_not_the_block_hash(stub_context, fake_get, fixture_json):
     fake_get(
-        chain,
+        net,
         {"latestblock": fixture_json("latestblock"), "rawblock": fixture_json("rawblock")},
     )
     found, ctx = ready(stub_context, "chain")
@@ -53,7 +53,7 @@ def test_chain_reads_the_merkle_root_not_the_block_hash(stub_context, fake_get, 
 
 def test_chain_collects_what_people_wrote_into_the_block(stub_context, fake_get, fixture_json):
     fake_get(
-        chain,
+        net,
         {"latestblock": fixture_json("latestblock"), "rawblock": fixture_json("rawblock")},
     )
     found, ctx = ready(stub_context, "chain")
@@ -83,7 +83,7 @@ def test_sky_joins_once_a_position_is_configured(stub_context):
 def test_sky_prefers_the_callsign_and_falls_back_to_the_registration(
     stub_context, fake_get, fixture_json
 ):
-    fake_get(sky, {"adsb.lol": fixture_json("adsb")})
+    fake_get(net, {"adsb.lol": fixture_json("adsb")})
     found, ctx = ready(stub_context, "sky")
 
     assert found.run(ctx, Key(seed=0)).text == "RYR52TK"
@@ -91,7 +91,7 @@ def test_sky_prefers_the_callsign_and_falls_back_to_the_registration(
 
 
 def test_sky_with_an_empty_sky_returns_empty_material(stub_context, fake_get, fixture_json):
-    fake_get(sky, {"adsb.lol": fixture_json("adsb_empty")})
+    fake_get(net, {"adsb.lol": fixture_json("adsb_empty")})
     found, ctx = ready(stub_context, "sky")
 
     assert found.run(ctx, Key(seed=0)).extra["aircraft"] == 0

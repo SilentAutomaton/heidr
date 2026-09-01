@@ -1,5 +1,4 @@
-import requests
-
+from heidr import net
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
@@ -12,8 +11,7 @@ def available(ctx) -> bool:
 
 @world("quake", needs=("net",), visual="tremor", defaults={"feed": FEED, "timeout": 10})
 def run(ctx, key: Key) -> Material:
-    reply = requests.get(ctx.settings["feed"], timeout=ctx.settings["timeout"])
-    events = reply.json()["features"]
+    events = net.fetch_json(ctx.settings["feed"], timeout=ctx.settings["timeout"])["features"]
     if not events:
         return Material("", (), "usgs", {"events": 0})
 

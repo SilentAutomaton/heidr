@@ -1,5 +1,4 @@
-import requests
-
+from heidr import net
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
@@ -28,7 +27,7 @@ def run(ctx, key: Key) -> Material:
         lon=ctx.settings["longitude"],
         dist=ctx.settings["radius_nm"],
     )
-    flying = requests.get(url, timeout=ctx.settings["timeout"]).json().get("ac", [])
+    flying = net.fetch_json(url, timeout=ctx.settings["timeout"]).get("ac", [])
     if not flying:
         return Material("", (), "adsb.lol", {"aircraft": 0})
 

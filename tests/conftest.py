@@ -1,6 +1,7 @@
 import copy
 
 import pytest
+import requests
 
 from heidr import config, registry
 from heidr.contracts import Context
@@ -79,6 +80,9 @@ def fake_get(monkeypatch):
             def __init__(self, payload):
                 self._payload = payload
 
+            def raise_for_status(self):
+                return None
+
             def json(self):
                 return self._payload
 
@@ -88,6 +92,9 @@ def fake_get(monkeypatch):
                     return Reply(payload)
             raise AssertionError(f"no fixture for {url}")
 
-        monkeypatch.setattr(module, "requests", type("R", (), {"get": staticmethod(get)}))
+        stub = type(
+            "R", (), {"get": staticmethod(get), "RequestException": requests.RequestException}
+        )
+        monkeypatch.setattr(module, "requests", stub)
 
     return install

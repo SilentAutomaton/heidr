@@ -1,7 +1,6 @@
 import binascii
 
-import requests
-
+from heidr import net
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
@@ -42,8 +41,8 @@ def _readable(payload: str) -> str:
 @world("chain", needs=("net",), defaults={"timeout": 15, "messages": 5})
 def run(ctx, key: Key) -> Material:
     timeout = ctx.settings["timeout"]
-    latest = requests.get(LATEST, timeout=timeout).json()["hash"]
-    block = requests.get(RAW.format(hash=latest), timeout=timeout).json()
+    latest = net.fetch_json(LATEST, timeout=timeout)["hash"]
+    block = net.fetch_json(RAW.format(hash=latest), budget=net.BUDGET * 2, timeout=timeout)
 
     # The block hash loses entropy as mining difficulty pushes leading zeros
     # into it; the Merkle root does not. Pointed out by callebtc/randombtc.
