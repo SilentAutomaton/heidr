@@ -37,6 +37,23 @@ def build(config) -> Provider:
     return makers[chosen](config)
 
 
+def lines(pieces: Iterator[str]) -> Iterator[str]:
+    """Turn a stream of fragments back into whole lines.
+
+    A provider yields whatever arrives on the wire, which is a few characters
+    at a time. A reading yields lines. Without this in between, an answer
+    reaches the screen one word per line.
+    """
+    held = ""
+    for piece in pieces:
+        held += piece
+        while "\n" in held:
+            line, held = held.split("\n", 1)
+            yield line
+    if held.strip():
+        yield held
+
+
 def sse_payloads(lines: Iterator[bytes]) -> Iterator[dict]:
     """Read a server sent event stream and yield the JSON of each data line."""
     for line in lines:

@@ -3,6 +3,7 @@ import random
 
 from heidr.contracts import Material
 from heidr.llm import Message
+from heidr.llm.base import lines
 from heidr.registry import reading
 
 # The voice is drawn too, so the same finding does not always get the same
@@ -39,10 +40,13 @@ def run(ctx, question: str, material: Material):
     voice = voice_for(material)
     found = f"source: {material.source}\nnumbers: {material.numbers}\n\n{material.text}"
 
-    for piece in ctx.llm.stream(
-        [
-            Message("system", INSTRUCTION.format(voice=voice)),
-            Message("user", f"question: {question}\n\nfound:\n{found}"),
-        ]
-    ):
-        yield piece
+    # A reading yields lines, so the stream is put back together before it
+    # leaves: otherwise the answer arrives one word per line.
+    yield from lines(
+        ctx.llm.stream(
+            [
+                Message("system", INSTRUCTION.format(voice=voice)),
+                Message("user", f"question: {question}\n\nfound:\n{found}"),
+            ]
+        )
+    )

@@ -166,3 +166,43 @@ def test_a_hosted_service_needs_a_key_to_count(default_config, monkeypatch):
 def test_anthropic_counts_only_with_a_key(default_config, monkeypatch):
     monkeypatch.delenv("HEIDR_LLM_KEY", raising=False)
     assert anthropic.Anthropic(default_config).available() is False
+
+
+# A stream of fragments is not a list of lines
+
+
+def test_fragments_become_one_line():
+    pieces = iter(["Eat what ", "you did not ", "choose.\n"])
+
+    assert list(base.lines(pieces)) == ["Eat what you did not choose."]
+
+
+def test_a_break_inside_a_fragment_splits_it():
+    assert list(base.lines(iter(["one\ntwo\nthr", "ee"]))) == ["one", "two", "three"]
+
+
+def test_the_tail_without_a_break_still_arrives():
+    assert list(base.lines(iter(["no break at all"]))) == ["no break at all"]
+
+
+def test_a_stream_of_nothing_yields_nothing():
+    assert list(base.lines(iter(["   ", "\n"]))) == ["   "]
+
+
+@pytest.mark.asyncio
+async def test_the_reading_gives_the_screen_lines_not_words(default_config, stub_context):
+    from heidr.contracts import Material
+    from heidr.reading import pythia
+
+    class Chatty:
+        name = "fake"
+
+        def stream(self, messages):
+            yield from ["Eat what ", "you did not ", "choose.\n", "The first ", "thought.\n"]
+
+    stub_context.llm = Chatty()
+    scoped = stub_context.for_module("pythia", {})
+    scoped.llm = Chatty()
+    said = list(pythia.run(scoped, "what now", Material("found", source="fake")))
+
+    assert said == ["Eat what you did not choose.", "The first thought."]
