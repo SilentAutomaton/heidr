@@ -138,9 +138,33 @@ def test_pythia_sends_the_finding_and_the_question_only(stub_context):
     list(found.run(scoped, QUESTION, MATERIAL))
 
     system, user = provider.sent
-    assert system.role == "system" and "Use only what is in the fragment" in system.content
+    assert system.role == "system"
+    assert "Do not invent further findings" in system.content
     assert QUESTION in user.content
     assert MATERIAL.text in user.content
+
+
+def test_pythia_asks_for_the_language_of_the_question(stub_context):
+    """A Russian question was coming back answered in English."""
+    assert "language of the question" in pythia.INSTRUCTION
+
+
+def test_pythia_never_invites_the_model_to_refuse(stub_context):
+    """Told to use only the fragment, an honest model refuses to read noise."""
+    assert "random" in pythia.INSTRUCTION and "Never say" in pythia.INSTRUCTION
+
+
+def test_a_wall_of_material_reaches_the_model_shortened(stub_context):
+    provider = FakeProvider()
+    ctx = stub_context.with_capabilities("llm")
+    ctx.llm = provider
+    ctx.config.set("llm.fragment_chars", 100)
+    found, scoped = ready(ctx, "pythia")
+    list(found.run(scoped, QUESTION, Material("x" * 4000, source="noise")))
+
+    _system, user = provider.sent
+    assert user.content.count("x") == 100
+    assert "the first 100 characters of 4000" in user.content
 
 
 def test_the_voice_follows_the_finding():
