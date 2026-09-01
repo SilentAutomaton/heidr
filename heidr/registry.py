@@ -26,7 +26,11 @@ class Module:
         if not set(self.needs) <= ctx.capabilities:
             return False
         probe = getattr(sys.modules.get(self.origin), "available", None)
-        return True if probe is None else bool(probe(ctx))
+        if probe is None:
+            return True
+        # The probe reads its own settings, so it gets the module scoped
+        # context rather than the bare one.
+        return bool(probe(ctx.for_module(self.name, self.defaults)))
 
 
 @dataclass

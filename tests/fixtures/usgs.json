@@ -1,0 +1,8 @@
+{"features": [
+  {"properties": {"place": "14 km NE of Kandilli, Turkey", "mag": 3.4},
+   "geometry": {"coordinates": [29.13, 41.08, 7.2]}},
+  {"properties": {"place": "South of the Fiji Islands", "mag": 5.1},
+   "geometry": {"coordinates": [-178.4, -23.9, 540.0]}},
+  {"properties": {"place": "8 km W of Anchorage, Alaska", "mag": null},
+   "geometry": {"coordinates": [-149.99, 61.21, 33.0]}}
+]}

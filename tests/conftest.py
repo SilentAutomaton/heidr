@@ -55,3 +55,39 @@ def temporary_slot():
     registry.MODULES.update(modules)
     registry.VISUALS.clear()
     registry.VISUALS.update(visuals)
+
+
+@pytest.fixture
+def fixture_json():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).parent / "fixtures"
+
+    def read(name: str):
+        return json.loads((root / f"{name}.json").read_text())
+
+    return read
+
+
+@pytest.fixture
+def fake_get(monkeypatch):
+    """Answer every requests.get from a table of url fragments to payloads."""
+
+    def install(module, table: dict):
+        class Reply:
+            def __init__(self, payload):
+                self._payload = payload
+
+            def json(self):
+                return self._payload
+
+        def get(url, **kwargs):
+            for fragment, payload in table.items():
+                if fragment in url:
+                    return Reply(payload)
+            raise AssertionError(f"no fixture for {url}")
+
+        monkeypatch.setattr(module, "requests", type("R", (), {"get": staticmethod(get)}))
+
+    return install
