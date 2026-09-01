@@ -159,11 +159,23 @@ An entry ends in one of three states, and the difference matters:
 
 | Status | Meaning | Can the question be asked again? |
 |---|---|---|
-| `complete` | The rite ran | No |
-| `broken` | The world answered, the reading failed | No |
-| `void` | Nothing was found at all | Yes |
+| `complete` | The rite ran | Not for a day |
+| `broken` | The world answered, the reading failed | Not for a day |
+| `void` | Nothing was found at all | Yes, at once |
 
 `void` exists because the rule is about not re-rolling an unwelcome answer, not
 about spending a question on a timeout. An unreachable feed or a dongle held by
 another program releases the question; once material exists, it is spent
 whatever happens next.
+
+The hold lasts a day rather than for good. "How will today go" is a different
+question tomorrow, and the entry already carries the date it was promised on, so
+the rule reads it instead of scanning the whole history for ever. `ledger.repeat_after_h`
+sets the window, and zero restores the older rule where a question was spent
+permanently. A date nobody can parse keeps the question spent: the rule is lifted
+by time passing, never by a file going wrong.
+
+A rite that was **chosen** rather than drawn — `:draw rarest//babel//iching`, or
+the same thing picked from the menu — skips the check entirely and is marked
+`(chosen)` in the entry. Putting one question to several chains is an experiment,
+not a second roll, and the mark is there so the two can never be confused.

@@ -66,6 +66,29 @@ starts where this one left off.
 
 All five change live and need no restart.
 
+## Who owns the levels
+
+The interface holds one `Levels` object, and the volume keys change that object
+rather than a copy of the numbers. It travels into the rite on the context as
+`ctx.levels`, and the sweep hands it to the `Output` it opens, so `-`, `+` and
+`m` reach a station **while it is still playing** instead of at the next draw.
+
+A module that plays sound takes the levels from the context and falls back to
+the configuration when there is no interface:
+
+```python
+output = audio.Output(ctx.levels or audio.Levels.from_config(ctx.config), rate)
+if ctx.has("audio"):
+    output.open()
+```
+
+The stream is opened by whoever created it and closed in a `finally`, so a sweep
+that fails halfway does not leave a device held open. `Output.open` is the line
+that makes sound audible at all: without it the whole path still runs — levelled,
+measured, transcribed — and reaches nobody. That is exactly what happened here
+for a whole development cycle, and the test that opens a counting stand-in output
+exists so it cannot happen twice.
+
 ## With no sound card
 
 `sounddevice` is imported lazily, and if that fails `Output` keeps running dry:

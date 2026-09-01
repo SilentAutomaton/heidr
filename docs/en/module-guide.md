@@ -60,6 +60,9 @@ That is the whole module. Notes:
 - `ctx.emit` is how anything reaches the screen. Never print.
 - `ctx.settings` holds this module's `[modules.quake]` section, already merged
   with the defaults you declared.
+- `ctx.levels` is the interface's own volume, mute and levelling. A module that
+  plays sound passes it to `audio.Output` rather than reading the numbers out of
+  the configuration, or the volume keys will not reach what is playing.
 
 ## Settings
 
@@ -71,7 +74,10 @@ def run(ctx, key):
     dwell = ctx.settings["dwell_s"]
 ```
 
-They appear in the settings editor automatically. Do not touch `config.py`.
+They appear in the settings editor automatically, one row each, with their
+effective values. Do not touch `config.py` — the only reason to open it is to add
+a row to `CHOICES` when an option has a fixed set of values and should be
+switched with `Enter` rather than typed.
 
 ## A reading module
 

@@ -26,7 +26,8 @@ pseudo random generator. With ten question rites, fourteen worlds and six
 readings there are 840 distinct rites.
 
 The commitment is written to the ledger before the draw, each entry chains to
-the previous one, and a question that was really drawn on cannot be asked again.
+the previous one, and a question that was really drawn on cannot be asked again
+until the next day.
 
 ## Modules
 
@@ -135,9 +136,15 @@ from a manual. `j` and `k` move, `Enter` chooses, `Esc` goes back a level, and
 Modal, in the manner of neovim. `:ask` puts a question, `Ctrl-V` in insert mode
 dictates it instead. Up and down, or `Ctrl-P` and `Ctrl-N`, bring back what was
 typed before; commands and questions are kept in two files under
-`~/.local/share/heidr` and looked through apart. `:modules` lists what is available and why, `:settings`
-edits the configuration, `:ledger` reads past draws, `:checkhealth` explains
-what is missing, `:w` saves, `:q` leaves.
+`~/.local/share/heidr` and looked through apart. `:modules` lists what is
+available and why, `:settings` edits every option there is, `:ledger` reads past
+draws, `:checkhealth` explains what is missing, `:w` saves, `:q` leaves.
+
+The rite can also be named instead of drawn: `:draw rarest//babel//iching`, with
+`*` for any slot left to the lottery, or the same thing chosen from the menu one
+slot at a time. A chosen rite is marked `(chosen)` in the ledger and is exempt
+from the one draw rule, because putting one question to several chains is an
+experiment rather than a second roll.
 
 Every stage brings its own animation, and adding one is a single file too:
 see [docs/en/animations.md](docs/en/animations.md).
