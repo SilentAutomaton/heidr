@@ -13,7 +13,7 @@ def load(path: Path) -> list[str]:
     return [line.strip() for line in lines if line.strip() and not line.startswith("#")]
 
 
-@reading("oblique", defaults={"deck": ""})
+@reading("oblique", visual="scissors", defaults={"deck": ""})
 def run(ctx, question: str, material: Material):
     path = Path(ctx.settings["deck"]).expanduser() if ctx.settings["deck"] else DECK
     cards = load(path)

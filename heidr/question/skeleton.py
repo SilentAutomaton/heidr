@@ -7,7 +7,7 @@ def consonants(word: str) -> str:
     return "".join(letter for letter in word if letter not in VOWELS)
 
 
-@question("skeleton")
+@question("skeleton", visual="hexlib")
 def run(ctx, text: str) -> Key:
     # Vowels carry grammar, consonants carry the root. Semitic writing left the
     # vowels out for a thousand years and lost nothing that mattered.

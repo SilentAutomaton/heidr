@@ -2,7 +2,7 @@ from heidr.contracts import Key
 from heidr.registry import question
 
 
-@question("blind")
+@question("blind", visual="plasma")
 def run(ctx, text: str) -> Key:
     # Double blind: the words are discarded and only the shape of the question
     # survives, so nothing you wrote can steer where the answer comes from.

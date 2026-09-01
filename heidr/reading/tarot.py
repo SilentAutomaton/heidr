@@ -43,7 +43,7 @@ def frame(name: str, upside_down: bool) -> list[str]:
     ]
 
 
-@reading("tarot", defaults={"deck": "", "spread": "three", "reversals": True})
+@reading("tarot", visual="cards", defaults={"deck": "", "spread": "three", "reversals": True})
 def run(ctx, question: str, material: Material):
     cards = load(Path(ctx.settings["deck"]).expanduser() if ctx.settings["deck"] else DECK)
     places = SPREADS.get(ctx.settings["spread"], SPREADS["three"])

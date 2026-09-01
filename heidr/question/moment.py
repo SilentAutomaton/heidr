@@ -29,7 +29,7 @@ def phase_name(age_days: float) -> str:
     return PHASES[int(age_days / SYNODIC_DAYS * 8 + 0.5) % 8]
 
 
-@question("moment")
+@question("moment", visual="moon")
 def run(ctx, text: str) -> Key:
     # The question is not read at all. What is asked matters less than when.
     now = time.time()

@@ -20,7 +20,7 @@ def sweep(band: str, step: str, seconds: int) -> str:
     return radio.scan(band, step, seconds)
 
 
-@world("rtl_peak", needs=("sdr",), visual="waterfall", defaults={"band": "88M:108M", "step": "100k", "seconds": 20})
+@world("rtl_peak", needs=("sdr",), visual="scope", defaults={"band": "88M:108M", "step": "100k", "seconds": 20})
 def run(ctx, key: Key) -> Material:
     csv = sweep(ctx.settings["band"], ctx.settings["step"], int(ctx.settings["seconds"]))
     hertz, power = strongest(csv)

@@ -27,7 +27,7 @@ def fold_in(words: list[str], size: int, rng: random.Random) -> list[str]:
     return folded
 
 
-@reading("cutup", defaults={"max_cut": 4, "lines": 6})
+@reading("cutup", visual="scissors", defaults={"max_cut": 4, "lines": 6})
 def run(ctx, question: str, material: Material):
     rng = random.Random(len(material.text) + len(question))
     words = material.text.split()

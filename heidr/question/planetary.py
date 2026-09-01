@@ -90,7 +90,7 @@ def available(ctx) -> bool:
     return bool(ctx.settings.get("latitude")) or bool(ctx.settings.get("longitude"))
 
 
-@question("planetary", defaults={"latitude": 0.0, "longitude": 0.0})
+@question("planetary", visual="starfield", defaults={"latitude": 0.0, "longitude": 0.0})
 def run(ctx, text: str) -> Key:
     planet, hour, daylight = ruler(
         time.time(), float(ctx.settings["latitude"]), float(ctx.settings["longitude"])

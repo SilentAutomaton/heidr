@@ -112,7 +112,7 @@ def page_beginning_with(word: str) -> str:
     return (word + " " * PAGE)[:PAGE]
 
 
-@world("babel", defaults={"excerpt": 240})
+@world("babel", visual="hexlib", defaults={"excerpt": 240})
 def run(ctx, key: Key) -> Material:
     anchor = clean(key.anchors[0]) if key.anchors else ""
     if anchor:

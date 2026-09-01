@@ -40,7 +40,7 @@ def listen(frequency: str, seconds: int) -> str:
     return finished.stdout
 
 
-@world("ism", needs=("sdr",), defaults={"frequency": BAND, "seconds": 45})
+@world("ism", visual="scope", needs=("sdr",), defaults={"frequency": BAND, "seconds": 45})
 def run(ctx, key: Key) -> Material:
     heard = readings(listen(ctx.settings["frequency"], int(ctx.settings["seconds"])))
     if not heard:

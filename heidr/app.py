@@ -249,7 +249,24 @@ class HeidrApp(App):
             self.call_from_thread(handler, payload)
 
     def _stage(self, name: str) -> None:
+        """Each stage brings its own animation with it."""
         self.query_one(StatusLine).rite = str(name)
+        module = self._module_named(str(name))
+        if module is not None:
+            if module.visual:
+                self.show_visual(module.visual)
+            else:
+                self.show_idle()
+
+    def _module_named(self, name: str):
+        # Stages announce themselves with extra words sometimes, so match the
+        # first one: "babel 3f9a.1.2" is still babel.
+        first = name.split()[0] if name.split() else name
+        for slot in registry.SLOTS:
+            found = registry.MODULES[slot].get(first)
+            if found is not None:
+                return found
+        return None
 
     def _token(self, line: str) -> None:
         self.transcript.append(str(line))

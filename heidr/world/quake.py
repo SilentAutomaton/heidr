@@ -9,7 +9,7 @@ def available(ctx) -> bool:
     return ctx.has("net")
 
 
-@world("quake", needs=("net",), visual="tremor", defaults={"feed": FEED, "timeout": 10})
+@world("quake", needs=("net",), visual="seismo", defaults={"feed": FEED, "timeout": 10})
 def run(ctx, key: Key) -> Material:
     events = net.fetch_json(ctx.settings["feed"], timeout=ctx.settings["timeout"])["features"]
     if not events:

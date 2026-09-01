@@ -52,6 +52,7 @@ def decode(audio: Path, image: Path) -> bool:
 
 @world(
     "apt",
+    visual="dish",
     needs=("sdr",),
     defaults={
         "satellite": "noaa-19",

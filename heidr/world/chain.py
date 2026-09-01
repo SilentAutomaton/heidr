@@ -38,7 +38,7 @@ def _readable(payload: str) -> str:
     return "".join(character for character in decoded if character.isprintable()).strip()
 
 
-@world("chain", needs=("net",), defaults={"timeout": 15, "messages": 5})
+@world("chain", visual="chain", needs=("net",), defaults={"timeout": 15, "messages": 5})
 def run(ctx, key: Key) -> Material:
     timeout = ctx.settings["timeout"]
     latest = net.fetch_json(LATEST, timeout=timeout)["hash"]

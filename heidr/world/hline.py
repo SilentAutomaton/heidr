@@ -46,7 +46,7 @@ def radial_velocity(hertz: int) -> float:
 @world(
     "hline",
     needs=("sdr",),
-    visual="waterfall",
+    visual="dish",
     defaults={"span_hz": 2_000_000, "step": "10k", "seconds": 30, "gain": "", "min_excess_db": 1.0},
 )
 def run(ctx, key: Key) -> Material:

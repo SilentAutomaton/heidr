@@ -13,7 +13,7 @@ def readable_runs(data: bytes, encoding: str) -> list[str]:
     return RUN.findall(data.decode(encoding, errors="replace"))
 
 
-@world("mojibake", defaults={"encodings": list(ENCODINGS), "bytes": BYTES})
+@world("mojibake", visual="hexlib", defaults={"encodings": list(ENCODINGS), "bytes": BYTES})
 def run(ctx, key: Key) -> Material:
     encodings = ctx.settings["encodings"]
     encoding = encodings[key.seed % len(encodings)]

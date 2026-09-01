@@ -18,6 +18,7 @@ def describe(aircraft: dict) -> str:
 
 @world(
     "sky",
+    visual="radar",
     needs=("net",),
     defaults={"latitude": 0.0, "longitude": 0.0, "radius_nm": 50, "timeout": 10},
 )

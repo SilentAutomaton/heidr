@@ -81,7 +81,7 @@ def drawing(values: list[int]) -> list[str]:
     return [glyphs[value] for value in reversed(values)]
 
 
-@reading("iching", defaults={"corpus": ""})
+@reading("iching", visual="hexagram", defaults={"corpus": ""})
 def run(ctx, question: str, material: Material):
     book = load(Path(ctx.settings["corpus"]).expanduser() if ctx.settings["corpus"] else CORPUS)
 

@@ -15,7 +15,7 @@ def letter_value(character: str) -> int:
     return 0
 
 
-@question("gematria")
+@question("gematria", visual="hexlib")
 def run(ctx, text: str) -> Key:
     total = sum(letter_value(character) for character in text.lower())
     words = sorted(text.split(), key=len, reverse=True)

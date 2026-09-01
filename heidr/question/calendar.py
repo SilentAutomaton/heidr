@@ -75,7 +75,7 @@ def long_count(when: date) -> str:
 CALENDARS = {"discordian": discordian, "republican": republican, "long_count": long_count}
 
 
-@question("calendar", defaults={"which": "rotate"})
+@question("calendar", visual="moon", defaults={"which": "rotate"})
 def run(ctx, text: str) -> Key:
     when = datetime.fromtimestamp(time.time(), tz=timezone.utc).date()
     names = sorted(CALENDARS)

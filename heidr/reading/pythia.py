@@ -34,7 +34,7 @@ def voice_for(material: Material) -> str:
     return random.Random(int.from_bytes(seed, "big")).choice(VOICES)
 
 
-@reading("pythia", needs=("llm",))
+@reading("pythia", visual="cog", needs=("llm",))
 def run(ctx, question: str, material: Material):
     voice = voice_for(material)
     found = f"source: {material.source}\nnumbers: {material.numbers}\n\n{material.text}"

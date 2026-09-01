@@ -55,7 +55,7 @@ def listen(host: str, port: int, seconds: int) -> str:
     return "".join(collected)
 
 
-@world("adsb_local", needs=("sdr",), defaults={"host": "127.0.0.1", "port": PORT, "seconds": 45})
+@world("adsb_local", visual="radar", needs=("sdr",), defaults={"host": "127.0.0.1", "port": PORT, "seconds": 45})
 def run(ctx, key: Key) -> Material:
     feed = listen(ctx.settings["host"], int(ctx.settings["port"]), int(ctx.settings["seconds"]))
     seen = aircraft_from(feed)
