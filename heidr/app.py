@@ -3,7 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from textual.app import App, ComposeResult
-from textual.containers import Container, Vertical
+from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
@@ -15,6 +15,7 @@ from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui import browser
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
+from heidr.visuals.canvas import Canvas
 
 def _typed(value: str):
     """Read what was typed as the kind of value it looks like."""
@@ -34,6 +35,7 @@ MIN_ROWS = 12
 # The animation pane, the status line and the command line. The stylesheets
 # must agree, and a test says so.
 VISUAL_ROWS = 8
+IDLE = "drift"
 CHROME_ROWS = VISUAL_ROWS + 2
 THEMES = Path(__file__).resolve().parent / "ui"
 
@@ -109,12 +111,12 @@ class HeidrApp(App):
     def compose(self) -> ComposeResult:
         with Vertical():
             yield Static(self._splash(), id="body")
-            yield Container(id="visual")
+            yield Canvas(self.terminal.glyphs, id="visual")
             yield StatusLine(id="status")
             yield CommandLine(id="cmdline")
 
     def on_mount(self) -> None:
-        self.show_visual("idle")
+        self.show_visual(IDLE)
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -213,7 +215,7 @@ class HeidrApp(App):
 
     def _draw_over(self, message: str) -> None:
         self.drawing = False
-        self.show_visual("idle")
+        self.show_visual(IDLE)
         self.query_one(CommandLine).say(message)
 
     def _drawn(self, drawn) -> None:
@@ -222,7 +224,7 @@ class HeidrApp(App):
         self.view = "rite"
         self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
         self._show_transcript()
-        self.show_visual("idle")
+        self.show_visual(IDLE)
         if drawn.rite.silent:
             self.query_one(CommandLine).say(text("status.silent"))
 
@@ -283,23 +285,23 @@ class HeidrApp(App):
     # Visualisations
 
     def show_visual(self, name: str) -> None:
-        chosen = registry.pick_visual(name, self.terminal.glyphs)
-        pane = self.query_one("#visual", Container)
-        pane.remove_children()
-        # Only this pane's own subscription goes; the draw's listeners stay.
+        """Swap the painter on the one canvas; nothing is mounted or removed."""
+        chosen = registry.pick_animation(name, self.terminal.glyphs)
+        canvas = self.query_one("#visual", Canvas)
+        # Only this canvas's own subscription goes; the draw's listeners stay.
         if self._visual_off is not None:
             self._visual_off()
             self._visual_off = None
         if chosen is None:
-            if name != "idle":
-                self.show_visual("idle")
+            if name != IDLE:
+                self.show_visual(IDLE)
             return
 
-        widget = chosen.widget()
-        pane.mount(widget)
-        self._visual_off = self.bus.subscribe(
-            chosen.event, lambda payload: self._forward(widget, payload)
-        )
+        canvas.show(chosen.make(), chosen.fps)
+        if chosen.event:
+            self._visual_off = self.bus.subscribe(
+                chosen.event, lambda payload: self._forward(canvas, payload)
+            )
 
     def _forward(self, widget, payload) -> None:
         # Captures run in worker threads, and a widget may only be touched from

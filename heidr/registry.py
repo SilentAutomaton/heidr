@@ -36,16 +36,19 @@ class Module:
 
 
 @dataclass
-class Visual:
+class Animation:
+    """One way of drawing something, at one glyph level."""
+
     name: str
-    event: str
     glyphs: str
-    widget: Any
+    fps: int
+    event: str
+    make: Callable
     origin: str
 
 
 MODULES: dict[str, dict[str, Module]] = {slot: {} for slot in SLOTS}
-VISUALS: dict[str, list[Visual]] = {}
+ANIMATIONS: dict[str, list[Animation]] = {}
 
 
 def _register(slot: str, name: str, needs, visual: str, defaults):
@@ -80,31 +83,50 @@ def reading(name: str, *, needs=(), visual: str = "", defaults=None):
     return _register("reading", name, needs, visual, defaults)
 
 
-def visual(name: str, *, event: str, glyphs: str = "ascii"):
+def animation(name: str, *, glyphs: str = "ascii", fps: int = 8, event: str = ""):
+    """Register one animation. A function or a Painter subclass, either works."""
     if glyphs not in GLYPH_LEVELS:
         raise ValueError(f"{name} declares an unknown glyph level: {glyphs}")
 
-    def decorate(widget):
-        VISUALS.setdefault(name, []).append(
-            Visual(name=name, event=event, glyphs=glyphs, widget=widget, origin=widget.__module__)
+    def decorate(drawn):
+        ANIMATIONS.setdefault(name, []).append(
+            Animation(
+                name=name,
+                glyphs=glyphs,
+                fps=fps,
+                event=event,
+                make=_maker(drawn, glyphs),
+                origin=drawn.__module__,
+            )
         )
-        return widget
+        return drawn
 
     return decorate
+
+
+def _maker(drawn, glyphs: str) -> Callable:
+    from heidr.visuals import paint
+    from heidr.visuals.canvas import Drawn, Painter
+
+    ramp = {"braille": paint.BRAILLE, "blocks": paint.BLOCKS}.get(glyphs, paint.ASCII)
+    if isinstance(drawn, type) and issubclass(drawn, Painter):
+        return drawn
+    return lambda: Drawn(drawn, ramp)
 
 
 def usable(slot: str, ctx: Context) -> list[Module]:
     return [module for module in MODULES[slot].values() if module.available(ctx)]
 
 
-def pick_visual(name: str, glyphs: str) -> Visual | None:
+def pick_animation(name: str, glyphs: str) -> Animation | None:
     # Choose the richest variant the terminal can actually draw.
-    affordable = [v for v in VISUALS.get(name, []) if GLYPH_LEVELS.index(v.glyphs) <= GLYPH_LEVELS.index(glyphs)]
-    return max(affordable, key=lambda v: GLYPH_LEVELS.index(v.glyphs), default=None)
+    level = GLYPH_LEVELS.index(glyphs)
+    affordable = [a for a in ANIMATIONS.get(name, []) if GLYPH_LEVELS.index(a.glyphs) <= level]
+    return max(affordable, key=lambda a: GLYPH_LEVELS.index(a.glyphs), default=None)
 
 
 def discover(user_dir: Path | None = None) -> None:
-    for package in ("question", "world", "reading", "visuals"):
+    for package in ("question", "world", "reading", "visuals.art"):
         _import_package(f"heidr.{package}")
     if user_dir and user_dir.is_dir():
         for path in sorted(user_dir.glob("*.py")):

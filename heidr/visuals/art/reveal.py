@@ -1,14 +1,14 @@
 import random
 
-from heidr.registry import visual
-from heidr.visuals.base import Visualisation
+from heidr.registry import animation
+from heidr.visuals.canvas import Frame, Painter
 
 # Text arrives looking like noise and resolves character by character. The
 # mechanic is the one from no-more-secrets by Brian Barto, GPL-3.0, where the
 # reveal waits for the reader rather than happening at them.
 # https://github.com/bartobri/no-more-secrets
 NOISE = "!@#$%^&*()_+-=[]{};:,.<>/?\\|~abcdefghijklmnopqrstuvwxyz0123456789"
-SETTLE = 0.06
+SHARE = 0.12
 
 
 def scramble(target: str, resolved: set[int], rng: random.Random) -> str:
@@ -26,31 +26,24 @@ def next_resolved(count: int, resolved: set[int], share: float, rng: random.Rand
     return resolved | set(rng.sample(remaining, min(taking, len(remaining))))
 
 
-@visual("reveal", event="token", glyphs="ascii")
-class Reveal(Visualisation):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+@animation("reveal", glyphs="ascii", fps=16, event="token")
+class Reveal(Painter):
+    def __init__(self):
         self.target = ""
         self.resolved: set[int] = set()
         self.rng = random.Random()
+        self.last_tick = -1
 
-    def on_mount(self) -> None:
-        self.set_interval(SETTLE, self.step)
-
-    def feed(self, token: str) -> None:
-        self.target = f"{self.target}\n{token}".strip()
-        self.refresh()
+    def feed(self, payload) -> None:
+        self.target = f"{self.target}\n{payload}".strip()
 
     def settled(self) -> bool:
         return len(self.resolved) >= len(self.target)
 
-    def step(self) -> None:
-        if self.settled():
-            return
-        self.resolved = next_resolved(len(self.target), self.resolved, 0.12, self.rng)
-        self.refresh()
-
-    def render(self) -> str:
+    def paint(self, frame: Frame) -> list[str]:
         if not self.target:
-            return ""
-        return scramble(self.target, self.resolved, self.rng)
+            return []
+        if frame.tick != self.last_tick and not self.settled():
+            self.resolved = next_resolved(len(self.target), self.resolved, SHARE, self.rng)
+            self.last_tick = frame.tick
+        return scramble(self.target, self.resolved, self.rng).splitlines()

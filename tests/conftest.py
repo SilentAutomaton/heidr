@@ -47,15 +47,15 @@ def stub_context(default_config, events):
 def temporary_slot():
     """Give the test an empty registry, and put the real one back afterwards."""
     modules = copy.deepcopy(registry.MODULES)
-    visuals = copy.deepcopy(registry.VISUALS)
+    visuals = copy.deepcopy(registry.ANIMATIONS)
     for slot in registry.MODULES:
         registry.MODULES[slot] = {}
-    registry.VISUALS.clear()
+    registry.ANIMATIONS.clear()
     yield
     registry.MODULES.clear()
     registry.MODULES.update(modules)
-    registry.VISUALS.clear()
-    registry.VISUALS.update(visuals)
+    registry.ANIMATIONS.clear()
+    registry.ANIMATIONS.update(visuals)
 
 
 @pytest.fixture
