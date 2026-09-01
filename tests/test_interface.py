@@ -57,6 +57,50 @@ async def test_backspace_removes_what_was_typed(default_config):
         assert pilot.app.query_one(CommandLine).buffer == "he"
 
 
+# The menu
+
+
+@pytest.mark.asyncio
+async def test_the_program_opens_in_the_menu(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        assert pilot.app.view == "menu"
+        assert "ask a question" in str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_the_menu_shows_the_command_and_the_key_for_each_entry(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert ":checkhealth" in shown and "<space>h" in shown
+
+
+@pytest.mark.asyncio
+async def test_a_menu_entry_runs_its_action(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("j", "j", "enter")
+
+        assert pilot.app.view == "modules"
+
+
+@pytest.mark.asyncio
+async def test_the_menu_keeps_its_place_while_you_are_away(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("j", "j", "enter")
+        await pilot.press("escape")
+
+        assert pilot.app.view == "menu" and pilot.app.cursor == 2
+
+
+@pytest.mark.asyncio
+async def test_the_wordmark_can_be_switched_off(default_config):
+    default_config.set("ui.splash", False)
+    async with make_app(default_config).run_test() as pilot:
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "ask a question" in shown and "Ask the Noise" not in shown
+
+
 # Commands
 
 
@@ -181,7 +225,7 @@ async def test_escape_climbs_back_out_of_a_view(default_config):
         await pilot.press("colon", *"modules", "enter")
         await pilot.press("escape")
 
-        assert pilot.app.view == "rite"
+        assert pilot.app.view == "menu"
 
 
 @pytest.mark.asyncio
@@ -190,7 +234,7 @@ async def test_escape_at_the_root_stays_there(default_config):
         await pilot.press("escape")
         await pilot.press("escape")
 
-        assert pilot.app.views == ["rite"]
+        assert pilot.app.views == ["menu"]
 
 
 @pytest.mark.asyncio
@@ -199,7 +243,7 @@ async def test_a_view_entered_twice_is_not_stacked_twice(default_config):
         await pilot.press("colon", *"modules", "enter")
         await pilot.press("colon", *"modules", "enter")
 
-        assert pilot.app.views == ["rite", "modules"]
+        assert pilot.app.views == ["menu", "modules"]
 
 
 @pytest.mark.asyncio

@@ -112,6 +112,11 @@ See `.env.example`.
 
 ## Use
 
+The program opens in a menu. Each entry shows the command and the key that do
+the same thing, so the modal control is read off the screen rather than learned
+from a manual. `j` and `k` move, `Enter` chooses, `Esc` goes back a level, and
+`ui.splash=false` drops the wordmark above the list.
+
 Modal, in the manner of neovim. `:ask` puts a question, `Ctrl-V` in insert mode
 dictates it instead. `:modules` lists what is available and why, `:settings`
 edits the configuration, `:ledger` reads past draws, `:checkhealth` explains

@@ -4,6 +4,27 @@ from heidr.config import DEFAULTS
 CURSOR = "> "
 BLANK = "  "
 
+# The way in. Every entry names the action it runs, the command that runs the
+# same thing, and the key that runs it without the command line: modal control
+# is shown rather than hidden.
+ENTRIES = (
+    ("ask", "ask a question", ":ask", "{leader}a"),
+    ("ledger", "past draws", ":ledger", "{leader}l"),
+    ("modules", "modules", ":modules", "{leader}m"),
+    ("settings", "settings", ":settings", "{leader}s"),
+    ("checkhealth", "health", ":checkhealth", "{leader}h"),
+    ("help", "help", ":help", "?"),
+    ("quit", "leave", ":q", "{leader}q"),
+)
+
+
+def menu_rows(leader: str) -> list[tuple[str, str]]:
+    rows = []
+    for action, label, command, key in ENTRIES:
+        keys = key.format(leader=f"<{leader}>")
+        rows.append((action, f"{label:<16} {command:<14} {keys}"))
+    return rows
+
 
 def module_rows(ctx) -> list[tuple[str, str]]:
     """Every registered module, with the option key that switches it off."""

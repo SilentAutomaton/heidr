@@ -57,9 +57,11 @@ class HeidrApp(App):
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
-        self.views = ["rite"]
-        self.cursor = 0
-        self.rows: list[tuple[str, str]] = []
+        self.views = ["menu"]
+        # Rows, cursor and empty text belong to the view that owns them, so
+        # coming back from one list finds the other one where it was left.
+        self.panes: dict[str, tuple[list[tuple[str, str]], str]] = {}
+        self.cursors: dict[str, int] = {}
         self.body_text = ""
         self.bus = Bus()
         self.drawing = False
@@ -126,7 +128,7 @@ class HeidrApp(App):
 
     def on_mount(self) -> None:
         self.show_idle()
-        self._show_path()
+        self.do_menu()
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -297,6 +299,22 @@ class HeidrApp(App):
     def view(self) -> str:
         return self.views[-1]
 
+    @property
+    def rows(self) -> list[tuple[str, str]]:
+        return self.panes.get(self.view, ([], ""))[0]
+
+    @property
+    def empty(self) -> str:
+        return self.panes.get(self.view, ([], ""))[1]
+
+    @property
+    def cursor(self) -> int:
+        return self.cursors.get(self.view, 0)
+
+    @cursor.setter
+    def cursor(self, value: int) -> None:
+        self.cursors[self.view] = value
+
     def _enter(self, view: str) -> None:
         """Views stack, so Esc goes back the way it came in."""
         if view == self.views[0]:
@@ -331,10 +349,16 @@ class HeidrApp(App):
     def _body_content(self, size) -> str:
         if size.width < MIN_COLUMNS or size.height < MIN_ROWS:
             return text("error.small_terminal", cols=MIN_COLUMNS, rows=MIN_ROWS)
+        # One more line is kept for the "n of m" footer.
+        room = size.height - CHROME_ROWS - PANEL_PADDING - 1
+        if self.view == "menu":
+            if not self.settings.get("ui.splash", True):
+                return browser.render(self.rows, self.cursor, "", room)
+            splash = self._splash()
+            listed = browser.render(self.rows, self.cursor, "", room - splash.count("\n") - 2)
+            return f"{splash}\n\n{listed}"
         if self.view in ("modules", "settings", "ledger"):
-            # One more line is kept for the "n of m" footer.
-            room = size.height - CHROME_ROWS - PANEL_PADDING - 1
-            return browser.render(self.rows, self.cursor, getattr(self, "empty", ""), room)
+            return browser.render(self.rows, self.cursor, self.empty, room)
         if self.view == "text":
             return self.body_text
         return "\n".join(self.transcript) if self.transcript else self._splash()
@@ -427,6 +451,9 @@ class HeidrApp(App):
         # A draw needs a question, so asking for one is the whole of it.
         self.do_ask()
 
+    def do_menu(self) -> None:
+        self._open_browser("menu", browser.menu_rows(self.leader), "")
+
     def do_ledger(self) -> None:
         self._open_browser("ledger", browser.ledger_rows(self.ledger), text("empty.ledger"))
 
@@ -438,9 +465,8 @@ class HeidrApp(App):
 
     def _open_browser(self, view: str, rows, empty: str) -> None:
         self._enter(view)
-        self.rows = rows
+        self.panes[view] = (rows, empty)
         self.cursor = min(self.cursor, max(0, len(rows) - 1))
-        self.empty = empty
         self._show_rows()
 
     def _show_rows(self) -> None:
@@ -453,13 +479,15 @@ class HeidrApp(App):
         self._move_cursor(-1)
 
     def _move_cursor(self, step: int) -> None:
-        if self.view not in ("modules", "settings", "ledger") or not self.rows:
+        if not self.rows:
             return
         self.cursor = max(0, min(len(self.rows) - 1, self.cursor + step))
         self._show_rows()
 
     def do_choose(self) -> None:
-        if self.view == "modules":
+        if self.view == "menu":
+            self._act(self.rows[self.cursor][0])
+        elif self.view == "modules":
             self._toggle_module()
         elif self.view == "settings":
             self._edit_setting()
@@ -476,7 +504,7 @@ class HeidrApp(App):
     def _toggle_module(self) -> None:
         key, _line = self.rows[self.cursor]
         self.settings.set(key, not self.settings.get(key, True))
-        self.rows = browser.module_rows(self.context)
+        self.panes["modules"] = (browser.module_rows(self.context), self.empty)
         self._show_rows()
 
     def _edit_setting(self) -> None:
@@ -532,6 +560,8 @@ class HeidrApp(App):
             self.do_ask()
         elif name == "settings":
             self.do_settings()
+        elif name == "menu":
+            self.do_menu()
         elif name in ("w", "write"):
             line.say(text("status.saved", path=config.save(self.settings)))
         elif name:
