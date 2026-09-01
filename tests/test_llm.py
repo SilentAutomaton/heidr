@@ -206,3 +206,32 @@ async def test_the_reading_gives_the_screen_lines_not_words(default_config, stub
     said = list(pythia.run(scoped, "what now", Material("found", source="fake")))
 
     assert said == ["Eat what you did not choose.", "The first thought."]
+
+
+# What the model is told about its own sampling
+
+
+def test_ollama_sends_the_sampling_settings(default_config, capture):
+    sent = capture(ollama, [b'{"message":{"content":"here"},"done":true}'])
+    default_config.set("llm.temperature", 0.5)
+    default_config.set("llm.context_tokens", 4096)
+    list(ollama.Ollama(default_config).stream(ASK))
+
+    assert sent["json"]["options"]["temperature"] == 0.5
+    assert sent["json"]["options"]["num_ctx"] == 4096
+    assert sent["json"]["options"]["num_predict"] == 400
+    assert sent["json"]["keep_alive"] == "10m"
+
+
+def test_an_openai_shape_gets_only_what_it_understands(default_config, capture):
+    sent = capture(openai_compat, [b'data: {"choices":[{"delta":{"content":"x"}}]}'])
+    list(openai_compat.OpenAICompatible(default_config).stream(ASK))
+
+    assert sent["json"]["temperature"] == 0.8
+    assert sent["json"]["max_tokens"] == 400
+    assert "options" not in sent["json"]
+
+
+def test_the_defaults_are_the_ones_the_settings_list_shows(default_config):
+    for key, value in base.DEFAULTS.items():
+        assert default_config.get(f"llm.{key}") == value

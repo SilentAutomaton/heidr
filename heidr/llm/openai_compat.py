@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import requests
 
-from heidr.llm.base import Message, sse_payloads
+from heidr.llm.base import Message, Sampling, sse_payloads
 
 
 class OpenAICompatible:
@@ -21,6 +21,8 @@ class OpenAICompatible:
         self.model = config.get("llm.model", "")
         self.timeout = config.get("llm.timeout", 120)
         self.key = config.secret("llm.api_key_env")
+        # Only what this shape understands; the rest is ollama's own.
+        self.sampling = Sampling.from_config(config)
 
     def available(self) -> bool:
         parsed = urlparse(self.base_url)
@@ -45,6 +47,9 @@ class OpenAICompatible:
                 "model": self.model,
                 "messages": [message.as_dict() for message in messages],
                 "stream": True,
+                "temperature": self.sampling.temperature,
+                "top_p": self.sampling.top_p,
+                "max_tokens": self.sampling.max_tokens,
             },
             headers=self.headers(),
             timeout=self.timeout,

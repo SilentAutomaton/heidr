@@ -14,6 +14,37 @@ class Message:
         return {"role": self.role, "content": self.content}
 
 
+# What the model is asked to do with its own sampling. An oracle wants variety
+# rather than accuracy, so the temperature is high; the context has to be wide
+# enough for a page of found material, or the server truncates it in silence.
+DEFAULTS = {
+    "temperature": 0.8,
+    "top_p": 0.9,
+    "repeat_penalty": 1.1,
+    "context_tokens": 8192,
+    "max_tokens": 400,
+}
+
+
+@dataclass(frozen=True)
+class Sampling:
+    temperature: float
+    top_p: float
+    repeat_penalty: float
+    context_tokens: int
+    max_tokens: int
+
+    @classmethod
+    def from_config(cls, config) -> "Sampling":
+        return cls(
+            temperature=float(config.get("llm.temperature", DEFAULTS["temperature"])),
+            top_p=float(config.get("llm.top_p", DEFAULTS["top_p"])),
+            repeat_penalty=float(config.get("llm.repeat_penalty", DEFAULTS["repeat_penalty"])),
+            context_tokens=int(config.get("llm.context_tokens", DEFAULTS["context_tokens"])),
+            max_tokens=int(config.get("llm.max_tokens", DEFAULTS["max_tokens"])),
+        )
+
+
 class Provider(Protocol):
     name: str
 

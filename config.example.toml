@@ -21,6 +21,13 @@ model = "qwen3.5:9B"
 base_url = "http://localhost:11434"
 api_key_env = "HEIDR_LLM_KEY"
 think = false           # ollama only: let a reasoning model think before it answers
+temperature = 0.8       # an oracle wants variety, not accuracy
+top_p = 0.9
+repeat_penalty = 1.1    # a model reading noise is prone to looping
+context_tokens = 8192   # ollama num_ctx; too small and the server truncates in silence
+max_tokens = 400        # the longest answer worth waiting for
+keep_alive = "10m"      # ollama only: how long the model stays loaded between rites
+fragment_chars = 1200   # how much of the found material the model is shown
 
 [stt]
 provider = "vosk"       # vosk, whisper_cpp, api

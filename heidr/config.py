@@ -22,6 +22,13 @@ DEFAULTS: dict[str, Any] = {
         "base_url": "http://localhost:11434",
         "api_key_env": "HEIDR_LLM_KEY",
         "think": False,
+        "temperature": 0.8,
+        "top_p": 0.9,
+        "repeat_penalty": 1.1,
+        "context_tokens": 8192,
+        "max_tokens": 400,
+        "keep_alive": "10m",
+        "fragment_chars": 1200,
     },
     "stt": {
         "provider": "vosk",

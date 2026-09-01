@@ -3,7 +3,7 @@ from typing import Iterator
 import requests
 
 from heidr.contracts import Unavailable
-from heidr.llm.base import Message, sse_payloads
+from heidr.llm.base import Message, Sampling, sse_payloads
 
 VERSION = "2023-06-01"
 
@@ -15,7 +15,7 @@ class Anthropic:
         self.base_url = config.get("llm.base_url", "https://api.anthropic.com").rstrip("/")
         self.model = config.get("llm.model", "")
         self.timeout = config.get("llm.timeout", 120)
-        self.max_tokens = config.get("llm.max_tokens", 1024)
+        self.sampling = Sampling.from_config(config)
         self.key = config.secret("llm.api_key_env")
         self.key_name = config.get("llm.api_key_env", "")
 
@@ -37,7 +37,9 @@ class Anthropic:
             f"{self.base_url}/v1/messages",
             json={
                 "model": self.model,
-                "max_tokens": self.max_tokens,
+                "max_tokens": self.sampling.max_tokens,
+                "temperature": self.sampling.temperature,
+                "top_p": self.sampling.top_p,
                 "system": system,
                 "messages": talk,
                 "stream": True,
