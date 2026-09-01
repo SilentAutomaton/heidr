@@ -32,11 +32,12 @@ def test_module_settings_merge_over_declared_defaults(config_dirs, write_config)
     assert merged == {"dwell_s": 9, "sweep": "random"}
 
 
-def test_saving_keeps_only_differences(default_config):
-    default_config.set("ui.theme", "tty")
-    default_config.set("modules.quake.limit", 3)
+def test_saving_keeps_only_differences(tmp_path):
+    pristine = config.Config(config.merge(config.DEFAULTS, {}), tmp_path / "config.toml")
+    pristine.set("ui.theme", "tty")
+    pristine.set("modules.quake.limit", 3)
 
-    path = config.save(default_config)
+    path = config.save(pristine)
     with path.open("rb") as handle:
         written = tomllib.load(handle)
 

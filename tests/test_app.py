@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from heidr.app import HeidrApp
@@ -10,7 +12,12 @@ CONSOLE = Terminal(colours=16, glyphs="blocks", graphics="none")
 
 
 def make_app(default_config, terminal=FULL, user_dir=None):
-    return HeidrApp(settings=default_config, user_dir=user_dir, terminal=terminal)
+    return HeidrApp(
+        settings=default_config,
+        user_dir=user_dir or Path("/nonexistent"),
+        terminal=terminal,
+        capabilities_found=frozenset(),
+    )
 
 
 @pytest.mark.asyncio
@@ -88,3 +95,29 @@ def test_status_line_drops_fields_as_it_narrows():
     assert "ollama" in line._fit(80)
     assert "ollama" not in line._fit(40)
     assert line._fit(6) == "NORMAL"
+
+
+@pytest.mark.asyncio
+async def test_asking_a_question_runs_a_draw(default_config, monkeypatch):
+    from heidr import entropy
+
+    monkeypatch.setattr(entropy, "collect", lambda ctx, seconds=2.0: [])
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *"rain", "enter")
+        await pilot.pause()
+
+        assert "//" in pilot.app.query_one(StatusLine).rite
+        assert "00001" in str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_the_same_question_twice_is_refused(default_config, monkeypatch):
+    from heidr import entropy
+
+    monkeypatch.setattr(entropy, "collect", lambda ctx, seconds=2.0: [])
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *"rain", "enter")
+        await pilot.press("i", *"rain", "enter")
+        await pilot.pause()
+
+        assert "drawn before" in pilot.app.query_one(CommandLine).message

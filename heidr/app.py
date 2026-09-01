@@ -6,9 +6,10 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import capabilities, config, keymap
+from heidr import capabilities, config, keymap, registry, rite, session
 from heidr.contracts import Context
 from heidr.events import Bus
+from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
@@ -21,23 +22,27 @@ THEMES = Path(__file__).resolve().parent / "ui"
 class HeidrApp(App):
     edit_mode = reactive("NORMAL")
 
-    def __init__(self, settings=None, user_dir: Path | None = None, terminal=None):
+    def __init__(self, settings=None, user_dir=None, terminal=None, capabilities_found=None):
         self.settings = settings or config.load()
+        self.capabilities_found = capabilities_found
         self.user_dir = user_dir or config.USER_DIR
         self.terminal = terminal or capabilities.detect_terminal()
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
         self.bus = Bus()
+        self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
+        registry.discover(self.user_dir / "modules")
         # Probing the network and the radio takes time, so capabilities stay
         # empty until :checkhealth or a draw asks for them.
         self.context = Context(config=self.settings, emit=self.bus.emit)
         super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss")
 
     def probe(self) -> Context:
-        self.context = replace(
-            self.context, capabilities=capabilities.detect_capabilities(self.settings)
-        )
+        found = self.capabilities_found
+        if found is None:
+            found = capabilities.detect_capabilities(self.settings)
+        self.context = replace(self.context, capabilities=found)
         return self.context
 
     def compose(self) -> ComposeResult:
@@ -89,6 +94,29 @@ class HeidrApp(App):
             line.backspace()
         elif event.character and event.character.isprintable():
             line.type(event.character)
+
+    def _accept_question(self, question: str) -> None:
+        if not question.strip():
+            return
+        line = self.query_one(CommandLine)
+        try:
+            drawn = session.perform(self.probe(), self.ledger, question)
+        except session.AlreadyAsked as repeated:
+            line.say(text("error.repeat_question", entry=repeated.entry.identifier))
+            return
+        except rite.NothingAvailable:
+            line.say(text("error.no_modules"))
+            return
+
+        status = self.query_one(StatusLine)
+        status.rite = str(drawn.rite)
+        self.query_one("#body", Static).update(self._draw_text(drawn))
+        if drawn.rite.silent:
+            line.say(text("status.silent"))
+
+    def _draw_text(self, drawn) -> str:
+        heading = f"{drawn.entry.identifier}  {drawn.rite}"
+        return f"{heading}\n\n{drawn.body()}"
 
     def _act(self, action: str) -> None:
         handler = getattr(self, f"do_{action}", None)
