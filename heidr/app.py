@@ -1,8 +1,9 @@
+import threading
 from dataclasses import replace
 from pathlib import Path
 
 from textual.app import App, ComposeResult
-from textual.containers import Vertical
+from textual.containers import Container, Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
@@ -70,10 +71,12 @@ class HeidrApp(App):
     def compose(self) -> ComposeResult:
         with Vertical():
             yield Static(self._splash(), id="body")
+            yield Container(id="visual")
             yield StatusLine(id="status")
             yield CommandLine(id="cmdline")
 
     def on_mount(self) -> None:
+        self.show_visual("idle")
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -128,6 +131,7 @@ class HeidrApp(App):
         if not question.strip():
             return
         line = self.query_one(CommandLine)
+        self.show_visual("waterfall")
         try:
             drawn = session.perform(self.probe(), self.ledger, question)
         except session.AlreadyAsked as repeated:
@@ -139,9 +143,34 @@ class HeidrApp(App):
 
         status = self.query_one(StatusLine)
         status.rite = str(drawn.rite)
+        self.show_visual("idle")
         self.query_one("#body", Static).update(self._draw_text(drawn))
         if drawn.rite.silent:
             line.say(text("status.silent"))
+
+    # Visualisations
+
+    def show_visual(self, name: str) -> None:
+        chosen = registry.pick_visual(name, self.terminal.glyphs)
+        pane = self.query_one("#visual", Container)
+        pane.remove_children()
+        self.bus.clear()
+        if chosen is None:
+            if name != "idle":
+                self.show_visual("idle")
+            return
+
+        widget = chosen.widget()
+        pane.mount(widget)
+        self.bus.subscribe(chosen.event, lambda payload: self._forward(widget, payload))
+
+    def _forward(self, widget, payload) -> None:
+        # Captures run in worker threads, and a widget may only be touched from
+        # the one the interface lives on.
+        if threading.current_thread() is threading.main_thread():
+            widget.feed(payload)
+        else:
+            self.call_from_thread(widget.feed, payload)
 
     def _draw_text(self, drawn) -> str:
         heading = f"{drawn.entry.identifier}  {drawn.rite}"

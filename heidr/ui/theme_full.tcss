@@ -21,3 +21,9 @@ CommandLine {
     color: $text-muted;
     padding: 0 1;
 }
+
+#visual {
+    height: 8;
+    color: $accent;
+    overflow: hidden;
+}

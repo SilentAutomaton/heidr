@@ -25,3 +25,9 @@ CommandLine {
     color: white;
     padding: 0 1;
 }
+
+#visual {
+    height: 8;
+    color: white;
+    overflow: hidden;
+}

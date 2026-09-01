@@ -31,6 +31,10 @@ class Bus:
         for handler in handlers:
             handler(payload)
 
+    def clear(self) -> None:
+        with self._lock:
+            self._handlers.clear()
+
     def subscribers(self, event: str) -> int:
         with self._lock:
             return len(self._handlers.get(event, ()))
