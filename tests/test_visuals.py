@@ -380,3 +380,47 @@ async def test_the_panel_never_covers_the_whole_screen(default_config):
         body = pilot.app.query_one("#body")
 
         assert body.region.width < pilot.app.size.width
+
+
+# The seeress
+
+
+def test_the_seeress_is_a_rectangle():
+    """Every line the same length, which is what bent her face last time."""
+    from heidr.visuals.art.seeress import FIGURE, figure
+
+    assert len({len(line) for line in FIGURE}) == 1
+    assert len({len(line) for line in figure(7, "#")}) == 1
+
+
+def test_the_seeress_is_worth_looking_at():
+    from heidr.visuals.art.seeress import FIGURE
+
+    assert len(FIGURE) >= 20
+    assert len(FIGURE[0]) >= 30
+
+
+def test_she_blinks_and_the_staff_glimmers():
+    from heidr.visuals.art.seeress import figure
+
+    frames = {"".join(figure(tick, ".:-=+*#%@")) for tick in range(20)}
+
+    assert len(frames) > 3
+
+
+def test_the_marks_are_found_in_the_drawing_not_written_down():
+    from heidr.visuals.art import seeress
+
+    assert len(seeress.EYES) == 2
+    assert seeress.FIGURE[seeress.STAFF[0]][seeress.STAFF[1]] == "@"
+
+
+def test_a_narrow_terminal_keeps_the_field_and_drops_the_figure():
+    from heidr.ui import prompt
+
+    wide = prompt.panel("ok", 0, 100, "blocks", "hint")
+    narrow = prompt.panel("ok", 0, 60, "blocks", "hint")
+
+    assert "o o" in wide
+    assert "o o" not in narrow
+    assert "ok_" in narrow

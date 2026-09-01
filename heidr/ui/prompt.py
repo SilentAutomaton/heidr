@@ -9,6 +9,9 @@ CARET = "_"
 GAP = "  "
 NARROWEST = 12
 WIDEST = 56
+# Below this the figure and the field cannot both fit, and a field cut in half
+# is worse than no figure at all.
+ROOM_FOR_HER = 74
 
 
 def field(typed: str, width: int, glyphs: str) -> list[str]:
@@ -35,5 +38,8 @@ def beside(left: list[str], right: list[str]) -> list[str]:
 
 def panel(typed: str, tick: int, width: int, glyphs: str, hint: str) -> str:
     """Heiðr waits on the left, the question is typed on the right."""
-    room = min(WIDEST, width - len(figure(0, ASCII)[0]) - len(GAP))
-    return "\n".join(beside(figure(tick, ASCII), field(typed, room, glyphs) + ["", hint]))
+    drawn = figure(tick, ASCII)
+    if width < ROOM_FOR_HER:
+        return "\n".join(field(typed, min(WIDEST, width), glyphs) + ["", hint])
+    room = min(WIDEST, width - len(drawn[0]) - len(GAP))
+    return "\n".join(beside(drawn, field(typed, room, glyphs) + ["", hint]))

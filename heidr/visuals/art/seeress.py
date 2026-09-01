@@ -3,50 +3,83 @@ from heidr.visuals.canvas import Frame, Painter
 from heidr.visuals.paint import ASCII, BLOCKS, BRAILLE, blank, centre, lines
 
 # Heiðr herself: hooded, staff in hand, waiting to be asked. Drawn for this
-# project — the ASCII collections that exist aggregate other people's work with
-# no clean provenance, and none of them had a völva in them.
-#
-# The drawing is fixed and single characters are overwritten at known positions
-# each frame. Substituting whole words would let a longer replacement shift a
-# line and bend her face, which is exactly what happened first time.
+# project. The ASCII galleries that do this best — Joan Stark's above all — are
+# marked all rights reserved with a demand to keep the artist's initials on
+# every copy, which no GPL repository can honour. So the technique is borrowed
+# and the drawing is not: density for tone, shadow inside the cowl, a face made
+# of three marks, a silhouette that widens toward the hem.
 FIGURE = (
-    "  |         .-~~~-.     ",
-    "  |       ,'       ',   ",
-    "  |      /  o   o   \\   ",
-    "  |     |     v      |  ",
-    "  |     |    ---     |  ",
-    "  |      \\          /   ",
-    "  O       '.,___,.'     ",
-    "  |       /   |   \\     ",
+    "  (@)          _.-~~~~~-._        ",
+    "   |         .'           `.      ",
+    "   |        /  .:'~~~~~':.  \\     ",
+    "   |       |  ::         ::  |    ",
+    "   |       |  ::   o o   ::  |    ",
+    "   |       |  ::.   ~   .::  |    ",
+    "   |       \\  ':.._____.:'  /     ",
+    "   |        `._           _.'     ",
+    "   |          `-.._____.-'        ",
+    "   |           /         \\        ",
+    "   |           / |     | \\        ",
+    "   |          /  |     |  \\       ",
+    "   |          /  |     |  \\       ",
+    "   |         /  |       |  \\      ",
+    "   |         /  |       |  \\      ",
+    "   |        /   |       |   \\     ",
+    "   |        /   |       |   \\     ",
+    "   |       /    |       |    \\    ",
+    "   |       /    |       |    \\    ",
+    "   |      /    |         |    \\   ",
+    "   |      /    |         |    \\   ",
+    "   |     /     |         |     \\  ",
+    "   |     /_____________________\\  ",
 )
 
-# row, column
-STAFF_TIP = (0, 2)
-EYES = ((2, 12), (2, 16))
-MOUTH = (4, 13)  # the middle of three dashes
-HEM = ((7, 10), (7, 18))
-
+STAFF_COLUMN = 3
+EYE_ROW, MOUTH_ROW = 4, 5
+# Only the lowest row of the drape moves: cloth swings at the hem, not halfway
+# up, and a fold that flickers along its whole length reads as damage.
+HEM_ROWS = (21,)
 BLINK_EVERY = 17
-MOUTHS = "----~~--"
-HEM_LEFT = "/|\\|"
-HEM_RIGHT = "\\|/|"
+MOUTHS = "~~--~~..~~--"
+SWAY = "|/|\\"
+
+
+def _columns(row: int, character: str) -> tuple[int, ...]:
+    """Where a mark sits in the drawing, found rather than written down.
+
+    The figure changed once and the hand written coordinates did not, which is
+    how her face came to be bent. Now the drawing is the only source.
+    """
+    return tuple(number for number, found in enumerate(FIGURE[row]) if found == character)
+
+
+EYES = _columns(EYE_ROW, "o")
+MOUTH = _columns(MOUTH_ROW, "~")
+STAFF = (0, FIGURE[0].index("@"))
+FOLDS = tuple(
+    (row, column)
+    for row in HEM_ROWS
+    for column in _columns(row, "|")
+    if column != STAFF_COLUMN
+)
 
 
 def figure(tick: int, ramp: str) -> list[str]:
     rows = [list(line) for line in FIGURE]
 
     # The staff answers first: its head brightens before she speaks.
-    rows[STAFF_TIP[0]][STAFF_TIP[1]] = ramp[-1] if tick % 4 < 2 else ramp[max(1, len(ramp) // 2)]
+    rows[STAFF[0]][STAFF[1]] = "@" if tick % 4 < 2 else ramp[len(ramp) // 2]
 
     blinking = tick % BLINK_EVERY == BLINK_EVERY - 1
-    for row_number, column in EYES:
-        rows[row_number][column] = "-" if blinking else "o"
+    for column in EYES:
+        rows[EYE_ROW][column] = "-" if blinking else "o"
 
-    rows[MOUTH[0]][MOUTH[1]] = MOUTHS[tick % len(MOUTHS)]
+    for column in MOUTH:
+        rows[MOUTH_ROW][column] = MOUTHS[tick % len(MOUTHS)]
 
-    left, right = HEM
-    rows[left[0]][left[1]] = HEM_LEFT[tick // 2 % len(HEM_LEFT)]
-    rows[right[0]][right[1]] = HEM_RIGHT[tick // 2 % len(HEM_RIGHT)]
+    # The hem moves last and least, the way heavy cloth does.
+    for number, (row, column) in enumerate(FOLDS):
+        rows[row][column] = SWAY[(tick // 3 + number) % len(SWAY)]
 
     return ["".join(row) for row in rows]
 
