@@ -406,3 +406,113 @@ def test_the_am_modules_need_a_radio_and_a_recogniser(stub_context):
         module = registry.MODULES["world"][name]
         assert module.available(stub_context) is False
         assert module.available(stub_context.with_capabilities("sdr")) is False
+
+
+# The sound actually leaves the program
+
+
+class Speaker:
+    """An output that records what was done to it instead of opening a device."""
+
+    def __init__(self):
+        self.opened = 0
+        self.closed = 0
+        self.played = 0
+
+    def open(self):
+        self.opened += 1
+        return True
+
+    def play(self, block):
+        self.played += 1
+        return block
+
+    def close(self):
+        self.closed += 1
+
+
+def sweeping(monkeypatch, ctx):
+    tone = np.sin(np.linspace(0, 50, 4096)).astype(np.float32)
+    monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([tone]))
+    monkeypatch.setattr(audio, "Output", lambda levels, rate: ctx.speaker)
+
+
+def test_the_sweep_opens_the_output_once_and_closes_it(stub_context, monkeypatch):
+    ctx = stub_context.with_capabilities("sdr", "stt", "audio")
+    ctx.stt = FakeSpeech(["heard"])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["tuned"] = False
+    scoped.speaker = Speaker()
+    sweeping(monkeypatch, scoped)
+
+    found.run(scoped, Key(seed=3, anchors=()))
+
+    assert scoped.speaker.opened == 1
+    assert scoped.speaker.closed == 1
+    assert scoped.speaker.played == scoped.settings["stops"]
+
+
+def test_a_machine_with_no_sound_card_still_draws(stub_context, monkeypatch):
+    """The radio modules need a dongle and a recogniser, never a speaker."""
+    ctx = stub_context.with_capabilities("sdr", "stt")
+    ctx.stt = FakeSpeech(["heard"])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["tuned"] = False
+    scoped.speaker = Speaker()
+    sweeping(monkeypatch, scoped)
+
+    material = found.run(scoped, Key(seed=3, anchors=()))
+
+    assert material.text == "heard"
+    assert scoped.speaker.opened == 0
+    assert scoped.speaker.closed == 1
+
+
+def test_the_output_is_closed_when_the_sweep_fails(stub_context, monkeypatch):
+    ctx = stub_context.with_capabilities("sdr", "stt", "audio")
+    ctx.stt = FakeSpeech([])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["tuned"] = False
+    scoped.speaker = Speaker()
+
+    def angry(*args, **kwargs):
+        raise OSError("the dongle went away")
+
+    monkeypatch.setattr(radio, "capture", angry)
+    monkeypatch.setattr(audio, "Output", lambda levels, rate: scoped.speaker)
+
+    with pytest.raises(OSError):
+        found.run(scoped, Key(seed=3, anchors=()))
+
+    assert scoped.speaker.closed == 1
+
+
+def test_the_volume_keys_reach_the_sound_while_it_plays(stub_context, monkeypatch):
+    """The interface owns the levels; the sweep must use that object, not a copy."""
+    levels = audio.Levels(volume=0.5)
+    ctx = stub_context.with_capabilities("sdr", "stt")
+    ctx.levels = levels
+    ctx.stt = FakeSpeech(["heard"])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["tuned"] = False
+
+    seen = []
+    monkeypatch.setattr(audio, "Output", lambda given, rate: seen.append(given) or Speaker())
+    monkeypatch.setattr(
+        radio, "capture", lambda *args, **kwargs: iter([np.zeros(4096, dtype=np.float32)])
+    )
+
+    found.run(scoped, Key(seed=3, anchors=()))
+
+    assert seen[0] is levels
+
+
+def test_the_module_context_keeps_the_levels(stub_context):
+    """for_module builds a new context by hand, so it can forget a field."""
+    stub_context.levels = audio.Levels()
+
+    assert stub_context.for_module("fm_voice", {}).levels is stub_context.levels

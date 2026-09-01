@@ -204,8 +204,30 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     band = choose_band(settings["band"], rng)
     ctx.emit("stage", f"band {band} MHz")
     stops = _stops_for(ctx, band, rng)
-    output = output or audio.Output(audio.Levels.from_config(ctx.config), rate)
+    own = output is None
+    if own:
+        # The levels come from the interface when there is one, so the volume
+        # keys reach the sound while it is still playing.
+        output = audio.Output(ctx.levels or audio.Levels.from_config(ctx.config), rate)
+        if ctx.has("audio"):
+            output.open()
+    try:
+        heard, blocks = _sweep(ctx, stops, output, rate)
+    finally:
+        if own:
+            output.close()
 
+    if blocks == 0:
+        raise Unavailable(
+            "The radio gave nothing across the whole sweep. Either another "
+            "program is holding the dongle or rtl_fm cannot open it. Close the "
+            "other program, then draw again."
+        )
+    return transcribe(ctx, heard), stops
+
+
+def _sweep(ctx, stops, output, rate: int) -> tuple[list[np.ndarray], int]:
+    settings = ctx.settings
     heard: list[np.ndarray] = []
     blocks = 0
     for number, frequency in enumerate(stops, start=1):
@@ -231,14 +253,7 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
             ctx.emit("spectrum", audio.spectrum(block, int(settings.get("bins", 64))))
             heard.append(downsample(block, rate // SPEECH_RATE))
             blocks += 1
-
-    if blocks == 0:
-        raise Unavailable(
-            "The radio gave nothing across the whole sweep. Either another "
-            "program is holding the dongle or rtl_fm cannot open it. Close the "
-            "other program, then draw again."
-        )
-    return transcribe(ctx, heard), stops
+    return heard, blocks
 
 
 def _carriers(ctx, band: str) -> list[float]:

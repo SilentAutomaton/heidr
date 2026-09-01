@@ -116,6 +116,7 @@ class HeidrApp(App):
             capabilities=capabilities.with_providers(found, provider, listener),
             llm=provider,
             stt=listener,
+            levels=self.levels,
             cancelled=self.stop_draw.is_set,
         )
         return self.context

@@ -37,6 +37,9 @@ class Context:
     cancelled: Callable[[], bool] = _never
     llm: Any = None
     stt: Any = None
+    # The interface owns one Levels object and the volume keys change it, so
+    # passing the object rather than the numbers is what makes them live.
+    levels: Any = None
 
     def has(self, capability: str) -> bool:
         return capability in self.capabilities
@@ -53,6 +56,7 @@ class Context:
             cancelled=self.cancelled,
             llm=self.llm,
             stt=self.stt,
+            levels=self.levels,
         )
 
 
