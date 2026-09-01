@@ -35,13 +35,40 @@ def test_the_same_question_cannot_be_asked_twice(offline, ledger):
     assert refused.value.entry.identifier == "00001"
 
 
-def test_a_failed_draw_is_recorded_as_void_and_still_blocks(offline, ledger, monkeypatch):
+def test_a_draw_that_found_nothing_releases_the_question(offline, ledger, monkeypatch):
     monkeypatch.setattr(session.rite, "draw", lambda *a, **k: 1 / 0)
 
     with pytest.raises(ZeroDivisionError):
         session.perform(offline, ledger, QUESTION)
 
+    # An unreachable source must not spend a question. The rule is about not
+    # re-rolling an unwelcome answer, and there was no answer.
     assert ledger.last().get("Status") == "void"
+    assert ledger.asked_before(QUESTION) is None
+
+
+def test_after_a_release_the_question_can_be_asked_again(offline, ledger, monkeypatch):
+    monkeypatch.setattr(session.rite, "draw", lambda *a, **k: 1 / 0)
+    with pytest.raises(ZeroDivisionError):
+        session.perform(offline, ledger, QUESTION)
+
+    monkeypatch.undo()
+    drawn = session.perform(offline, ledger, QUESTION)
+
+    assert drawn.entry.identifier == "00002"
+    assert ledger.chain_ok()
+
+
+def test_a_reading_that_breaks_after_material_still_spends_the_question(offline, ledger, monkeypatch):
+    def broken(ctx, drawn, question, material):
+        raise RuntimeError("the reading fell over")
+
+    monkeypatch.setattr(session, "_read", broken)
+
+    with pytest.raises(RuntimeError):
+        session.perform(offline, ledger, QUESTION)
+
+    assert ledger.last().get("Status") == "broken"
     assert ledger.asked_before(QUESTION) is not None
 
 

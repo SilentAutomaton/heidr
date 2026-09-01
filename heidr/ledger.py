@@ -10,6 +10,7 @@ SUFFIX = ".rite"
 WIDTH = 5
 HEADER = re.compile(r"^([A-Za-z]+):\s+(.*)$")
 GENESIS = "0" * 64
+OPEN, COMPLETE, VOID, BROKEN = "open", "complete", "void", "broken"
 
 
 @dataclass
@@ -45,9 +46,15 @@ class Ledger:
         return self._read(paths[-1]) if paths else None
 
     def asked_before(self, question: str) -> Entry | None:
+        """A question that was really drawn on cannot be asked again.
+
+        A draw that never happened — the source was unreachable, the radio was
+        busy — does not count. The rule exists to stop a second roll after an
+        unwelcome answer, not to spend a question on a timeout.
+        """
         wanted = fingerprint(question)
         for entry in self.entries():
-            if entry.get("Question") == wanted:
+            if entry.get("Question") == wanted and entry.get("Status") != VOID:
                 return entry
         return None
 
@@ -69,7 +76,7 @@ class Ledger:
             headers={
                 "Id": str(number).zfill(WIDTH),
                 "Date": moment,
-                "Status": "open",
+                "Status": OPEN,
                 "Rite": "",
                 "Question": question_hash,
                 "Prev": previous.get("Commit") if previous else GENESIS,
@@ -81,14 +88,17 @@ class Ledger:
         return entry
 
     def complete(self, entry: Entry, rite: str, question: str, body: str) -> Entry:
-        entry.headers["Status"] = "complete"
+        entry.headers["Status"] = COMPLETE
         entry.headers["Rite"] = rite
         entry.body = f"{question}\n\n{body}".strip()
         self._write(entry)
         return entry
 
-    def abandon(self, entry: Entry) -> Entry:
-        entry.headers["Status"] = "void"
+    def abandon(self, entry: Entry, released: bool = False) -> Entry:
+        # Released means nothing was found, so the question is free again.
+        # Broken means the world answered and only the reading failed, and the
+        # question stays spent.
+        entry.headers["Status"] = VOID if released else BROKEN
         self._write(entry)
         return entry
 

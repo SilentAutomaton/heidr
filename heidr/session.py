@@ -36,37 +36,40 @@ def perform(ctx: Context, ledger: Ledger, question: str) -> Draw:
     # The promise is written before anything is drawn, so the answer cannot be
     # rolled again once it is known.
     entry = ledger.commit(question)
+    material = None
     try:
         drawn = rite.draw(
             ctx,
             seed=entropy.world_seed(entropy.collect(ctx)),
             recent=ledger.recent_modules(),
         )
-        key, material, lines = _walk(ctx, drawn, question)
+        ctx.emit("stage", drawn.question.name)
+        key = drawn.question.run(_ready(ctx, drawn.question), question)
+
+        ctx.emit("stage", drawn.world.name)
+        material = drawn.world.run(_ready(ctx, drawn.world), key)
+
+        lines = _read(ctx, drawn, question, material)
     except Exception:
-        ledger.abandon(entry)
+        # Nothing was found, so the question is released. Once material exists
+        # the question is spent, whatever happens next.
+        ledger.abandon(entry, released=material is None)
         raise
 
     ledger.complete(entry, str(drawn), question, body(material, lines))
     return Draw(entry, drawn, key, material, lines)
 
 
-def _walk(ctx: Context, drawn: rite.Rite, question: str):
-    ctx.emit("stage", drawn.question.name)
-    key = drawn.question.run(_ready(ctx, drawn.question), question)
-
-    ctx.emit("stage", drawn.world.name)
-    material = drawn.world.run(_ready(ctx, drawn.world), key)
+def _read(ctx: Context, drawn: rite.Rite, question: str, material: Material) -> list[str]:
+    if drawn.silent:
+        return []
 
     lines: list[str] = []
-    if drawn.silent:
-        return key, material, lines
-
     ctx.emit("stage", drawn.reading.name)
     for line in drawn.reading.run(_ready(ctx, drawn.reading), question, material):
         lines.append(line)
         ctx.emit("token", line)
-    return key, material, lines
+    return lines
 
 
 def _ready(ctx: Context, module) -> Context:

@@ -106,6 +106,27 @@ Levelling is a slow automatic gain stage aiming at a target RMS, followed by a
 hard limiter so nothing clips. All four parameters are configurable and change
 live from the interface.
 
+## Nothing waits forever
+
+A rite talks to a radio, to public endpoints and to a daemon, and every one of
+them can be slow. A timeout handed to `requests` bounds one socket operation,
+not the whole exchange: a slow public feed held a draw for eighty seconds
+without ever exceeding a ten second timeout.
+
+So waiting is bounded in one place per kind of wait.
+
+`heidr/net.py` runs a fetch in a thread and abandons it when the budget is
+spent, raising a message that names the host and says what to do. Every network
+world module goes through it.
+
+`entropy.collect` asks all its sources at once and keeps whatever answered
+within the budget. A source that is too slow is simply absent from the mix,
+which is the same as being unreachable, and the seed is never short of material
+because `os.urandom` and the clock are always in it.
+
+The radio fails loudly rather than quietly. A capture that returns no samples
+does not become a hash of nothing: it raises, and the draw is recorded as void.
+
 ## Ledger
 
 Draws are stored as one plain text file each, in the manner of `dreamdir`: a
