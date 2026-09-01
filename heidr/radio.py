@@ -14,6 +14,9 @@ from heidr.stt.base import RATE as SPEECH_RATE
 
 BLOCK = 4096
 GRID = 200
+# librtlsdr will not run the receiver below about this, and rtl_fm answers an
+# input rate under it by producing nothing at all rather than complaining.
+MIN_INPUT_HZ = 24_000
 HEADER = 6
 MARGIN_DB = 8.0
 SEPARATION_HZ = 200_000

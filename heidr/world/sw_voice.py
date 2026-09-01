@@ -27,7 +27,7 @@ available = radio.available
         "dwell_s": 20,
         "mode": "am",
         "rate": 16000,
-        "input_rate": "12k",
+        "input_rate": "24k",
         "bins": 64,
         "tuned": True,
         "scan_step": "5k",
@@ -35,8 +35,10 @@ available = radio.available
         "scan_margin": 6.0,
         "scan_separation": 10000,
         "gain": "",
-        # A tuner cannot reach shortwave, so the input is sampled directly.
-        "direct": "direct2",
+        # Empty on a receiver whose driver reaches shortwave by itself, which is
+        # the case for the RTL-SDR Blog V4. Set it to direct2 on a dongle that
+        # needs the input sampled directly.
+        "direct": "",
     },
 )
 def run(ctx, key: Key) -> Material:

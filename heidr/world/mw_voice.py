@@ -21,7 +21,7 @@ available = radio.available
         "dwell_s": 20,
         "mode": "am",
         "rate": 16000,
-        "input_rate": "12k",
+        "input_rate": "24k",
         "bins": 64,
         "tuned": True,
         "scan_step": "9k",
@@ -29,7 +29,7 @@ available = radio.available
         "scan_margin": 6.0,
         "scan_separation": 9000,
         "gain": "",
-        "direct": "direct2",
+        "direct": "",
     },
 )
 def run(ctx, key: Key) -> Material:

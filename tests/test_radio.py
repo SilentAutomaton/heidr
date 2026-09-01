@@ -344,6 +344,11 @@ def fake_popen(monkeypatch, seen):
     )
 
 
+def test_direct_sampling_is_off_unless_the_receiver_needs_it():
+    for name in ("sw_voice", "mw_voice"):
+        assert registry.MODULES["world"][name].defaults["direct"] == ""
+
+
 def test_shortwave_is_sampled_directly(monkeypatch):
     seen = {}
     fake_popen(monkeypatch, seen)
@@ -383,9 +388,10 @@ def test_the_am_modules_carry_the_settings_shortwave_needs():
     for name in ("sw_voice", "mw_voice"):
         defaults = registry.MODULES["world"][name].defaults
         assert defaults["mode"] == "am"
-        assert defaults["direct"] == "direct2"
-        assert defaults["input_rate"] == "12k"
         assert defaults["dwell_s"] >= 15
+        # rtl_fm answers an input rate below this by producing nothing at all,
+        # with no error, which cost an evening to find.
+        assert int(defaults["input_rate"].rstrip("k")) * 1000 >= radio.MIN_INPUT_HZ
 
 
 def test_shortwave_carries_several_metre_bands():
