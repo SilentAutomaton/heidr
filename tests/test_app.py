@@ -184,3 +184,10 @@ async def test_a_speech_provider_without_a_model_removes_the_capability(default_
         context = app.probe()
         assert "stt" not in context.capabilities
         assert context.stt is None
+
+
+@pytest.mark.asyncio
+async def test_voice_input_says_what_is_missing(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", "ctrl+v")
+        assert "speech provider" in pilot.app.query_one(CommandLine).message

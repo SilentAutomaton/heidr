@@ -6,7 +6,7 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import audio, capabilities, config, keymap, llm, registry, rite, session, stt
+from heidr import audio, capabilities, config, keymap, llm, mic, registry, rite, session, stt
 from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
@@ -90,7 +90,7 @@ class HeidrApp(App):
         if self.edit_mode == "COMMAND":
             self._type_into_command_line(event, self._run_command)
         elif self.edit_mode == "INSERT":
-            self._type_into_command_line(event, self._accept_question)
+            self._handle_insert_key(event)
         else:
             self._handle_normal_key(event)
 
@@ -103,6 +103,13 @@ class HeidrApp(App):
             self.leader_pending = True
             return
         self._act(self.keymap["normal"].get(event.key, ""))
+
+    def _handle_insert_key(self, event) -> None:
+        action = self.keymap["insert"].get(event.key, "")
+        if action:
+            self._act(action)
+            return
+        self._type_into_command_line(event, self._accept_question)
 
     def _type_into_command_line(self, event, accept) -> None:
         line = self.query_one(CommandLine)
@@ -154,6 +161,27 @@ class HeidrApp(App):
     def do_ask(self) -> None:
         self.query_one(CommandLine).open("> ")
         self.edit_mode = "INSERT"
+
+    def do_voice_input(self) -> None:
+        context = self.probe()
+        if not mic.available(context):
+            self.query_one(CommandLine).say(text("error.no_voice"))
+            return
+        self.run_worker(lambda: self._dictate(context), thread=True)
+
+    def _dictate(self, context) -> None:
+        line = self.query_one(CommandLine)
+        heard = mic.dictate(context, lambda said: self.call_from_thread(self._show_dictation, said))
+        if heard:
+            self.call_from_thread(line.type, "")
+
+    def _show_dictation(self, said: str) -> None:
+        line = self.query_one(CommandLine)
+        line.buffer = said
+
+    def do_normal_mode(self) -> None:
+        self.query_one(CommandLine).close()
+        self.edit_mode = "NORMAL"
 
     def do_quit(self) -> None:
         self.exit()
