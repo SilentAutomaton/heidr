@@ -1,7 +1,11 @@
 import hashlib
 import random
+import subprocess
+
+import pytest
 
 from heidr import entropy
+from heidr.contracts import Unavailable
 
 
 def biased_stream(probability: float, size: int, seed: int) -> bytes:
@@ -54,3 +58,29 @@ def test_a_failing_source_is_skipped_without_breaking_the_mix(stub_context, monk
     sources = entropy.collect(stub_context.with_capabilities("net"))
 
     assert sources == [b"root"]
+
+
+def test_a_radio_that_returns_nothing_is_not_silently_hashed(monkeypatch):
+    class Finished:
+        stdout = b""
+        stderr = b"usb_claim_interface error -6\nFailed to open rtlsdr device #0.\n"
+
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: Finished())
+
+    with pytest.raises(Unavailable) as refused:
+        entropy.radio_noise(0.1)
+
+    assert "Another program is holding the dongle" in str(refused.value)
+
+
+def test_an_unexplained_failure_still_says_what_to_check(monkeypatch):
+    class Finished:
+        stdout = b""
+        stderr = b""
+
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: Finished())
+
+    with pytest.raises(Unavailable) as refused:
+        entropy.radio_noise(0.1)
+
+    assert "Check the antenna" in str(refused.value)

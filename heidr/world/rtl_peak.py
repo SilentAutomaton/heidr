@@ -1,7 +1,7 @@
 import shutil
 import subprocess
 
-from heidr.contracts import Key, Material
+from heidr.contracts import Key, Material, Unavailable
 from heidr.registry import world
 
 HEADER = 6
@@ -43,6 +43,11 @@ def sweep(band: str, step: str, seconds: int) -> str:
 def run(ctx, key: Key) -> Material:
     csv = sweep(ctx.settings["band"], ctx.settings["step"], int(ctx.settings["seconds"]))
     hertz, power = strongest(csv)
+    if hertz == 0:
+        raise Unavailable(
+            "The sweep came back empty. Either another program is holding the "
+            "dongle or the band is wrong. Close the other program, then draw again."
+        )
 
     megahertz = hertz / 1e6
     ctx.emit("stage", f"peak {megahertz:.3f} MHz at {power:.1f} dB")

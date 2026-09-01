@@ -1,9 +1,10 @@
 import random
 
 import numpy as np
+import pytest
 
 from heidr import audio, radio, registry
-from heidr.contracts import Key
+from heidr.contracts import Key, Unavailable
 from heidr.stt.base import Partial
 
 BAND = "88.0-108.0"
@@ -124,18 +125,33 @@ def test_a_sweep_plays_transcribes_and_reports(stub_context, events, monkeypatch
     assert output.stream is None
 
 
-def test_a_sweep_that_hears_nothing_returns_empty_text(stub_context, monkeypatch):
+def test_a_silent_band_still_produces_material(stub_context, monkeypatch):
     ctx = stub_context.with_capabilities("sdr", "stt")
     ctx.stt = FakeSpeech([])
     found, scoped = ready(ctx, "sw_voice")
     scoped.stt = ctx.stt
 
-    monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([]))
+    quiet = np.zeros(4096, dtype=np.float32)
+    monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([quiet]))
 
     material = found.run(scoped, Key(seed=1))
 
     assert material.text == ""
     assert material.source == "shortwave"
+
+
+def test_a_radio_that_gives_nothing_at_all_says_why(stub_context, monkeypatch):
+    ctx = stub_context.with_capabilities("sdr", "stt")
+    ctx.stt = FakeSpeech([])
+    found, scoped = ready(ctx, "fm_voice")
+    scoped.stt = ctx.stt
+
+    monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([]))
+
+    with pytest.raises(Unavailable) as refused:
+        found.run(scoped, Key(seed=1))
+
+    assert "holding the dongle" in str(refused.value)
 
 
 def test_voice_modules_need_both_a_radio_and_a_recogniser(stub_context):

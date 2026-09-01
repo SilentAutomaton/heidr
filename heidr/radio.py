@@ -7,6 +7,7 @@ from typing import Iterator
 import numpy as np
 
 from heidr import audio
+from heidr.contracts import Unavailable
 from heidr.stt.base import RATE as SPEECH_RATE
 
 BLOCK = 4096
@@ -79,13 +80,21 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     output = output or audio.Output(audio.Levels.from_config(ctx.config), rate)
 
     heard: list[np.ndarray] = []
+    blocks = 0
     for frequency in stops:
         ctx.emit("stage", f"{frequency / 1e6:.3f} MHz")
         for block in capture(frequency, settings["mode"], rate, float(settings["dwell_s"])):
             output.play(block)
             ctx.emit("spectrum", audio.spectrum(block, int(settings.get("bins", 64))))
             heard.append(downsample(block, rate // SPEECH_RATE))
+            blocks += 1
 
+    if blocks == 0:
+        raise Unavailable(
+            "The radio gave nothing across the whole sweep. Either another "
+            "program is holding the dongle or rtl_fm cannot open it. Close the "
+            "other program, then draw again."
+        )
     return transcribe(ctx, heard), stops
 
 

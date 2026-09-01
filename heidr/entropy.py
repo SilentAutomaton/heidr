@@ -5,6 +5,8 @@ import time
 
 import requests
 
+from heidr.contracts import Unavailable
+
 BEACON = "https://beacon.nist.gov/beacon/2.0/pulse/last"
 LATEST_BLOCK = "https://blockchain.info/latestblock"
 BLOCK = "https://blockchain.info/rawblock/{hash}"
@@ -53,7 +55,21 @@ def radio_noise(seconds: float = 2.0, frequency: str = EMPTY_FREQUENCY) -> bytes
     samples = str(int(2_048_000 * seconds))
     command = ["rtl_sdr", "-f", frequency, "-n", samples, "-"]
     finished = subprocess.run(command, capture_output=True, timeout=seconds + 10)
+    if not finished.stdout:
+        raise Unavailable(busy_message(finished.stderr))
     return finished.stdout
+
+
+def busy_message(stderr: bytes) -> str:
+    """Say why the radio gave nothing, in the words the radio used."""
+    said = stderr.decode("utf-8", errors="ignore").strip().splitlines()
+    last = said[-1] if said else "the receiver returned no samples"
+    if "claim_interface" in " ".join(said) or "Failed to open" in " ".join(said):
+        return (
+            f"The radio gave nothing: {last} "
+            "Another program is holding the dongle. Close it, then draw again."
+        )
+    return f"The radio gave nothing: {last} Check the antenna and the dongle, then draw again."
 
 
 def beacon_pulse(timeout: float = 5.0) -> bytes:

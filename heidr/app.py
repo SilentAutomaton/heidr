@@ -7,7 +7,7 @@ from textual.containers import Container, Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import audio, capabilities, config, keymap, llm, mic, registry, rite, session, stt
+from heidr import audio, capabilities, config, health, keymap, llm, mic, registry, rite, session, stt
 from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
@@ -236,6 +236,11 @@ class HeidrApp(App):
         self.view = "rite"
         self.query_one("#body", Static).update(self._help_text())
 
+    def do_checkhealth(self) -> None:
+        self.view = "rite"
+        checks = health.report(self.probe(), self.terminal, self.ledger)
+        self.query_one("#body", Static).update(health.as_text(checks))
+
     def do_modules(self) -> None:
         self._open_browser("modules", browser.module_rows(self.probe()), text("empty.modules"))
 
@@ -323,6 +328,8 @@ class HeidrApp(App):
             self._set_option(argument, line)
         elif name == "modules":
             self.do_modules()
+        elif name == "checkhealth":
+            self.do_checkhealth()
         elif name == "settings":
             self.do_settings()
         elif name in ("w", "write"):
