@@ -37,6 +37,7 @@ in public and reimplemented here.
 | [Plasma tutorial](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Four sine waves radiating from four points, which is what a plasma field is |
 | [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | The register of falling glyph columns |
 | Conway's Game of Life | John Conway, 1970 | public domain | The rules, which are not ours to adjust |
+| [Joan Stark's gallery](https://oldcompcz.github.io/jgs/joan_stark/), [Christopher Johnson's collection](https://asciiart.website/), [ASCII Art Archive](https://www.asciiart.eu/) | Joan G. Stark and others | all rights reserved | Studied, not copied. Density as tone, shadow inside a cowl, a face made of three marks. Their terms require the artist's initials to stay on every copy, which this licence cannot honour, so nothing was taken |
 | Minecraft obfuscated text | Mojang | — | The register of the flickering slogan: letters change, word shapes do not |
 
 ## External programs called as subprocesses

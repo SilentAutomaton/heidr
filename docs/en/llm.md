@@ -45,6 +45,21 @@ with an empty answer, which reaches the screen as material and nothing else.
 The default is `false`, so the model answers at once. Set it to `true` only
 with a model and a context length that can afford it.
 
+| Key | Default | What it is for |
+|---|---|---|
+| `temperature` | 0.8 | An oracle wants variety, not accuracy |
+| `top_p` | 0.9 | The usual companion to the temperature |
+| `repeat_penalty` | 1.1 | A model reading noise is prone to looping |
+| `context_tokens` | 8192 | `num_ctx`. Too small and the server truncates the material without saying so |
+| `max_tokens` | 400 | `num_predict`. The longest answer worth waiting for |
+| `keep_alive` | `10m` | ollama only. A nine billion parameter model takes six seconds to load, and used to reload for every rite |
+| `fragment_chars` | 1200 | How much of the found material the model is shown |
+
+Before this, no options were sent at all and the server's own defaults decided
+everything, including a context window too small for a page of found material.
+An OpenAI shaped service gets `temperature`, `top_p` and `max_tokens`, which is
+all its API has; the rest are ollama's own.
+
 `api_key_env` is the **name of an environment variable**, not a key. Keys are
 never read from the config file and never written to it.
 
@@ -55,6 +70,28 @@ does not fail in the middle of a rite. The `llm` capability is dropped at probe
 time instead, so every reading that needs a model quietly leaves the lottery and
 `:checkhealth` says what is missing. The oracle keeps working with the readings
 that need nothing.
+
+## How the reading is asked for
+
+Two things about the prompt are worth writing down, because both were wrong once
+and the answers showed it.
+
+**It asks for a reading, not an audit.** The prompt used to say "use only what is
+in the fragment, do not invent". Handed a wall of random bytes, an honest model
+then answered that the fragment contains no actionable information — correct, and
+useless. An augur reading entrails knows they are entrails. The prompt now says
+where the fragment came from, that it was written for nobody, and asks for one or
+two concrete things noticed in it and what they mean for the question. Saying
+that the fragment is random or insufficient is forbidden outright.
+
+**It asks for the language of the question.** A Russian question was coming back
+answered in English, because the whole prompt is in English and a model follows
+what it reads. The question is now repeated as the last line of the message, with
+the instruction attached to it: a model follows the last thing it read.
+
+The answer arrives as a stream of fragments a few characters long, and a reading
+yields lines, so `llm.base.lines` puts them back together. Without that, the
+answer reached the screen one word per line.
 
 ## The rule that outranks all of this
 

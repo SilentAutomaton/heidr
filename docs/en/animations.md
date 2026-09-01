@@ -100,14 +100,55 @@ jokes; the answer itself, when there is one, is delivered straight.
 ## Where it is drawn
 
 The animation fills the whole terminal. The text sits on top of it in a panel
-that is centred and sized by what it holds, up to the size of the terminal
-itself, and the panel carries its own opaque background so the animation behind
-it never makes the reading harder to read.
+that is centred and sized by what it holds, and the panel carries its own opaque
+background so the animation behind it never makes the reading harder to read.
 
-Two consequences follow. A painter is given the whole screen, so a moon or a
-gear train grows when the window does. And the panel is never taller than there
-is room for, so the status line and the command line keep their two rows
-whatever happens above them.
+**Nothing else may cover the canvas.** A widget above it hides its characters
+even when that widget's background is fully transparent: the compositor gives
+the cell to whoever is on top, and blending colours does not bring the glyphs
+underneath back. A full width container over the canvas is therefore the same
+thing as no animation at all — which is exactly what happened here for a whole
+cycle, while every test about sizes and stylesheets stayed green.
+
+The test that catches it composites the screen and looks for the characters of
+`plasma`, which fills every cell, in the corners. That is the only kind of proof
+that means anything here: what the terminal would really receive.
+
+Two more consequences. A painter is given the whole screen, so a moon or a gear
+train grows when the window does. And the panel is capped at ninety per cent of
+the width and wraps its text, so it can never grow to cover everything.
+
+## The panel
+
+The rite is shown in labelled blocks rather than as one flat run of text:
+
+```
+· gematria  //  · babel  //  ▸ pythia
+
+question · 00012
+  Что мне делать?
+
+found · bitcoin/914233
+  !lzz(5<Sq_Ewq> CORE|u& fmBN ,KT2+ 0 EXSAT sysB
+  … 180 more characters
+
+answer · pythia
+  Ешь то, что не выбирал.
+```
+
+Everything is folded to the width of the panel. Before, a line of three hundred
+characters was cut at the edge and the rest was simply gone from the screen,
+with nothing to say so. The material is capped at ten lines and says how much is
+left over; the whole of it is always in the ledger.
+
+The material appears as soon as the world hands it over, on a `found` event,
+rather than when the whole rite finishes. A reading through a language model
+takes half a minute, and there is no reason to stare at nothing meanwhile.
+
+A message that ends a rite — a refusal, a failure, a reading that said nothing —
+is written into the panel with a `!` in the accent colour, and repeated in the
+bottom line. Small talk, such as a setting that changed, stays at the bottom
+alone.
 
 ## The question field
 
@@ -118,7 +159,13 @@ read as two different things.
 
 The figure is plain text inside the panel rather than a painter behind it, so a
 timer of its own moves her three times a second. She blinks, her staff head
-brightens, and the hem of her cloak shifts; nothing else.
+brightens, and the hem of her cloak swings; nothing else. Below seventy four
+columns she is dropped and the field keeps the room: half a figure beside half a
+field helps nobody.
+
+Her marks — the eyes, the mouth, the head of the staff, the hem — are found in
+the drawing at import time rather than written down as coordinates. The drawing
+changed once and the coordinates did not, and her face came out bent.
 
 ## The stage bar
 
