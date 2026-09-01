@@ -96,3 +96,14 @@ seconds = 45
 [modules.sdr_noise]
 frequency = "88000000"  # something with nothing on it
 seconds = 3.0
+
+[modules.planetary]
+# Without a position the planetary hours rite stays out of the lottery.
+latitude = 0.0
+longitude = 0.0
+
+[modules.calendar]
+which = "rotate"        # discordian, republican, long_count, or rotate daily
+
+[modules.embed]
+model = "nomic-embed-text"

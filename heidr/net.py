@@ -16,8 +16,12 @@ def fetch_json(url: str, budget: float = BUDGET, timeout: float = TIMEOUT):
     exceeding it. So the request is run in a thread and abandoned when the
     budget is spent.
     """
+    return _bounded(lambda: _get(url, timeout), url, budget)
+
+
+def _bounded(work, url: str, budget: float):
     pool = ThreadPoolExecutor(max_workers=1)
-    running = pool.submit(_get, url, timeout)
+    running = pool.submit(work)
     try:
         return running.result(timeout=budget)
     except Expired:
@@ -35,8 +39,19 @@ def fetch_json(url: str, budget: float = BUDGET, timeout: float = TIMEOUT):
         pool.shutdown(wait=False, cancel_futures=True)
 
 
+def post_json(url: str, payload: dict, budget: float = BUDGET, timeout: float = TIMEOUT):
+    """The same bounded wait, for a request that carries something."""
+    return _bounded(lambda: _post(url, payload, timeout), url, budget)
+
+
 def _get(url: str, timeout: float):
     reply = requests.get(url, timeout=timeout)
+    reply.raise_for_status()
+    return reply.json()
+
+
+def _post(url: str, payload: dict, timeout: float):
+    reply = requests.post(url, json=payload, timeout=timeout)
     reply.raise_for_status()
     return reply.json()
 
