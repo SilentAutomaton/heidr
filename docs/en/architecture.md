@@ -137,3 +137,16 @@ program.
 The hash of the question is written *before* the draw, and each entry chains to
 the previous one. Re-rolling after an unwanted answer is not possible, and the
 whole history verifies with one command.
+
+An entry ends in one of three states, and the difference matters:
+
+| Status | Meaning | Can the question be asked again? |
+|---|---|---|
+| `complete` | The rite ran | No |
+| `broken` | The world answered, the reading failed | No |
+| `void` | Nothing was found at all | Yes |
+
+`void` exists because the rule is about not re-rolling an unwelcome answer, not
+about spending a question on a timeout. An unreachable feed or a dongle held by
+another program releases the question; once material exists, it is spent
+whatever happens next.
