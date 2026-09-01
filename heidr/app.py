@@ -1,3 +1,4 @@
+from dataclasses import replace
 from pathlib import Path
 
 from textual.app import App, ComposeResult
@@ -6,6 +7,8 @@ from textual.reactive import reactive
 from textual.widgets import Static
 
 from heidr import capabilities, config, keymap
+from heidr.contracts import Context
+from heidr.events import Bus
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
@@ -25,7 +28,17 @@ class HeidrApp(App):
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
+        self.bus = Bus()
+        # Probing the network and the radio takes time, so capabilities stay
+        # empty until :checkhealth or a draw asks for them.
+        self.context = Context(config=self.settings, emit=self.bus.emit)
         super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss")
+
+    def probe(self) -> Context:
+        self.context = replace(
+            self.context, capabilities=capabilities.detect_capabilities(self.settings)
+        )
+        return self.context
 
     def compose(self) -> ComposeResult:
         with Vertical():
