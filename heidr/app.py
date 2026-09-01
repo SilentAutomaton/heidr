@@ -347,8 +347,10 @@ class HeidrApp(App):
             return NAME
         frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
         done, total = self.progress or (len(self.stages), SLOTS)
-        stage = self.stages[-1] if self.stages else ""
-        return f"{frames[self.spin % len(frames)]} {NAME} — {stage} {done}/{total}".rstrip()
+        # Before the first stage announces itself there is nothing to name, and
+        # a dash with a gap after it looks like a fault rather than a title.
+        told = f"{self.stages[-1]} {done}/{total}" if self.stages else f"{done}/{total}"
+        return f"{frames[self.spin % len(frames)]} {NAME} — {told}"
 
     def _show_title(self) -> None:
         self.spin += 1

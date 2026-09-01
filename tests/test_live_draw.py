@@ -323,6 +323,23 @@ async def test_the_window_title_spins_and_names_the_stage(default_config, offlin
 
 
 @pytest.mark.asyncio
+async def test_the_title_says_nothing_it_does_not_know(default_config, offline, only):
+    holding = threading.Event()
+    only(lambda ctx, key: holding.wait(timeout=10) or Material("found", source="fake"))
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        await pilot.pause()
+
+        # No empty gap where a module name would go.
+        assert "—  " not in pilot.app._title()
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()
+
+
+@pytest.mark.asyncio
 async def test_a_stage_that_says_nothing_counts_itself(default_config, offline, only):
     holding = threading.Event()
 
