@@ -19,7 +19,6 @@
 | [no-more-secrets](https://github.com/bartobri/no-more-secrets) | Brian Barto | GPL-3.0 | Проявление текста после нажатия клавиши |
 | [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) | Doug Haber | ISC | Режимы развёртки по частотам и задержка на частоте |
 | [dreamdir](https://github.com/sobjornstad/dreamdir) | Soren Bjornstad | MIT | Формат журнала: один текстовый файл на запись |
-| [ascii-tarot](https://github.com/lawreka/ascii-tarot) | lawreka | MIT | ASCII-графика колоды |
 
 ## Идеи и методы
 

@@ -16,7 +16,6 @@ in public and reimplemented here.
 | [no-more-secrets](https://github.com/bartobri/no-more-secrets) | Brian Barto | GPL-3.0 | Keypress gated decryption reveal |
 | [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) | Doug Haber | ISC | Frequency sweep modes and dwell time design |
 | [dreamdir](https://github.com/sobjornstad/dreamdir) | Soren Bjornstad | MIT | Plain text one-file-per-entry ledger format |
-| [ascii-tarot](https://github.com/lawreka/ascii-tarot) | lawreka | MIT | ASCII deck art |
 
 ## Ideas and methods
 

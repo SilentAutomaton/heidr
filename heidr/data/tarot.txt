@@ -1,0 +1,83 @@
+# The seventy-eight cards.
+# name|upright|reversed
+# The names are traditional and belong to nobody. The two glosses are ours:
+# published readings are under copyright and are not shipped. Point
+# modules.tarot.deck at a file of your own to use another set.
+The Fool|A step taken before the ground is checked.|Recklessness dressed as courage.
+The Magician|The tools are already on the table.|Skill spent on the wrong thing.
+The High Priestess|What is known but not yet said.|Secrecy that has stopped serving you.
+The Empress|Something growing that needs only time.|Smothering what you meant to feed.
+The Emperor|Structure that holds weight.|Rules kept after their reason left.
+The Hierophant|The way it has always been done.|Doctrine repeated without belief.
+The Lovers|A choice that decides who you are.|Avoiding the choice by making neither.
+The Chariot|Two forces pulling in one direction at last.|Momentum with no hand on the reins.
+Strength|The soft grip that holds the animal.|Force where patience was needed.
+The Hermit|Withdrawal that is work, not hiding.|Isolation mistaken for depth.
+Wheel of Fortune|The turn that owes you nothing.|Blaming the wheel for the ride.
+Justice|The weighing, done properly.|A verdict reached before the evidence.
+The Hanged Man|Seeing it from the other way up.|Waiting used as an excuse.
+Death|The ending that makes room.|Clutching what is already gone.
+Temperance|Two things mixed in the right measure.|Mixing everything until nothing tastes.
+The Devil|The chain you keep because it is familiar.|The moment you notice it is not locked.
+The Tower|The structure fails, suddenly, and correctly.|Rebuilding the same tower.
+The Star|Quiet repair after the noise.|Hope rationed too carefully.
+The Moon|Shapes in the dark that may be nothing.|Reading meaning into every shape.
+The Sun|Plain daylight on a plain fact.|Cheerfulness worn as armour.
+Judgement|The call you have been pretending not to hear.|Judging others to avoid the call.
+The World|The circuit closed.|Finishing without noticing.
+Ace of Wands|A spark worth acting on today.|A spark saved until it went out.
+Two of Wands|Standing at the edge of the map.|Planning as a way of not leaving.
+Three of Wands|The ships are out; wait properly.|Watching the horizon instead of working.
+Four of Wands|A door reached and worth marking.|Celebration with nothing behind it.
+Five of Wands|Friction that sharpens.|Fighting because fighting is easier.
+Six of Wands|Recognised, deservedly.|Needing the applause to continue.
+Seven of Wands|Holding the higher ground.|Defending what nobody is attacking.
+Eight of Wands|Everything arriving at once.|Speed without aim.
+Nine of Wands|Tired, still standing.|Guarding a wall long since taken.
+Ten of Wands|Carrying more than one person should.|Refusing to put any of it down.
+Page of Wands|Enthusiasm with no track record.|Announcing before starting.
+Knight of Wands|Charging, and it works.|Charging, and it does not.
+Queen of Wands|Warmth that others gather around.|Heat used to keep others out.
+King of Wands|Vision someone else can follow.|Vision nobody else can see.
+Ace of Cups|Feeling offered, unearned.|Feeling refused out of habit.
+Two of Cups|A meeting of equals.|An imbalance both pretend not to see.
+Three of Cups|Company that restores.|Company used to avoid quiet.
+Four of Cups|The offered thing, unnoticed.|Boredom mistaken for wisdom.
+Five of Cups|Grieving what spilled.|Two cups still standing behind you.
+Six of Cups|The past, kindly.|The past, as a place to live.
+Seven of Cups|Too many possibilities to choose.|Choosing the prettiest one.
+Eight of Cups|Walking away from something adequate.|Leaving without admitting why.
+Nine of Cups|Getting what you wanted.|Wanting it because you got it.
+Ten of Cups|Enough, and shared.|A picture kept up for others.
+Page of Cups|An odd, tender idea.|Sentiment used as evidence.
+Knight of Cups|Following feeling somewhere real.|Following feeling anywhere at all.
+Queen of Cups|Understanding without being asked.|Absorbing what is not yours.
+King of Cups|Feeling under command.|Calm covering something unaddressed.
+Ace of Swords|The clean cut of a clear thought.|Cleverness that wounds.
+Two of Swords|Refusing to look at the choice.|The blindfold slipping.
+Three of Swords|The hurt, named plainly.|Rehearsing the hurt.
+Four of Swords|Rest that is medically necessary.|Rest refused until collapse.
+Five of Swords|Won, at a cost you noticed later.|Winning as the only goal.
+Six of Swords|Leaving toward something calmer.|Taking the same trouble along.
+Seven of Swords|Taking the clever way out.|Being caught, deservedly.
+Eight of Swords|Bound by what you believe about yourself.|The rope was loose the whole time.
+Nine of Swords|The hours between three and five.|Fear rehearsed into fact.
+Ten of Swords|The worst of it, over.|Insisting it is not over.
+Page of Swords|Curiosity with sharp edges.|Questions asked to wound.
+Knight of Swords|Fast, sure, and half right.|Fast, sure, and wrong.
+Queen of Swords|Honesty that costs her something.|Coldness passed off as clarity.
+King of Swords|Judgement earned by practice.|Judgement without warmth.
+Ace of Pentacles|A solid thing offered.|A solid thing declined.
+Two of Pentacles|Juggling, competently.|Juggling nothing worth holding.
+Three of Pentacles|Craft recognised by other craftsmen.|Working alone on purpose.
+Four of Pentacles|Holding on, sensibly.|Holding on past sense.
+Five of Pentacles|Cold outside, light in the window.|Not going in.
+Six of Pentacles|Giving and receiving in proportion.|Generosity with strings.
+Seven of Pentacles|Waiting for what was planted.|Digging it up to check.
+Eight of Pentacles|The tenth repetition, done well.|Repetition without attention.
+Nine of Pentacles|Self-sufficiency, enjoyed.|Independence as a wall.
+Ten of Pentacles|What outlasts you.|Wealth with nobody in it.
+Page of Pentacles|Studying something useful.|Studying instead of doing.
+Knight of Pentacles|Slow, thorough, unglamorous.|Slow past the point of use.
+Queen of Pentacles|Practical care.|Care that keeps score.
+King of Pentacles|Provision, steadily made.|Provision as the only measure.

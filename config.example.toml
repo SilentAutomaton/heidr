@@ -50,3 +50,10 @@ radius_nm = 50
 
 [modules.chain]
 messages = 5
+
+[modules.tarot]
+spread = "three"        # one, three
+reversals = true
+
+[modules.iching]
+corpus = ""             # path to your own hexagram texts

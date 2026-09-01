@@ -1,0 +1,70 @@
+# The sixty-four hexagrams in King Wen order.
+# lines|number|name|gloss
+# Lines read bottom to top; 1 is yang, 0 is yin.
+# The names are traditional. The glosses are ours: the classical judgements are
+# translations under copyright and are not shipped. See modules.iching.corpus
+# to point at a text of your own.
+111111|1|Qian, the Creative|Force with nothing holding it back.
+000000|2|Kun, the Receptive|Yielding that carries everything.
+100010|3|Zhun, Difficulty at the Beginning|Tangled roots. Nothing moves cleanly yet.
+010001|4|Meng, Youthful Folly|Asking the same question twice gets no answer.
+111010|5|Xu, Waiting|The conditions are not ready. Eat, sleep, wait.
+010111|6|Song, Conflict|A dispute you can win and still lose.
+010000|7|Shi, the Army|Order imposed on a crowd.
+000010|8|Bi, Holding Together|Come now or do not come at all.
+111011|9|Xiao Xu, Small Taming|A restraint too small to stop you, large enough to slow you.
+110111|10|Lu, Treading|Walking behind something dangerous, carefully.
+111000|11|Tai, Peace|Heaven below, earth above. Things meet.
+000111|12|Pi, Standstill|Heaven above, earth below. Things pass each other.
+101111|13|Tong Ren, Fellowship|Common cause found in the open.
+111101|14|Da You, Great Possession|Holding much, owed much.
+001000|15|Qian, Modesty|The low place that everything flows toward.
+000100|16|Yu, Enthusiasm|Movement that gathers others up.
+100110|17|Sui, Following|Going along, deliberately.
+011001|18|Gu, Work on the Decayed|Someone left this rotting. It is yours now.
+110000|19|Lin, Approach|Something is coming closer and it is not far off.
+000011|20|Guan, Contemplation|Watching from above without touching.
+100101|21|Shi He, Biting Through|An obstruction that must be chewed, not stepped around.
+101001|22|Bi, Grace|Form applied to a thing that already works.
+000001|23|Bo, Splitting Apart|Wearing away from below.
+100000|24|Fu, Return|The turn at the bottom of the year.
+100111|25|Wu Wang, Innocence|Acting without a second motive.
+111001|26|Da Xu, Great Taming|Held back long enough to accumulate.
+100001|27|Yi, the Mouth|What you take in and what you say.
+011110|28|Da Guo, Great Preponderance|The beam bends. Weight in the wrong place.
+010010|29|Kan, the Abysmal|Water, and more water. Go through it.
+101101|30|Li, the Clinging|Fire depends on what it burns.
+001110|31|Xian, Influence|Attraction felt before it is named.
+011100|32|Heng, Duration|The thing that lasts because it repeats.
+001111|33|Dun, Retreat|Leaving early is not losing.
+111100|34|Da Zhuang, Great Power|Strength with nowhere sensible to go.
+000101|35|Jin, Progress|Advancing in daylight.
+101000|36|Ming Yi, Darkening of the Light|Keep the lamp. Do not carry it in front of you.
+101011|37|Jia Ren, the Family|Roles held to.
+110101|38|Kui, Opposition|Two things facing away and still bound together.
+001010|39|Jian, Obstruction|The road is blocked. Turn inward.
+010100|40|Xie, Deliverance|The knot loosens. Do not tighten it again.
+110001|41|Sun, Decrease|Give something up on purpose.
+100011|42|Yi, Increase|Take what is offered and pass it on.
+111110|43|Guai, Breakthrough|Say it out loud, in the courtyard.
+011111|44|Gou, Coming to Meet|Something small arrives that will not stay small.
+000110|45|Cui, Gathering Together|A crowd forms around a centre.
+011000|46|Sheng, Pushing Upward|Growth so slow you must trust it.
+010110|47|Kun, Oppression|Exhausted, and still talking.
+011010|48|Jing, the Well|The source is fine. The rope is short.
+101110|49|Ge, Revolution|The skin is shed at the right hour, not before.
+011101|50|Ding, the Cauldron|Raw things made edible.
+100100|51|Zhen, the Arousing|Thunder twice. Everyone flinches; the ritual continues.
+001001|52|Gen, Keeping Still|Stopping where stopping belongs.
+001011|53|Jian, Development|Step by step, in order.
+110100|54|Gui Mei, the Marrying Maiden|Entering on someone else's terms.
+101100|55|Feng, Abundance|Noon. From here the light shortens.
+001101|56|Lu, the Wanderer|Passing through, owed nothing.
+011011|57|Xun, the Gentle|Wind gets in everywhere by not pushing.
+110110|58|Dui, the Joyous|Pleasure taken openly and shared.
+010011|59|Huan, Dispersion|What was frozen breaks up and scatters.
+110010|60|Jie, Limitation|A measure that makes the rest usable.
+110011|61|Zhong Fu, Inner Truth|Believed without proof, and rightly.
+001100|62|Xiao Guo, Small Preponderance|Small things pass. Do not attempt the large one.
+101010|63|Ji Ji, After Completion|Finished, and already coming apart.
+010101|64|Wei Ji, Before Completion|Almost. The last step is the whole step.
