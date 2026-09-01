@@ -51,7 +51,8 @@ EN = {
     "empty.material": "Nothing drawn yet. The rite starts with a question.",
     "error.small_terminal": "Terminal too small. Resize to at least {cols} by {rows}.",
     "error.repeat_question": (
-        "This question was drawn before, in entry {entry}. Ask a different one."
+        "This question was drawn in entry {entry}. Ask a different one, or ask "
+        "this one again a day after that draw."
     ),
     "error.no_voice": (
         "Voice input needs a speech provider. Run :checkhealth to see what is missing."

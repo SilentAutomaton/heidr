@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import timedelta
 
 from heidr import entropy, rite
 from heidr.contracts import Cancelled, Context, Key, Material
@@ -32,7 +33,8 @@ def perform(ctx: Context, ledger: Ledger, question: str, spec: str = "") -> Draw
     # A chosen rite is an experiment rather than a divination, so the same
     # question may be put to a different chain.
     if not spec:
-        seen = ledger.asked_before(question)
+        hours = float(ctx.config.get("ledger.repeat_after_h", 24))
+        seen = ledger.asked_before(question, timedelta(hours=hours) if hours else None)
         if seen is not None:
             raise AlreadyAsked(seen)
 

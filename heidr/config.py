@@ -33,7 +33,7 @@ DEFAULTS: dict[str, Any] = {
         "binary": "",
     },
     "rite": {"silence_chance": 0.125, "recent_penalty": 4},
-    "ledger": {"path": "~/.local/share/heidr/ledger"},
+    "ledger": {"path": "~/.local/share/heidr/ledger", "repeat_after_h": 24},
     "history": {"path": "~/.local/share/heidr"},
     "modules": {},
 }

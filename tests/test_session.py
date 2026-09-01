@@ -1,7 +1,9 @@
 import pytest
 
+from datetime import datetime, timedelta, timezone
+
 from heidr import entropy, session
-from heidr.ledger import Ledger
+from heidr.ledger import Ledger, seal
 
 QUESTION = "should the antenna go on the roof"
 
@@ -122,6 +124,31 @@ def test_a_chosen_rite_may_repeat_a_question(offline, ledger):
 
 def test_a_drawn_rite_still_spends_the_question_after_a_chosen_one(offline, ledger):
     session.perform(offline, ledger, QUESTION, CHAIN)
+
+    with pytest.raises(session.AlreadyAsked):
+        session.perform(offline, ledger, QUESTION)
+
+
+def test_a_question_from_yesterday_is_asked_again_from_the_start(offline, ledger):
+    first = session.perform(offline, ledger, QUESTION)
+    moved = (datetime.now(timezone.utc).astimezone() - timedelta(hours=25)).isoformat(
+        timespec="seconds"
+    )
+    first.entry.headers["Date"] = moved
+    first.entry.headers["Commit"] = seal(
+        first.entry.get("Prev"), first.entry.get("Question"), moved
+    )
+    ledger._write(first.entry)
+
+    session.perform(offline, ledger, QUESTION)
+
+    assert len(ledger.entries()) == 2
+    assert ledger.chain_ok()
+
+
+def test_the_hold_can_be_made_permanent_again(offline, ledger):
+    offline.config.set("ledger.repeat_after_h", 0)
+    session.perform(offline, ledger, QUESTION)
 
     with pytest.raises(session.AlreadyAsked):
         session.perform(offline, ledger, QUESTION)

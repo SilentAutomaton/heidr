@@ -1,7 +1,7 @@
 import hashlib
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # One plain text file per draw, in the manner of dreamdir by Soren Bjornstad
@@ -10,6 +10,7 @@ SUFFIX = ".rite"
 WIDTH = 5
 HEADER = re.compile(r"^([A-Za-z]+):\s+(.*)$")
 GENESIS = "0" * 64
+DAY = timedelta(hours=24)
 OPEN, COMPLETE, VOID, BROKEN = "open", "complete", "void", "broken"
 
 
@@ -45,16 +46,23 @@ class Ledger:
         paths = sorted(self.directory.glob(f"*{SUFFIX}"))
         return self._read(paths[-1]) if paths else None
 
-    def asked_before(self, question: str) -> Entry | None:
+    def asked_before(self, question: str, within: timedelta | None = DAY) -> Entry | None:
         """A question that was really drawn on cannot be asked again.
 
         A draw that never happened — the source was unreachable, the radio was
         busy — does not count. The rule exists to stop a second roll after an
         unwelcome answer, not to spend a question on a timeout.
+
+        The hold lasts a day rather than forever: "how will today go" is a
+        different question tomorrow. Pass `within=None` for the older rule,
+        where a question was spent for good.
         """
         wanted = fingerprint(question)
+        edge = datetime.now(timezone.utc) - within if within else None
         for entry in self.entries():
-            if entry.get("Question") == wanted and entry.get("Status") != VOID:
+            if entry.get("Question") != wanted or entry.get("Status") == VOID:
+                continue
+            if edge is None or _when(entry) is None or _when(entry) > edge:
                 return entry
         return None
 
@@ -130,6 +138,18 @@ class Ledger:
             headers=headers,
             body="\n".join(lines[index:]).strip(),
         )
+
+
+def _when(entry: Entry) -> datetime | None:
+    """When the promise was written, or nothing when the line is damaged.
+
+    A date nobody can read keeps the question spent. The rule is lifted by time
+    passing, never by a file going wrong.
+    """
+    try:
+        return datetime.fromisoformat(entry.get("Date"))
+    except ValueError:
+        return None
 
 
 def seal(previous: str, question_hash: str, moment: str) -> str:

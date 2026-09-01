@@ -44,6 +44,7 @@ recent_penalty = 4      # weight divisor for modules drawn in the last three rit
 
 [ledger]
 path = "~/.local/share/heidr/ledger"
+repeat_after_h = 24     # hours a question stays spent; 0 keeps it spent for good
 
 # Per module settings. The section name is the module name.
 [modules.fm_voice]

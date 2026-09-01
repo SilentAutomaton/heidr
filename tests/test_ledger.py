@@ -1,4 +1,6 @@
-from heidr.ledger import GENESIS, Ledger, fingerprint
+from datetime import datetime, timedelta, timezone
+
+from heidr.ledger import GENESIS, Ledger, fingerprint, seal
 
 
 def test_numbers_are_fixed_width_and_increase(tmp_path):
@@ -84,3 +86,70 @@ def test_the_body_survives_a_round_trip(tmp_path):
 
     stored = Ledger(tmp_path).last()
     assert stored.body == "what now\n\nline one\nline two"
+
+
+# The hold on a question lasts a day
+
+
+def dated(ledger, question: str, hours_ago: float):
+    """One completed entry, written as though it happened that long ago."""
+    entry = ledger.commit(question)
+    ledger.complete(entry, "a//b//c", question, "answer")
+    moment = (datetime.now(timezone.utc).astimezone() - timedelta(hours=hours_ago)).isoformat(
+        timespec="seconds"
+    )
+    entry.headers["Date"] = moment
+    # The seal covers the date, so moving the date means sealing it again;
+    # otherwise this helper would only be testing the tamper check.
+    entry.headers["Commit"] = seal(entry.get("Prev"), entry.get("Question"), moment)
+    ledger._write(entry)
+    return entry
+
+
+def test_a_question_asked_an_hour_ago_is_still_spent(tmp_path):
+    ledger = Ledger(tmp_path)
+    dated(ledger, "how will today go", 1)
+
+    assert ledger.asked_before("how will today go") is not None
+
+
+def test_a_question_asked_yesterday_can_be_asked_again(tmp_path):
+    ledger = Ledger(tmp_path)
+    dated(ledger, "how will today go", 25)
+
+    assert ledger.asked_before("how will today go") is None
+
+
+def test_the_old_entry_stays_where_it_is(tmp_path):
+    ledger = Ledger(tmp_path)
+    old = dated(ledger, "how will today go", 25)
+    again = ledger.commit("how will today go")
+    ledger.complete(again, "a//b//c", "how will today go", "another answer")
+
+    assert len(ledger.entries()) == 2
+    assert ledger.entries()[0].get("Date") == old.get("Date")
+    assert ledger.chain_ok()
+
+
+def test_a_damaged_date_keeps_the_question_spent(tmp_path):
+    ledger = Ledger(tmp_path)
+    entry = dated(ledger, "how will today go", 25)
+    entry.headers["Date"] = "not a date at all"
+    ledger._write(entry)
+
+    assert ledger.asked_before("how will today go") is not None
+
+
+def test_without_a_window_a_question_is_spent_for_good(tmp_path):
+    ledger = Ledger(tmp_path)
+    dated(ledger, "how will today go", 24 * 365)
+
+    assert ledger.asked_before("how will today go", within=None) is not None
+
+
+def test_a_void_draw_is_free_whatever_the_date(tmp_path):
+    ledger = Ledger(tmp_path)
+    entry = ledger.commit("how will today go")
+    ledger.abandon(entry, released=True)
+
+    assert ledger.asked_before("how will today go", within=None) is None
