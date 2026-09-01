@@ -35,6 +35,8 @@ EN = {
     "prompt.confirm_draw": "Draw the lot",
     "prompt.cancel": "Cancel",
     "empty.ledger": "No draws yet. Type :ask to put a question.",
+    "empty.modules": "No modules registered. Something is wrong with the install.",
+    "empty.settings": "No settings to show.",
     "empty.material": "Nothing drawn yet. The rite starts with a question.",
     "error.small_terminal": "Terminal too small. Resize to at least {cols} by {rows}.",
     "error.repeat_question": (
@@ -50,6 +52,7 @@ EN = {
     "status.listening": "Listening",
     "status.waiting": "Waiting",
     "status.done": "Done",
+    "status.saved": "Saved to {path}.",
     "config.copied": "Copied the example configuration to {path}. Edit it and restart.",
 }
 

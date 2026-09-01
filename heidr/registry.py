@@ -23,6 +23,8 @@ class Module:
     defaults: dict[str, Any] = field(default_factory=dict)
 
     def available(self, ctx: Context) -> bool:
+        if not ctx.config.get(f"modules.{self.name}.enabled", True):
+            return False
         if not set(self.needs) <= ctx.capabilities:
             return False
         probe = getattr(sys.modules.get(self.origin), "available", None)

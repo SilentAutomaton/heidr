@@ -12,8 +12,22 @@ from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
+from heidr.ui import browser
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
+
+def _typed(value: str):
+    """Read what was typed as the kind of value it looks like."""
+    lowered = value.lower()
+    if lowered in ("true", "false"):
+        return lowered == "true"
+    for convert in (int, float):
+        try:
+            return convert(value)
+        except ValueError:
+            continue
+    return value
+
 
 MIN_COLUMNS = 40
 MIN_ROWS = 12
@@ -31,6 +45,9 @@ class HeidrApp(App):
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
+        self.view = "rite"
+        self.cursor = 0
+        self.rows: list[tuple[str, str]] = []
         self.bus = Bus()
         self.levels = audio.Levels.from_config(self.settings)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
@@ -216,7 +233,57 @@ class HeidrApp(App):
         self.exit()
 
     def do_help(self) -> None:
+        self.view = "rite"
         self.query_one("#body", Static).update(self._help_text())
+
+    def do_modules(self) -> None:
+        self._open_browser("modules", browser.module_rows(self.probe()), text("empty.modules"))
+
+    def do_settings(self) -> None:
+        self._open_browser("settings", browser.setting_rows(self.settings), text("empty.settings"))
+
+    def _open_browser(self, view: str, rows, empty: str) -> None:
+        self.view = view
+        self.rows = rows
+        self.cursor = min(self.cursor, max(0, len(rows) - 1))
+        self.empty = empty
+        self._show_rows()
+
+    def _show_rows(self) -> None:
+        self.query_one("#body", Static).update(
+            browser.render(self.rows, self.cursor, getattr(self, "empty", ""))
+        )
+
+    def do_line_down(self) -> None:
+        self._move_cursor(1)
+
+    def do_line_up(self) -> None:
+        self._move_cursor(-1)
+
+    def _move_cursor(self, step: int) -> None:
+        if self.view not in ("modules", "settings") or not self.rows:
+            return
+        self.cursor = max(0, min(len(self.rows) - 1, self.cursor + step))
+        self._show_rows()
+
+    def do_choose(self) -> None:
+        if self.view == "modules":
+            self._toggle_module()
+        elif self.view == "settings":
+            self._edit_setting()
+
+    def _toggle_module(self) -> None:
+        key, _line = self.rows[self.cursor]
+        self.settings.set(key, not self.settings.get(key, True))
+        self.rows = browser.module_rows(self.context)
+        self._show_rows()
+
+    def _edit_setting(self) -> None:
+        key, _line = self.rows[self.cursor]
+        line = self.query_one(CommandLine)
+        line.open(":")
+        line.buffer = f"set {key}={self.settings.get(key)}"
+        self.edit_mode = "COMMAND"
 
     def do_mute(self) -> None:
         self.levels.muted = not self.levels.muted
@@ -254,6 +321,12 @@ class HeidrApp(App):
             self._set_volume(argument, line)
         elif name == "set":
             self._set_option(argument, line)
+        elif name == "modules":
+            self.do_modules()
+        elif name == "settings":
+            self.do_settings()
+        elif name in ("w", "write"):
+            line.say(text("status.saved", path=config.save(self.settings)))
         elif name:
             line.say(f"Unknown command: {name}. Type :help for the list.")
 
@@ -269,8 +342,12 @@ class HeidrApp(App):
         if not separator:
             line.say("Setting an option needs a value, as in :set ui.theme=tty.")
             return
-        self.settings.set(option.strip(), value.strip())
+        self.settings.set(option.strip(), _typed(value.strip()))
         line.say(f"{option.strip()} is now {value.strip()}.")
+        if self.view == "settings":
+            self.do_settings()
+        elif self.view == "modules":
+            self.do_modules()
 
     # Layout
 
