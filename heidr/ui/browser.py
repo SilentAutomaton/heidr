@@ -55,10 +55,24 @@ def setting_rows(config) -> list[tuple[str, str]]:
     for section, values in DEFAULTS.items():
         if section == "modules":
             continue
-        for key in values:
-            dotted = f"{section}.{key}"
-            rows.append((dotted, f"{dotted:<24} {config.get(dotted)}"))
+        for name in values:
+            dotted = f"{section}.{name}"
+            rows.append((dotted, _setting_line(dotted, config.get(dotted))))
+    # A module declares its own options, so they are read from the module and
+    # not from the defaults table. Switching a module off is not among them: it
+    # is the whole of the module list, and one switch in two places is two
+    # truths.
+    for slot in registry.SLOTS:
+        for name, module in sorted(registry.MODULES[slot].items()):
+            values = config.module(name, module.defaults)
+            for option in sorted(module.defaults):
+                dotted = f"modules.{name}.{option}"
+                rows.append((dotted, _setting_line(dotted, values.get(option))))
     return rows
+
+
+def _setting_line(dotted: str, value) -> str:
+    return f"{dotted:<34} {value}"
 
 
 def ledger_rows(ledger) -> list[tuple[str, str]]:

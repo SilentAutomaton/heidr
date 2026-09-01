@@ -39,7 +39,25 @@ def test_settings_list_the_configurable_options(default_config):
 
     assert "audio.volume" in keys
     assert "llm.provider" in keys
-    assert not any(key.startswith("modules.") for key in keys)
+
+
+def test_settings_list_the_options_of_every_module(default_config):
+    keys = [key for key, _line in browser.setting_rows(default_config)]
+
+    assert "modules.fm_voice.dwell_s" in keys
+    assert "modules.tarot.spread" in keys
+    # Switching a module off belongs to the module list, and only there.
+    assert not any(key.endswith(".enabled") for key in keys)
+
+
+def test_a_module_option_shows_its_default_before_it_is_set(default_config):
+    rows = dict(browser.setting_rows(default_config))
+
+    assert "15" in rows["modules.fm_voice.dwell_s"]
+
+    default_config.set("modules.fm_voice.dwell_s", 25)
+
+    assert "25" in dict(browser.setting_rows(default_config))["modules.fm_voice.dwell_s"]
 
 
 def test_the_cursor_marks_one_line():
