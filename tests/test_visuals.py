@@ -149,10 +149,31 @@ def test_the_plasma_field_moves_with_its_phase():
 
 
 def test_the_cog_turns():
-    from heidr.visuals.art.cog import cog
-    from heidr.visuals.paint import lines
+    from heidr.visuals.art.cog import Cog
+    from heidr.visuals.canvas import Frame
 
-    assert lines(cog(40, 11, 0, "#")) != lines(cog(40, 11, 9, "#"))
+    painter = Cog()
+    still = painter.paint(Frame(40, 11, 0, "#", "ascii"))
+
+    assert still != painter.paint(Frame(40, 11, 9, "#", "ascii"))
+
+
+def test_the_gear_train_fills_the_width_and_meshes():
+    from heidr.visuals.art.cog import train
+
+    narrow = train(40, 11)
+    wide = train(120, 11)
+
+    assert len(wide) > len(narrow)
+    # Neighbours turn against each other, the way real teeth force them to.
+    directions = [gear[3] for gear in wide]
+    assert all(one != other for one, other in zip(directions, directions[1:]))
+
+
+def test_the_gears_grow_with_the_pane():
+    from heidr.visuals.art.cog import train
+
+    assert train(80, 30)[0][2] > train(80, 10)[0][2]
 
 
 def test_a_line_reaches_both_ends():
