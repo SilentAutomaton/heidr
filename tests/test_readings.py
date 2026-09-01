@@ -146,7 +146,16 @@ def test_pythia_sends_the_finding_and_the_question_only(stub_context):
 
 def test_pythia_asks_for_the_language_of_the_question(stub_context):
     """A Russian question was coming back answered in English."""
-    assert "language of the question" in pythia.INSTRUCTION
+    provider = FakeProvider()
+    ctx = stub_context.with_capabilities("llm")
+    ctx.llm = provider
+    found, scoped = ready(ctx, "pythia")
+    list(found.run(scoped, "как оно?", MATERIAL))
+
+    system, user = provider.sent
+    assert "same language and script" in system.content
+    # The question is repeated last, because that is what a model follows.
+    assert user.content.rstrip().endswith("как оно?")
 
 
 def test_pythia_never_invites_the_model_to_refuse(stub_context):
