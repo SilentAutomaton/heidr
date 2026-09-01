@@ -16,6 +16,7 @@ DEFAULTS: dict[str, dict[str, str]] = {
         "equals_sign": "volume_up",
         "m": "mute",
         "question_mark": "help",
+        "escape": "stop",
     },
     "insert": {
         "escape": "normal_mode",

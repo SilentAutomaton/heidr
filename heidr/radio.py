@@ -9,7 +9,7 @@ from typing import Iterator
 import numpy as np
 
 from heidr import audio
-from heidr.contracts import Unavailable
+from heidr.contracts import Cancelled, Unavailable
 from heidr.stt.base import RATE as SPEECH_RATE
 
 BLOCK = 4096
@@ -209,6 +209,10 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     heard: list[np.ndarray] = []
     blocks = 0
     for frequency in stops:
+        if ctx.cancelled():
+            # Between stops, not after all of them: twenty seconds is a long
+            # time to keep someone who has changed their mind.
+            raise Cancelled
         ctx.emit("stage", f"{frequency / 1e6:.3f} MHz")
         for block in capture(
             frequency,

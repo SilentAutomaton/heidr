@@ -24,12 +24,17 @@ def _ignore(event: str, payload: Any) -> None:
     pass
 
 
+def _never() -> bool:
+    return False
+
+
 @dataclass
 class Context:
     config: Config
     capabilities: frozenset[str] = frozenset()
     settings: dict[str, Any] = field(default_factory=dict)
     emit: Callable[[str, Any], None] = _ignore
+    cancelled: Callable[[], bool] = _never
     llm: Any = None
     stt: Any = None
 
@@ -45,10 +50,15 @@ class Context:
             capabilities=self.capabilities,
             settings=self.config.module(name, defaults),
             emit=self.emit,
+            cancelled=self.cancelled,
             llm=self.llm,
             stt=self.stt,
         )
 
 
 class Unavailable(Exception):
-    pass
+    """A module cannot run here. Ordinary, not a crash."""
+
+
+class Cancelled(Exception):
+    """The reader asked for the draw to stop."""

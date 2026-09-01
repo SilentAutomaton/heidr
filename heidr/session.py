@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from heidr import entropy, rite
-from heidr.contracts import Context, Key, Material
+from heidr.contracts import Cancelled, Context, Key, Material
 from heidr.ledger import Entry, Ledger
 
 
@@ -43,12 +43,15 @@ def perform(ctx: Context, ledger: Ledger, question: str) -> Draw:
             seed=entropy.world_seed(entropy.collect(ctx)),
             recent=ledger.recent_modules(),
         )
+        _still_wanted(ctx)
         ctx.emit("stage", drawn.question.name)
         key = drawn.question.run(_ready(ctx, drawn.question), question)
 
+        _still_wanted(ctx)
         ctx.emit("stage", drawn.world.name)
         material = drawn.world.run(_ready(ctx, drawn.world), key)
 
+        _still_wanted(ctx)
         lines = _read(ctx, drawn, question, material)
     except Exception:
         # Nothing was found, so the question is released. Once material exists
@@ -58,6 +61,11 @@ def perform(ctx: Context, ledger: Ledger, question: str) -> Draw:
 
     ledger.complete(entry, str(drawn), question, body(material, lines))
     return Draw(entry, drawn, key, material, lines)
+
+
+def _still_wanted(ctx: Context) -> None:
+    if ctx.cancelled():
+        raise Cancelled
 
 
 def _read(ctx: Context, drawn: rite.Rite, question: str, material: Material) -> list[str]:

@@ -8,7 +8,7 @@ from textual.reactive import reactive
 from textual.widgets import Static
 
 from heidr import audio, capabilities, config, health, keymap, llm, mic, registry, rite, session, stt
-from heidr.contracts import Context, Unavailable
+from heidr.contracts import Cancelled, Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
@@ -49,12 +49,18 @@ class HeidrApp(App):
         self.cursor = 0
         self.rows: list[tuple[str, str]] = []
         self.bus = Bus()
+        self.drawing = False
+        self.stop_draw = threading.Event()
+        self.transcript: list[str] = []
+        self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
         registry.discover(self.user_dir / "modules")
         # Probing the network and the radio takes time, so capabilities stay
         # empty until :checkhealth or a draw asks for them.
-        self.context = Context(config=self.settings, emit=self.bus.emit)
+        self.context = Context(
+            config=self.settings, emit=self.bus.emit, cancelled=self.stop_draw.is_set
+        )
         super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss")
 
     def probe(self) -> Context:
@@ -73,7 +79,13 @@ class HeidrApp(App):
         if listener is not None:
             found = found | {"stt"}
 
-        self.context = replace(self.context, capabilities=found, llm=provider, stt=listener)
+        self.context = replace(
+            self.context,
+            capabilities=found,
+            llm=provider,
+            stt=listener,
+            cancelled=self.stop_draw.is_set,
+        )
         return self.context
 
     def _provider(self, make, capability: str, allowed):
@@ -154,22 +166,85 @@ class HeidrApp(App):
         if not question.strip():
             return
         line = self.query_one(CommandLine)
-        self.show_visual("waterfall")
-        try:
-            drawn = session.perform(self.probe(), self.ledger, question)
-        except session.AlreadyAsked as repeated:
-            line.say(text("error.repeat_question", entry=repeated.entry.identifier))
-            return
-        except rite.NothingAvailable:
-            line.say(text("error.no_modules"))
+        if self.drawing:
+            line.say(text("error.already_drawing"))
             return
 
-        status = self.query_one(StatusLine)
-        status.rite = str(drawn.rite)
+        self.transcript = [f"> {question}", ""]
+        self._show_transcript()
+        self.show_visual("waterfall")
+        self._listen_to_the_draw()
+
+        self.drawing = True
+        self.stop_draw.clear()
+        context = self.probe()
+        self.run_worker(lambda: self._draw(context, question), thread=True, exclusive=True)
+
+    def _draw(self, context, question: str) -> None:
+        """The whole rite, off the interface thread.
+
+        Nothing here touches a widget: everything the reader sees arrives as an
+        event and is put on screen by the handlers below.
+        """
+        try:
+            drawn = session.perform(context, self.ledger, question)
+        except session.AlreadyAsked as repeated:
+            self._finish(text("error.repeat_question", entry=repeated.entry.identifier))
+        except rite.NothingAvailable:
+            self._finish(text("error.no_modules"))
+        except Cancelled:
+            self._finish(text("status.cancelled"))
+        except Unavailable as refused:
+            # A module that cannot run is an ordinary outcome, not a crash.
+            self._finish(str(refused))
+        except Exception as failure:
+            self._finish(text("error.draw_failed", reason=failure.__class__.__name__))
+        else:
+            self.call_from_thread(self._drawn, drawn)
+
+    def _finish(self, message: str) -> None:
+        self.call_from_thread(self._draw_over, message)
+
+    def _draw_over(self, message: str) -> None:
+        self.drawing = False
         self.show_visual("idle")
-        self.query_one("#body", Static).update(self._draw_text(drawn))
+        self.query_one(CommandLine).say(message)
+
+    def _drawn(self, drawn) -> None:
+        self.drawing = False
+        self.query_one(StatusLine).rite = str(drawn.rite)
+        self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.body()]
+        self._show_transcript()
+        self.show_visual("idle")
         if drawn.rite.silent:
-            line.say(text("status.silent"))
+            self.query_one(CommandLine).say(text("status.silent"))
+
+    def do_stop(self) -> None:
+        if self.drawing:
+            self.stop_draw.set()
+            self.query_one(CommandLine).say(text("status.stopping"))
+
+    # What the reader sees while it runs
+
+    def _listen_to_the_draw(self) -> None:
+        self.bus.subscribe("stage", lambda name: self._on_thread(self._stage, name))
+        self.bus.subscribe("token", lambda line: self._on_thread(self._token, line))
+
+    def _on_thread(self, handler, payload) -> None:
+        if threading.current_thread() is threading.main_thread():
+            handler(payload)
+        else:
+            self.call_from_thread(handler, payload)
+
+    def _stage(self, name: str) -> None:
+        self.query_one(StatusLine).rite = str(name)
+
+    def _token(self, line: str) -> None:
+        self.transcript.append(str(line))
+        self._show_transcript()
+
+    def _show_transcript(self) -> None:
+        self.query_one("#body", Static).update("\n".join(self.transcript))
 
     # Visualisations
 
@@ -177,7 +252,10 @@ class HeidrApp(App):
         chosen = registry.pick_visual(name, self.terminal.glyphs)
         pane = self.query_one("#visual", Container)
         pane.remove_children()
-        self.bus.clear()
+        # Only this pane's own subscription goes; the draw's listeners stay.
+        if self._visual_off is not None:
+            self._visual_off()
+            self._visual_off = None
         if chosen is None:
             if name != "idle":
                 self.show_visual("idle")
@@ -185,7 +263,9 @@ class HeidrApp(App):
 
         widget = chosen.widget()
         pane.mount(widget)
-        self.bus.subscribe(chosen.event, lambda payload: self._forward(widget, payload))
+        self._visual_off = self.bus.subscribe(
+            chosen.event, lambda payload: self._forward(widget, payload)
+        )
 
     def _forward(self, widget, payload) -> None:
         # Captures run in worker threads, and a widget may only be touched from

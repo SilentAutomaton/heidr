@@ -18,6 +18,7 @@ leader = "space"
 "equals_sign" = "volume_up"
 "m" = "mute"
 "question_mark" = "help"
+"escape" = "stop"      # interrupt a running draw
 
 [insert]
 "escape" = "normal_mode"
