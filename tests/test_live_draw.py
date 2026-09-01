@@ -161,9 +161,15 @@ async def test_the_reading_appears_line_by_line(default_config, offline, only):
 
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("i", *QUESTION, "enter")
-        await pilot.pause()
+        # The first line is written from a worker thread, so waiting for it is
+        # part of the test; what matters is that the draw is still running.
+        shown = ""
+        for _ in range(100):
+            await pilot.pause()
+            shown = str(pilot.app.query_one("#body").content)
+            if "the first line" in shown:
+                break
 
-        shown = str(pilot.app.query_one("#body").content)
         assert "the first line" in shown
         assert "the second line" not in shown
 
