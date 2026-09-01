@@ -13,7 +13,7 @@ from heidr.events import Bus
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui import browser
-from heidr.ui import prompt
+from heidr.ui import prompt, stages
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals.canvas import Canvas
@@ -69,6 +69,7 @@ class HeidrApp(App):
         self.drawing = False
         self.stop_draw = threading.Event()
         self.transcript: list[str] = []
+        self.stages: list[str] = []
         self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
@@ -203,6 +204,7 @@ class HeidrApp(App):
             return
 
         self._enter("rite")
+        self.stages = []
         self.transcript = [f"> {question}", ""]
         self._show_transcript()
         self.show_visual("waterfall")
@@ -245,6 +247,9 @@ class HeidrApp(App):
 
     def _drawn(self, drawn) -> None:
         self.drawing = False
+        # A silent rite never announces its reading, so the finished bar is
+        # filled from the rite itself: those three were drawn, whatever spoke.
+        self.stages = [drawn.rite.question.name, drawn.rite.world.name, drawn.rite.reading.name]
         self.query_one(StatusLine).rite = str(drawn.rite)
         self._enter("rite")
         self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
@@ -280,6 +285,9 @@ class HeidrApp(App):
         """Each stage brings its own animation with it."""
         self.query_one(StatusLine).rite = str(name)
         module = self._module_named(str(name))
+        if module is not None and module.name not in self.stages:
+            self.stages.append(module.name)
+            self._show_transcript()
         if module is not None:
             if module.visual:
                 self.show_visual(module.visual)
@@ -382,7 +390,11 @@ class HeidrApp(App):
             )
         if self.view == "text":
             return self.body_text
-        return "\n".join(self.transcript) if self.transcript else self._splash()
+        if not self.transcript:
+            return self._splash()
+        active = len(self.stages) - 1 if self.drawing else -1
+        bar = stages.bar(self.stages, active, self.terminal.glyphs)
+        return "\n".join([bar, ""] + self.transcript)
 
     # Visualisations
 

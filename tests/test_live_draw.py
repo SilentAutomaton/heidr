@@ -121,6 +121,30 @@ async def test_the_stage_shows_before_the_draw_is_over(default_config, offline, 
             await pilot.pause()
 
 
+@pytest.mark.asyncio
+async def test_the_stage_bar_fills_up_as_the_rite_runs(default_config, offline, only):
+    holding = threading.Event()
+
+    def slow(ctx, key):
+        holding.wait(timeout=10)
+        return Material("found", source="fake")
+
+    only(slow)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        await pilot.pause()
+        halfway = str(pilot.app.query_one("#body").content)
+
+        assert "q" in halfway and "..." in halfway
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        assert "..." not in str(pilot.app.query_one("#body").content)
+
+
 # The answer arrives as it is spoken
 
 

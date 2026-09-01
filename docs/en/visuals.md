@@ -96,6 +96,19 @@ The figure is plain text inside the panel rather than a painter behind it, so a
 timer of its own moves her three times a second. She blinks, her staff head
 brightens, and the hem of her cloak shifts; nothing else.
 
+## The stage bar
+
+A rite has three slots, and the panel shows them across the top:
+
+```
+· gematria  //  ▸ babel  //    ...
+```
+
+A slot that has run is dotted, the slot at work is pointed at, and a slot the
+rite has not reached yet is named `...`. The stages are learnt one at a time
+from the same events that swap the animation, so the bar cannot show a module
+before it is really chosen.
+
 ## Sources
 
 The register of the listening screen — an ASCII spectrum scrolling in the
