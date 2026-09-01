@@ -30,6 +30,7 @@ def write_config():
 def default_config(tmp_path):
     settings = config.Config(config.merge(config.DEFAULTS, {}), tmp_path / "config.toml")
     settings.set("ledger.path", str(tmp_path / "ledger"))
+    settings.set("history.path", str(tmp_path / "history"))
     return settings
 
 

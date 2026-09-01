@@ -10,6 +10,7 @@ from textual.widgets import Static
 from heidr import audio, capabilities, config, health, keymap, llm, mic, registry, rite, session, stt
 from heidr.contracts import Cancelled, Context, Unavailable
 from heidr.events import Bus
+from heidr.history import History
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui import browser
@@ -73,6 +74,10 @@ class HeidrApp(App):
         self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
+        # Commands and questions are looked through apart, because they are not
+        # the same kind of thing and mixing them makes both harder to find.
+        kept = Path(self.settings.get("history.path", "~/.local/share/heidr")).expanduser()
+        self.history = {"COMMAND": History(kept / "commands"), "INSERT": History(kept / "questions")}
         registry.discover(self.user_dir / "modules")
         # Probing the network and the radio takes time, so capabilities stay
         # empty until :checkhealth or a draw asks for them.
@@ -181,12 +186,17 @@ class HeidrApp(App):
 
     def _type_into_command_line(self, event, accept) -> None:
         line = self.query_one(CommandLine)
-        if event.key == "escape":
+        if event.key in ("up", "ctrl+p"):
+            line.buffer = self.history[self.edit_mode].back(line.buffer)
+        elif event.key in ("down", "ctrl+n"):
+            line.buffer = self.history[self.edit_mode].forward()
+        elif event.key == "escape":
             line.close()
             self.edit_mode = "NORMAL"
         elif event.key == "enter":
             # Leave the line first, so a command that changes the mode wins.
             typed = line.close()
+            self.history[self.edit_mode].add(typed)
             self.edit_mode = "NORMAL"
             accept(typed)
         elif event.key == "backspace":

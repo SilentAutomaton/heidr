@@ -34,6 +34,9 @@ binary = ""             # empty finds whisper-cli on the path
 # invents about half of what it reports. ggml-large-v3-turbo-q5_0.bin is the
 # sensible default, ggml-medium.bin the cheaper one.
 
+[history]
+path = "~/.local/share/heidr"   # typed commands and questions, kept apart
+
 [rite]
 silence_chance = 0.125  # how often the oracle refuses to answer
 recent_penalty = 4      # weight divisor for modules drawn in the last three rites

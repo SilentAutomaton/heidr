@@ -118,7 +118,9 @@ from a manual. `j` and `k` move, `Enter` chooses, `Esc` goes back a level, and
 `ui.splash=false` drops the wordmark above the list.
 
 Modal, in the manner of neovim. `:ask` puts a question, `Ctrl-V` in insert mode
-dictates it instead. `:modules` lists what is available and why, `:settings`
+dictates it instead. Up and down, or `Ctrl-P` and `Ctrl-N`, bring back what was
+typed before; commands and questions are kept in two files under
+`~/.local/share/heidr` and looked through apart. `:modules` lists what is available and why, `:settings`
 edits the configuration, `:ledger` reads past draws, `:checkhealth` explains
 what is missing, `:w` saves, `:q` leaves.
 

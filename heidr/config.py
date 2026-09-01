@@ -21,6 +21,7 @@ DEFAULTS: dict[str, Any] = {
         "model": "qwen3.5:9B",
         "base_url": "http://localhost:11434",
         "api_key_env": "HEIDR_LLM_KEY",
+        "think": False,
     },
     "stt": {
         "provider": "vosk",
@@ -33,6 +34,7 @@ DEFAULTS: dict[str, Any] = {
     },
     "rite": {"silence_chance": 0.125, "recent_penalty": 4},
     "ledger": {"path": "~/.local/share/heidr/ledger"},
+    "history": {"path": "~/.local/share/heidr"},
     "modules": {},
 }
 
