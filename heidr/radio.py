@@ -25,6 +25,18 @@ def band_edges(band: str) -> tuple[float, float]:
     return float(low) * 1e6, float(high) * 1e6
 
 
+def choose_band(bands, rng: random.Random) -> str:
+    """One band per sweep.
+
+    Shortwave broadcasting is not one band but a dozen scattered ones, and which
+    of them is alive depends on the hour and the ionosphere. So a module may
+    name several and let the draw pick.
+    """
+    if isinstance(bands, str):
+        return bands
+    return rng.choice(list(bands)) if bands else ""
+
+
 def plan(
     band: str,
     sweep: str,
@@ -119,8 +131,13 @@ def rtl_power_band(band: str) -> str:
     return band
 
 
-def scan(band: str, step: str, seconds: int) -> str:
-    command = ["rtl_power", "-f", f"{rtl_power_band(band)}:{step}", "-i", str(seconds), "-1", "-"]
+def scan(band: str, step: str, seconds: int, direct: bool = False, gain: str = "") -> str:
+    command = ["rtl_power", "-f", f"{rtl_power_band(band)}:{step}", "-i", str(seconds), "-1"]
+    if direct:
+        command += ["-D"]
+    if gain:
+        command += ["-g", gain]
+    command += ["-"]
     finished = subprocess.run(command, capture_output=True, text=True, timeout=seconds + 30)
     return finished.stdout
 
@@ -132,6 +149,7 @@ def capture(
     seconds: float,
     gain: str = "",
     input_rate: str = "",
+    direct: str = "",
 ) -> Iterator[np.ndarray]:
     """Read demodulated audio from rtl_fm one block at a time.
 
@@ -148,6 +166,10 @@ def capture(
     command += ["-r", str(rate)]
     if gain:
         command += ["-g", gain]
+    if direct:
+        # The tuner cannot reach below about 24 MHz, so shortwave and medium
+        # wave arrive by sampling the input directly instead.
+        command += ["-E", direct]
     command += ["-"]
 
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -176,7 +198,9 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     settings = ctx.settings
     rng = random.Random(key.seed)
     rate = int(settings["rate"])
-    stops = _stops_for(ctx, key, rng)
+    band = choose_band(settings["band"], rng)
+    ctx.emit("stage", f"band {band} MHz")
+    stops = _stops_for(ctx, band, rng)
     output = output or audio.Output(audio.Levels.from_config(ctx.config), rate)
 
     heard: list[np.ndarray] = []
@@ -190,6 +214,7 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
             float(settings["dwell_s"]),
             gain=str(settings.get("gain", "")),
             input_rate=str(settings.get("input_rate", "")),
+            direct=str(settings.get("direct", "")),
         ):
             output.play(block)
             ctx.emit("spectrum", audio.spectrum(block, int(settings.get("bins", 64))))
@@ -205,29 +230,39 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     return transcribe(ctx, heard), stops
 
 
-def _carriers(ctx) -> list[float]:
+def _carriers(ctx, band: str) -> list[float]:
     """Scan first, so the dwell happens on transmitters rather than on air.
 
     Landing on empty spectrum wastes the dwell and gives the recogniser nothing
     but hiss to invent words out of. A scan costs a few seconds once and makes
     every stop a real broadcast.
     """
+    settings = ctx.settings
+    csv = scan(
+        band,
+        settings["scan_step"],
+        int(settings["scan_s"]),
+        direct=bool(settings.get("direct")),
+        gain=str(settings.get("gain", "")),
+    )
     found = stations(
-        power_bins(scan(ctx.settings["band"], ctx.settings["scan_step"], int(ctx.settings["scan_s"])))
+        power_bins(csv),
+        margin=float(settings.get("scan_margin", MARGIN_DB)),
+        separation=int(settings.get("scan_separation", SEPARATION_HZ)),
     )
     ctx.emit("stage", f"scan found {len(found)} carriers")
     return [float(hertz) for hertz, _power in found]
 
 
-def _stops_for(ctx, key, rng: random.Random) -> list[float]:
+def _stops_for(ctx, band: str, rng: random.Random) -> list[float]:
     settings = ctx.settings
-    carriers = _carriers(ctx) if settings.get("tuned") else None
+    carriers = _carriers(ctx, band) if settings.get("tuned") else None
     if carriers is not None and not carriers:
         # An empty band is a real answer, but so is a scan that went wrong, and
         # from here they look the same. Fall back to the even grid and say so.
         ctx.emit("stage", "no carriers, sweeping blind")
         carriers = None
-    return plan(settings["band"], settings["sweep"], int(settings["stops"]), rng, among=carriers)
+    return plan(band, settings["sweep"], int(settings["stops"]), rng, among=carriers)
 
 
 def downsample(block: np.ndarray, factor: int) -> np.ndarray:

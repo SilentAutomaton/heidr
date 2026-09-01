@@ -24,7 +24,14 @@ api_key_env = "HEIDR_LLM_KEY"
 provider = "vosk"       # vosk, whisper_cpp, api
 model_path = ""         # directory for vosk, .bin file for whisper.cpp
 api_key_env = "HEIDR_STT_KEY"
-window_s = 30           # whisper.cpp window length
+language = "auto"
+window_s = 30           # whisper.cpp window length, its native size
+threads = 0             # 0 lets whisper.cpp decide
+binary = ""             # empty finds whisper-cli on the path
+
+# For radio, a bigger model earns its keep: on a short noisy fragment small
+# invents about half of what it reports. ggml-large-v3-turbo-q5_0.bin is the
+# sensible default, ggml-medium.bin the cheaper one.
 
 [rite]
 silence_chance = 0.125  # how often the oracle refuses to answer
@@ -37,14 +44,23 @@ path = "~/.local/share/heidr/ledger"
 [modules.fm_voice]
 band = "88.0-108.0"
 sweep = "random"        # forward, backward, bounce, random
-stops = 6
-dwell_s = 4
+stops = 4
+dwell_s = 15
+tuned = true            # scan for carriers before dwelling
 
 [modules.sw_voice]
-band = "3.9-4.0"
-sweep = "bounce"
-stops = 6
-dwell_s = 6
+# One of these metre bands is drawn per sweep; which of them is alive
+# depends on the hour and the ionosphere.
+band = ["5.85-6.20", "7.20-7.45", "9.40-9.90", "11.60-12.10", "15.10-15.80"]
+stops = 3
+dwell_s = 20
+direct = "direct2"      # a tuner cannot reach shortwave
+
+[modules.mw_voice]
+band = "0.531-1.602"
+stops = 3
+dwell_s = 20
+direct = "direct2"
 
 [modules.sky]
 # Your position. Without it the sky module stays out of the lottery.

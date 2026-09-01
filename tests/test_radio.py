@@ -120,8 +120,8 @@ def test_a_sweep_plays_transcribes_and_reports(stub_context, events, monkeypatch
     material = found.run(scoped, Key(seed=3, anchors=()))
 
     assert material.text == "a voice from the band"
-    assert material.extra["stops"] == 6
-    assert [name for name, _ in events].count("spectrum") == 12
+    assert material.extra["stops"] == scoped.settings["stops"]
+    assert [name for name, _ in events].count("spectrum") == 2 * scoped.settings["stops"]
     assert any(name == "stage" for name, _ in events)
     assert output.stream is None
 
@@ -132,10 +132,10 @@ def test_a_tuned_sweep_dwells_only_where_the_scan_found_carriers(stub_context, e
     found, scoped = ready(ctx, "fm_voice")
     scoped.stt = ctx.stt
 
-    monkeypatch.setattr(radio, "scan", lambda band, step, seconds: SWEEP_CSV)
+    monkeypatch.setattr(radio, "scan", lambda band, step, seconds, **kwargs: SWEEP_CSV)
     visited = []
 
-    def capture(frequency, mode, rate, seconds, gain="", input_rate=""):
+    def capture(frequency, mode, rate, seconds, **kwargs):
         visited.append(frequency)
         return iter([np.zeros(4096, dtype=np.float32)])
 
@@ -302,3 +302,101 @@ def test_a_narrow_mode_may_ask_for_its_own_input_rate(monkeypatch):
     assert command[command.index("-s") + 1] == "12k"
     assert command[command.index("-r") + 1] == "16000"
     assert command[command.index("-g") + 1] == "30"
+
+
+# Bands
+
+
+def test_one_band_is_used_as_it_is():
+    assert radio.choose_band("88.0-108.0", random.Random(1)) == "88.0-108.0"
+
+
+def test_several_bands_leave_the_choice_to_the_draw():
+    bands = ["5.85-6.20", "9.40-9.90", "15.10-15.80"]
+
+    chosen = {radio.choose_band(bands, random.Random(seed)) for seed in range(30)}
+
+    assert chosen <= set(bands)
+    assert len(chosen) > 1
+
+
+def test_no_bands_at_all_is_no_band():
+    assert radio.choose_band([], random.Random(1)) == ""
+
+
+# Direct sampling
+
+
+def fake_popen(monkeypatch, seen):
+    class Process:
+        stdout = type("S", (), {"read": staticmethod(lambda size: b"")})()
+
+        def terminate(self):
+            return None
+
+        def wait(self, timeout=None):
+            return None
+
+    monkeypatch.setattr(
+        radio.subprocess,
+        "Popen",
+        lambda command, **kwargs: (seen.update(command=command), Process())[1],
+    )
+
+
+def test_shortwave_is_sampled_directly(monkeypatch):
+    seen = {}
+    fake_popen(monkeypatch, seen)
+
+    list(radio.capture(6070000, "am", 16000, 0.0, input_rate="12k", direct="direct2"))
+
+    command = seen["command"]
+    assert command[command.index("-E") + 1] == "direct2"
+
+
+def test_the_scanner_is_told_about_direct_sampling_too(monkeypatch):
+    seen = {}
+
+    class Finished:
+        stdout = ""
+
+    monkeypatch.setattr(
+        radio.subprocess,
+        "run",
+        lambda command, **kwargs: (seen.update(command=command), Finished())[1],
+    )
+
+    radio.scan("0.531-1.602", "9k", 4, direct=True, gain="40")
+
+    assert "-D" in seen["command"]
+    assert seen["command"][seen["command"].index("-g") + 1] == "40"
+
+
+def test_a_band_below_a_megahertz_still_converts_for_the_scanner():
+    assert radio.rtl_power_band("0.531-1.602") == "531000:1602000"
+
+
+# Am modules
+
+
+def test_the_am_modules_carry_the_settings_shortwave_needs():
+    for name in ("sw_voice", "mw_voice"):
+        defaults = registry.MODULES["world"][name].defaults
+        assert defaults["mode"] == "am"
+        assert defaults["direct"] == "direct2"
+        assert defaults["input_rate"] == "12k"
+        assert defaults["dwell_s"] >= 15
+
+
+def test_shortwave_carries_several_metre_bands():
+    bands = registry.MODULES["world"]["sw_voice"].defaults["band"]
+
+    assert isinstance(bands, list)
+    assert len(bands) >= 4
+
+
+def test_the_am_modules_need_a_radio_and_a_recogniser(stub_context):
+    for name in ("sw_voice", "mw_voice"):
+        module = registry.MODULES["world"][name]
+        assert module.available(stub_context) is False
+        assert module.available(stub_context.with_capabilities("sdr")) is False

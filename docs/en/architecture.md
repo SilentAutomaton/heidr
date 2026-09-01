@@ -106,6 +106,23 @@ Levelling is a slow automatic gain stage aiming at a target RMS, followed by a
 hard limiter so nothing clips. All four parameters are configurable and change
 live from the interface.
 
+## The radio has two jobs
+
+The same dongle serves two purposes that must not be confused with each other.
+
+**As a source of entropy.** `sdr_noise` tunes to an empty frequency and takes
+the noise floor itself. Nothing is being listened to; the samples are debiased
+and whitened, and what comes out is a number. This is the oldest use of the
+radio here and it stays.
+
+**As a source of voices.** `fm_voice`, `sw_voice` and `mw_voice` tune to real
+transmitters and turn what people are saying into text. Here the content is the
+whole point.
+
+They are not alternatives. One asks the world for a number, the other asks it
+for words, and the lottery may draw either. A voice module that finds an empty
+band is not falling back on the entropy module — it simply found an empty band.
+
 ## Nothing waits forever
 
 A rite talks to a radio, to public endpoints and to a daemon, and every one of

@@ -22,8 +22,8 @@ back, `random` scatters across the band. The key's seed fixes the order, so the
 same question would take the same route.
 
 The dwell time matters more than the mode. It decides whether you catch a
-fragment of a sentence or nothing but noise. Four seconds by default: long enough
-to hear a sentence, short enough not to settle in.
+fragment of a sentence or nothing but noise. Fifteen seconds by default: shorter
+than that and the recogniser gets a scrap it has to invent half of.
 
 ### One buffer, three consumers
 
@@ -50,13 +50,14 @@ not happen to say your word would be cheating in the other direction.
 |---|---|---|
 | `band` | `88.0-108.0` | The band in megahertz |
 | `sweep` | `random` | `forward`, `backward`, `bounce`, `random` |
-| `stops` | 6 | How many frequencies to visit |
-| `dwell_s` | 4 | Seconds on each |
+| `stops` | 4 | How many stations to visit |
+| `dwell_s` | 15 | Seconds on each |
 | `mode` | `wbfm` | Demodulation for `rtl_fm` |
 | `rate` | 32000 | Sample rate |
 | `bins` | 64 | Bars in the spectrum |
 
-Six stops of four seconds is about half a minute including retuning.
+Four stops of fifteen seconds is about a minute including the scan and
+retuning.
 
 ## Dependencies
 

@@ -2,26 +2,20 @@ from heidr import radio
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
-# The international shortwave broadcast bands, by metre band. Which of them
-# carries anything depends on the hour and the ionosphere, so the draw picks
-# one and the scan then decides where inside it to stop.
-BANDS = (
-    "5.85-6.20",  # 49 m, reliable after dark
-    "7.20-7.45",  # 41 m
-    "9.40-9.90",  # 31 m, the workhorse
-    "11.60-12.10",  # 25 m, daytime
-    "15.10-15.80",  # 19 m, daytime
-)
+# Medium wave: the oldest broadcast band still in use, and the one where a
+# station heard at night may be a thousand kilometres away. Channels sit on a
+# 9 kHz grid in most of the world and 10 kHz in the Americas.
+BAND = "0.531-1.602"
 
 available = radio.available
 
 
 @world(
-    "sw_voice",
+    "mw_voice",
     needs=("sdr", "stt"),
     visual="waterfall",
     defaults={
-        "band": list(BANDS),
+        "band": BAND,
         "sweep": "random",
         "stops": 3,
         "dwell_s": 20,
@@ -30,12 +24,11 @@ available = radio.available
         "input_rate": "12k",
         "bins": 64,
         "tuned": True,
-        "scan_step": "5k",
-        "scan_s": 6,
+        "scan_step": "9k",
+        "scan_s": 8,
         "scan_margin": 6.0,
-        "scan_separation": 10000,
+        "scan_separation": 9000,
         "gain": "",
-        # A tuner cannot reach shortwave, so the input is sampled directly.
         "direct": "direct2",
     },
 )
@@ -46,6 +39,6 @@ def run(ctx, key: Key) -> Material:
     return Material(
         text=" / ".join(kept),
         numbers=tuple(int(frequency) for frequency in stops[:4]),
-        source="shortwave",
+        source="mediumwave",
         extra={"stops": len(stops), "phrases": len(said), "kept": len(kept)},
     )

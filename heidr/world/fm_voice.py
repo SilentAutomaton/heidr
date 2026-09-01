@@ -12,8 +12,8 @@ available = radio.available
     defaults={
         "band": "88.0-108.0",
         "sweep": "random",
-        "stops": 6,
-        "dwell_s": 4,
+        "stops": 4,
+        "dwell_s": 15,
         "mode": "wbfm",
         "rate": 32000,
         "bins": 64,

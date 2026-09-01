@@ -44,6 +44,24 @@ threads = 0                 # 0 lets whisper.cpp decide
 As everywhere else, `api_key_env` is the name of an environment variable, never
 the key.
 
+## Which model for radio
+
+For dictation almost anything works: you speak close to the microphone, clearly,
+in a quiet room.
+
+Radio is the opposite case, and the model size shows. On a short noisy fragment
+`small` reports about half real words and half its own invention — plausible
+Russian that was never broadcast. `medium` is noticeably better,
+`large-v3-turbo` better still and roughly the same speed as `medium` thanks to
+its reduced decoder.
+
+A longer dwell helps as much as a bigger model. Fifteen to twenty seconds on one
+station gives the model enough context to settle; five seconds does not.
+
+Whether that invention is a defect depends on the module. For `fm_voice` it is —
+there is clean speech to be had. For `sw_voice` it is the point: see that
+module's document.
+
 ## When a provider cannot be used
 
 A missing model, a missing binary or a missing key is checked at probe time, not
