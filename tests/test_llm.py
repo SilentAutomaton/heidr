@@ -52,6 +52,22 @@ def test_ollama_reads_newline_delimited_json(default_config, capture):
     assert "".join(provider.stream(ASK)) == "the sky"
 
 
+def test_ollama_keeps_a_reasoning_model_quiet_by_default(default_config, capture):
+    """A model that thinks over a wall of noise answers with nothing at all."""
+    sent = capture(ollama, [b'{"message":{"content":"here"},"done":true}'])
+    list(ollama.Ollama(default_config).stream(ASK))
+
+    assert sent["json"]["think"] is False
+
+
+def test_ollama_thinks_when_the_configuration_asks_for_it(default_config, capture):
+    sent = capture(ollama, [b'{"message":{"content":"here"},"done":true}'])
+    default_config.set("llm.think", True)
+    list(ollama.Ollama(default_config).stream(ASK))
+
+    assert sent["json"]["think"] is True
+
+
 def test_openai_compatible_reads_server_sent_events(default_config, capture):
     capture(
         openai_compat,
