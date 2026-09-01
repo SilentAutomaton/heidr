@@ -29,6 +29,7 @@ DEFAULTS: dict[str, dict[str, str]] = {
     },
     "leader": {
         "a": "ask",
+        "c": "compose",
         "d": "draw",
         "l": "ledger",
         "m": "modules",

@@ -273,7 +273,7 @@ async def test_the_arrows_move_the_cursor(default_config):
 @pytest.mark.asyncio
 async def test_the_arrows_move_through_the_menu_too(default_config):
     async with make_app(default_config).run_test() as pilot:
-        await pilot.press("down", "down", "enter")
+        await pilot.press("down", "down", "down", "enter")
 
         assert pilot.app.view == "modules"
 

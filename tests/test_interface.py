@@ -78,7 +78,7 @@ async def test_the_menu_shows_the_command_and_the_key_for_each_entry(default_con
 @pytest.mark.asyncio
 async def test_a_menu_entry_runs_its_action(default_config):
     async with make_app(default_config).run_test() as pilot:
-        await pilot.press("j", "j", "enter")
+        await pilot.press("j", "j", "j", "enter")
 
         assert pilot.app.view == "modules"
 
@@ -86,10 +86,10 @@ async def test_a_menu_entry_runs_its_action(default_config):
 @pytest.mark.asyncio
 async def test_the_menu_keeps_its_place_while_you_are_away(default_config):
     async with make_app(default_config).run_test() as pilot:
-        await pilot.press("j", "j", "enter")
+        await pilot.press("j", "j", "j", "enter")
         await pilot.press("escape")
 
-        assert pilot.app.view == "menu" and pilot.app.cursor == 2
+        assert pilot.app.view == "menu" and pilot.app.cursor == 3
 
 
 @pytest.mark.asyncio
@@ -438,3 +438,58 @@ async def test_the_pinned_chain_shows_in_the_status_line(default_config):
         await pilot.press("colon", *"draw blind//babel//iching", "enter")
 
         assert pilot.app.query_one(StatusLine).rite == "blind//babel//iching"
+
+
+@pytest.mark.asyncio
+async def test_the_menu_can_choose_a_rite_slot_by_slot(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("space", "c")
+        assert pilot.app.view == "choose.question"
+
+        for slot in ("blind", "babel", "iching"):
+            await go_to_row(pilot, slot)
+            await pilot.press("enter")
+
+        assert pilot.app.pinned == "blind//babel//iching"
+        assert pilot.app.view == "ask"
+
+
+@pytest.mark.asyncio
+async def test_choosing_can_leave_a_slot_to_the_lottery(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("space", "c")
+        await pilot.press("enter")
+        await go_to_row(pilot, "babel")
+        await pilot.press("enter")
+        await pilot.press("enter")
+
+        assert pilot.app.pinned == "*//babel//*"
+
+
+@pytest.mark.asyncio
+async def test_escape_steps_back_through_the_slots(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("space", "c")
+        await pilot.press("enter")
+        assert pilot.app.view == "choose.world"
+
+        await pilot.press("escape")
+        assert pilot.app.view == "choose.question"
+
+        await pilot.press("escape")
+        assert pilot.app.view == "menu"
+
+
+async def go_to_row(pilot, key):
+    while pilot.app.rows[pilot.app.cursor][0] != key:
+        await pilot.press("down")
+
+
+@pytest.mark.asyncio
+async def test_the_slot_list_says_which_slot_it_is(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("space", "c")
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "Which question?" in shown
+        assert "leave it to the lottery" in shown

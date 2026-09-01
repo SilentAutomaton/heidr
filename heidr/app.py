@@ -82,6 +82,7 @@ class HeidrApp(App):
         self.transcript: list[str] = []
         self.stages: list[str] = []
         self.pinned = ""
+        self.wanted: list[str] = []
         self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
         # The garbled slogan is one more entry in the same pool, and it is only
@@ -434,6 +435,9 @@ class HeidrApp(App):
             body = splash.copy()
             body.append(f"\n\n{listed}")
             return body
+        if self.view.startswith("choose."):
+            heading = text("prompt.choose", slot=self.view.split(".")[1])
+            return f"{heading}\n\n{browser.render(self.rows, self.cursor, '', room - 2)}"
         if self.view in ("modules", "settings", "ledger"):
             return browser.render(self.rows, self.cursor, self.empty, room)
         if self.view == "ask":
@@ -550,6 +554,25 @@ class HeidrApp(App):
         self.query_one(StatusLine).rite = spec
         self.do_ask()
 
+    def do_compose(self) -> None:
+        """Choose a rite one slot at a time, instead of naming it in one line."""
+        self.wanted = []
+        self._open_slot()
+
+    def _open_slot(self) -> None:
+        slot = registry.SLOTS[len(self.wanted)]
+        self._open_browser(f"choose.{slot}", browser.slot_rows(slot, self.probe()), "")
+
+    def _choose_slot(self) -> None:
+        name, _line = self.rows[self.cursor]
+        self.wanted.append(name)
+        if len(self.wanted) < len(registry.SLOTS):
+            self._open_slot()
+            return
+        # Back to where the command would have left us, by the same door.
+        self.views = self.views[: self.views.index(f"choose.{registry.SLOTS[0]}")]
+        self.pin(rite.SEPARATOR.join(self.wanted))
+
     def do_menu(self) -> None:
         self._open_browser("menu", browser.menu_rows(self.leader), "")
 
@@ -602,6 +625,8 @@ class HeidrApp(App):
             self._edit_setting()
         elif self.view == "ledger":
             self._show_entry()
+        elif self.view.startswith("choose."):
+            self._choose_slot()
 
     def _show_entry(self) -> None:
         identifier, _line = self.rows[self.cursor]

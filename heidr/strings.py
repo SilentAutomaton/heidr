@@ -42,6 +42,7 @@ EN = {
     "mode.insert": "INSERT",
     "mode.command": "COMMAND",
     "prompt.ask": "Ask a question",
+    "prompt.choose": "Which {slot}?",
     "prompt.confirm_draw": "Draw the lot",
     "prompt.cancel": "Cancel",
     "empty.ledger": "No draws yet. Type :ask to put a question.",

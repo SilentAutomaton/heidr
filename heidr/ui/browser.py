@@ -9,6 +9,7 @@ BLANK = "  "
 # is shown rather than hidden.
 ENTRIES = (
     ("ask", "ask a question", ":ask", "{leader}a"),
+    ("compose", "choose a rite", ":draw a//b//c", "{leader}c"),
     ("ledger", "past draws", ":ledger", "{leader}l"),
     ("modules", "modules", ":modules", "{leader}m"),
     ("settings", "settings", ":settings", "{leader}s"),
@@ -16,6 +17,22 @@ ENTRIES = (
     ("help", "help", ":help", "?"),
     ("quit", "leave", ":q", "{leader}q"),
 )
+
+
+LOTTERY = "*"
+
+
+def slot_rows(slot: str, ctx) -> list[tuple[str, str]]:
+    """The modules of one slot, ready to be chosen from.
+
+    The lottery comes first, because leaving a slot to chance is the ordinary
+    thing and choosing all three is the exception.
+    """
+    rows = [(LOTTERY, "leave it to the lottery")]
+    for name, module in sorted(registry.MODULES[slot].items()):
+        state = "ready" if module.available(ctx) else "unavailable"
+        rows.append((name, f"{name:<14} {state}"))
+    return rows
 
 
 def menu_rows(leader: str) -> list[tuple[str, str]]:
