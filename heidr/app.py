@@ -147,8 +147,9 @@ class HeidrApp(App):
         status.provider = self.settings.get("llm.provider", "")
 
     def watch_edit_mode(self, value: str) -> None:
-        if self.is_mounted:
-            self.query_one(StatusLine).mode = value
+        line = self._status()
+        if line is not None:
+            line.mode = value
 
     # Input
 
@@ -353,8 +354,15 @@ class HeidrApp(App):
         return True
 
     def _show_path(self) -> None:
-        if self.is_mounted:
-            self.query_one(StatusLine).path = TRAIL[self.terminal.glyphs].join(self.views)
+        line = self._status()
+        if line is not None:
+            line.path = TRAIL[self.terminal.glyphs].join(self.views)
+
+    def _status(self):
+        # Timers and watchers outlive the screen for a moment when the program
+        # leaves, and a missing status line then is ordinary rather than wrong.
+        found = self.query("#status")
+        return found.first(StatusLine) if found else None
 
     def _render_body(self, size=None) -> None:
         """The single place that decides what the body shows.
