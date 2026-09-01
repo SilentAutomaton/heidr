@@ -20,6 +20,8 @@ available = radio.available
         "tuned": True,
         "scan_step": "100k",
         "scan_s": 4,
+        "gain": "",
+        "input_rate": "",
     },
 )
 def run(ctx, key: Key) -> Material:

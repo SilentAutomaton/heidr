@@ -111,15 +111,41 @@ def stations(
     return found
 
 
+def rtl_power_band(band: str) -> str:
+    """`88.0-108.0` is how a band is written here; rtl_power wants `low:high`."""
+    if "-" in band:
+        low, high = band_edges(band)
+        return f"{int(low)}:{int(high)}"
+    return band
+
+
 def scan(band: str, step: str, seconds: int) -> str:
-    command = ["rtl_power", "-f", f"{band}:{step}", "-i", str(seconds), "-1", "-"]
+    command = ["rtl_power", "-f", f"{rtl_power_band(band)}:{step}", "-i", str(seconds), "-1", "-"]
     finished = subprocess.run(command, capture_output=True, text=True, timeout=seconds + 30)
     return finished.stdout
 
 
-def capture(frequency: float, mode: str, rate: int, seconds: float, gain: str = "") -> Iterator[np.ndarray]:
-    """Read demodulated audio from rtl_fm one block at a time."""
-    command = ["rtl_fm", "-f", str(int(frequency)), "-M", mode, "-s", str(rate)]
+def capture(
+    frequency: float,
+    mode: str,
+    rate: int,
+    seconds: float,
+    gain: str = "",
+    input_rate: str = "",
+) -> Iterator[np.ndarray]:
+    """Read demodulated audio from rtl_fm one block at a time.
+
+    `rate` is the rate the audio comes out at and goes to `-r`, not to `-s`.
+    The distinction matters: rtl_fm's own help spells `wbfm` out as
+    `-M fm -s 170k -o 4 -A fast -r 32k -l 0 -E deemp`, so a broadcast needs
+    170 kHz of input to demodulate. Setting `-s` to the output rate narrows the
+    input to 32 kHz, which throws away most of the signal and leaves hiss —
+    measurably so: two and a half times more energy above 8 kHz.
+    """
+    command = ["rtl_fm", "-f", str(int(frequency)), "-M", mode]
+    if input_rate:
+        command += ["-s", input_rate]
+    command += ["-r", str(rate)]
     if gain:
         command += ["-g", gain]
     command += ["-"]
@@ -150,20 +176,21 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
     settings = ctx.settings
     rng = random.Random(key.seed)
     rate = int(settings["rate"])
-    stops = plan(
-        settings["band"],
-        settings["sweep"],
-        int(settings["stops"]),
-        rng,
-        among=_carriers(ctx) if settings.get("tuned") else None,
-    )
+    stops = _stops_for(ctx, key, rng)
     output = output or audio.Output(audio.Levels.from_config(ctx.config), rate)
 
     heard: list[np.ndarray] = []
     blocks = 0
     for frequency in stops:
         ctx.emit("stage", f"{frequency / 1e6:.3f} MHz")
-        for block in capture(frequency, settings["mode"], rate, float(settings["dwell_s"])):
+        for block in capture(
+            frequency,
+            settings["mode"],
+            rate,
+            float(settings["dwell_s"]),
+            gain=str(settings.get("gain", "")),
+            input_rate=str(settings.get("input_rate", "")),
+        ):
             output.play(block)
             ctx.emit("spectrum", audio.spectrum(block, int(settings.get("bins", 64))))
             heard.append(downsample(block, rate // SPEECH_RATE))
@@ -190,6 +217,17 @@ def _carriers(ctx) -> list[float]:
     )
     ctx.emit("stage", f"scan found {len(found)} carriers")
     return [float(hertz) for hertz, _power in found]
+
+
+def _stops_for(ctx, key, rng: random.Random) -> list[float]:
+    settings = ctx.settings
+    carriers = _carriers(ctx) if settings.get("tuned") else None
+    if carriers is not None and not carriers:
+        # An empty band is a real answer, but so is a scan that went wrong, and
+        # from here they look the same. Fall back to the even grid and say so.
+        ctx.emit("stage", "no carriers, sweeping blind")
+        carriers = None
+    return plan(settings["band"], settings["sweep"], int(settings["stops"]), rng, among=carriers)
 
 
 def downsample(block: np.ndarray, factor: int) -> np.ndarray:

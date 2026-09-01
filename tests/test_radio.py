@@ -135,7 +135,7 @@ def test_a_tuned_sweep_dwells_only_where_the_scan_found_carriers(stub_context, e
     monkeypatch.setattr(radio, "scan", lambda band, step, seconds: SWEEP_CSV)
     visited = []
 
-    def capture(frequency, mode, rate, seconds, gain=""):
+    def capture(frequency, mode, rate, seconds, gain="", input_rate=""):
         visited.append(frequency)
         return iter([np.zeros(4096, dtype=np.float32)])
 
@@ -249,3 +249,56 @@ def test_a_tuned_sweep_asks_for_more_stops_than_there_are_stations():
 
 def test_a_scan_that_finds_nothing_leaves_no_stops():
     assert radio.plan(BAND, "forward", 4, random.Random(1), among=[]) == []
+
+
+def test_the_output_rate_goes_to_the_resampler_not_the_tuner(monkeypatch):
+    """rtl_fm's wbfm preset sets the 170 kHz input itself.
+
+    Passing the output rate to -s narrows the input to 32 kHz and demodulates
+    hiss instead of a broadcast, which is what this test exists to prevent.
+    """
+    seen = {}
+
+    class Process:
+        stdout = type("S", (), {"read": staticmethod(lambda size: b"")})()
+
+        def terminate(self):
+            return None
+
+        def wait(self, timeout=None):
+            return None
+
+    def popen(command, **kwargs):
+        seen["command"] = command
+        return Process()
+
+    monkeypatch.setattr(radio.subprocess, "Popen", popen)
+    list(radio.capture(106203125, "wbfm", 32000, 0.0))
+
+    command = seen["command"]
+    assert "-s" not in command
+    assert command[command.index("-r") + 1] == "32000"
+    assert command[command.index("-M") + 1] == "wbfm"
+
+
+def test_a_narrow_mode_may_ask_for_its_own_input_rate(monkeypatch):
+    seen = {}
+
+    class Process:
+        stdout = type("S", (), {"read": staticmethod(lambda size: b"")})()
+
+        def terminate(self):
+            return None
+
+        def wait(self, timeout=None):
+            return None
+
+    monkeypatch.setattr(
+        radio.subprocess, "Popen", lambda command, **kwargs: (seen.update(command=command), Process())[1]
+    )
+    list(radio.capture(3950000, "am", 16000, 0.0, gain="30", input_rate="12k"))
+
+    command = seen["command"]
+    assert command[command.index("-s") + 1] == "12k"
+    assert command[command.index("-r") + 1] == "16000"
+    assert command[command.index("-g") + 1] == "30"
