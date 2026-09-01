@@ -101,7 +101,7 @@ async def test_a_past_draw_can_be_read_again(default_config, offline):
         assert len(pilot.app.rows) == 1
 
         await pilot.press("enter")
-        assert pilot.app.view == "rite"
+        assert pilot.app.view == "text"
         assert "what now" in str(pilot.app.query_one("#body").content)
 
 
@@ -199,3 +199,90 @@ async def test_a_console_gets_the_plain_stylesheet_and_still_works(default_confi
 
         assert pilot.app.css_path[0].name == "theme_tty.tcss"
         assert "terminal" in str(pilot.app.query_one("#body").content)
+
+
+# What survives a resize
+
+
+@pytest.mark.asyncio
+async def test_a_question_and_its_answer_survive_a_resize(default_config, offline):
+    async with make_app(default_config).run_test(size=(96, 28)) as pilot:
+        await pilot.press("i", *"what now", "enter")
+        await pilot.pause()
+        while pilot.app.drawing:
+            await pilot.pause()
+        before = str(pilot.app.query_one("#body").content)
+
+        await pilot.resize_terminal(70, 20)
+        await pilot.pause()
+
+        assert "what now" in str(pilot.app.query_one("#body").content)
+        assert "HEID" not in str(pilot.app.query_one("#body").content)
+        assert before.splitlines()[0] in str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_shrinking_and_growing_back_restores_the_answer(default_config, offline):
+    async with make_app(default_config).run_test(size=(96, 28)) as pilot:
+        await pilot.press("i", *"what now", "enter")
+        await pilot.pause()
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        await pilot.resize_terminal(30, 8)
+        await pilot.pause()
+        assert "Terminal too small" in str(pilot.app.query_one("#body").content)
+
+        await pilot.resize_terminal(96, 28)
+        await pilot.pause()
+        assert "what now" in str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_a_browser_survives_a_resize_and_rewindows(default_config):
+    async with make_app(default_config).run_test(size=(96, 40)) as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        tall = str(pilot.app.query_one("#body").content)
+
+        await pilot.resize_terminal(96, 20)
+        await pilot.pause()
+        short = str(pilot.app.query_one("#body").content)
+
+        assert pilot.app.view == "modules"
+        # The window shrinks with the terminal, and the footer says how far it
+        # now reaches.
+        assert tall.splitlines()[-1] != short.splitlines()[-1]
+        assert short.splitlines()[-1].strip().endswith("of 30")
+
+
+@pytest.mark.asyncio
+async def test_the_health_report_survives_a_resize(default_config):
+    async with make_app(default_config).run_test(size=(96, 28)) as pilot:
+        await pilot.press("colon", *"checkhealth", "enter")
+        await pilot.resize_terminal(80, 24)
+        await pilot.pause()
+
+        assert "terminal" in str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_the_splash_keeps_its_slogan_across_resizes(default_config):
+    async with make_app(default_config).run_test(size=(96, 28)) as pilot:
+        first = str(pilot.app.query_one("#body").content)
+
+        await pilot.resize_terminal(80, 24)
+        await pilot.pause()
+
+        assert str(pilot.app.query_one("#body").content) == first
+
+
+def test_the_stylesheets_agree_with_the_layout_arithmetic():
+    """The body's height is computed, so the pane it is computed from must match."""
+    from pathlib import Path
+
+    from heidr.app import VISUAL_ROWS
+
+    for name in ("theme_full.tcss", "theme_tty.tcss"):
+        style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
+        block = style.split("#visual")[1]
+        assert f"height: {VISUAL_ROWS};" in block

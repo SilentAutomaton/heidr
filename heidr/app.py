@@ -31,6 +31,10 @@ def _typed(value: str):
 
 MIN_COLUMNS = 40
 MIN_ROWS = 12
+# The animation pane, the status line and the command line. The stylesheets
+# must agree, and a test says so.
+VISUAL_ROWS = 8
+CHROME_ROWS = VISUAL_ROWS + 2
 THEMES = Path(__file__).resolve().parent / "ui"
 
 
@@ -48,6 +52,7 @@ class HeidrApp(App):
         self.view = "rite"
         self.cursor = 0
         self.rows: list[tuple[str, str]] = []
+        self.body_text = ""
         self.bus = Bus()
         self.drawing = False
         self.stop_draw = threading.Event()
@@ -170,6 +175,7 @@ class HeidrApp(App):
             line.say(text("error.already_drawing"))
             return
 
+        self.view = "rite"
         self.transcript = [f"> {question}", ""]
         self._show_transcript()
         self.show_visual("waterfall")
@@ -213,7 +219,8 @@ class HeidrApp(App):
     def _drawn(self, drawn) -> None:
         self.drawing = False
         self.query_one(StatusLine).rite = str(drawn.rite)
-        self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.body()]
+        self.view = "rite"
+        self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
         self._show_transcript()
         self.show_visual("idle")
         if drawn.rite.silent:
@@ -244,7 +251,34 @@ class HeidrApp(App):
         self._show_transcript()
 
     def _show_transcript(self) -> None:
-        self.query_one("#body", Static).update("\n".join(self.transcript))
+        self._render_body()
+
+    def _show_text(self, body: str) -> None:
+        self.view = "text"
+        self.body_text = body
+        self._render_body()
+
+    def _render_body(self, size=None) -> None:
+        """The single place that decides what the body shows.
+
+        Everything that changes the screen changes state and calls this. A
+        resize calls it too, which is why a question and its answer survive one
+        instead of being replaced by the splash.
+        """
+        size = size or self.size
+        body = self.query_one("#body", Static)
+        body.update(self._body_content(size))
+
+    def _body_content(self, size) -> str:
+        if size.width < MIN_COLUMNS or size.height < MIN_ROWS:
+            return text("error.small_terminal", cols=MIN_COLUMNS, rows=MIN_ROWS)
+        if self.view in ("modules", "settings", "ledger"):
+            # One more line is kept for the "n of m" footer.
+            room = size.height - CHROME_ROWS - 1
+            return browser.render(self.rows, self.cursor, getattr(self, "empty", ""), room)
+        if self.view == "text":
+            return self.body_text
+        return "\n".join(self.transcript) if self.transcript else self._splash()
 
     # Visualisations
 
@@ -319,13 +353,11 @@ class HeidrApp(App):
         self.exit()
 
     def do_help(self) -> None:
-        self.view = "rite"
-        self.query_one("#body", Static).update(self._help_text())
+        self._show_text(self._help_text())
 
     def do_checkhealth(self) -> None:
-        self.view = "rite"
         checks = health.report(self.probe(), self.terminal, self.ledger)
-        self.query_one("#body", Static).update(health.as_text(checks))
+        self._show_text(health.as_text(checks))
 
     def do_draw(self) -> None:
         # A draw needs a question, so asking for one is the whole of it.
@@ -348,9 +380,7 @@ class HeidrApp(App):
         self._show_rows()
 
     def _show_rows(self) -> None:
-        body = self.query_one("#body", Static)
-        # One line is kept for the "n of m" footer.
-        body.update(browser.render(self.rows, self.cursor, getattr(self, "empty", ""), body.size.height - 1))
+        self._render_body()
 
     def do_line_down(self) -> None:
         self._move_cursor(1)
@@ -377,8 +407,7 @@ class HeidrApp(App):
         found = [entry for entry in self.ledger.entries() if entry.identifier == identifier]
         if not found:
             return
-        self.view = "rite"
-        self.query_one("#body", Static).update(found[0].body or text("status.silent"))
+        self._show_text(found[0].body or text("status.silent"))
 
     def _toggle_module(self) -> None:
         key, _line = self.rows[self.cursor]
@@ -466,17 +495,17 @@ class HeidrApp(App):
     # Layout
 
     def on_resize(self, event) -> None:
-        body = self.query_one("#body", Static)
-        if event.size.width < MIN_COLUMNS or event.size.height < MIN_ROWS:
-            body.update(text("error.small_terminal", cols=MIN_COLUMNS, rows=MIN_ROWS))
-        else:
-            body.update(self._splash())
+        # The event carries the new size; the widgets have not been laid out at
+        # it yet, so the body is measured from the terminal rather than asked.
+        self._render_body(event.size)
 
     def _splash(self) -> str:
-        import random
+        if not getattr(self, "_splash_text", ""):
+            import random
 
-        banner = BANNER_BLOCK if self.terminal.glyphs != "ascii" else BANNER_PLAIN
-        return f"{banner}\n\n{random.choice(SLOGANS)}"
+            banner = BANNER_BLOCK if self.terminal.glyphs != "ascii" else BANNER_PLAIN
+            self._splash_text = f"{banner}\n\n{random.choice(SLOGANS)}"
+        return self._splash_text
 
     def _help_text(self) -> str:
         lines = [f"{NAME} keys", ""]
