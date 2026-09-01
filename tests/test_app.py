@@ -121,3 +121,31 @@ async def test_the_same_question_twice_is_refused(default_config, monkeypatch):
         await pilot.pause()
 
         assert "drawn before" in pilot.app.query_one(CommandLine).message
+
+
+@pytest.mark.asyncio
+async def test_a_broken_provider_removes_the_llm_capability(default_config):
+    default_config.set("llm.provider", "telepathy")
+    app = HeidrApp(
+        settings=default_config,
+        user_dir=Path("/nonexistent"),
+        terminal=FULL,
+        capabilities_found=frozenset({"llm"}),
+    )
+    async with app.run_test():
+        context = app.probe()
+        assert "llm" not in context.capabilities
+        assert context.llm is None
+
+
+@pytest.mark.asyncio
+async def test_a_working_provider_reaches_the_context(default_config):
+    app = HeidrApp(
+        settings=default_config,
+        user_dir=Path("/nonexistent"),
+        terminal=FULL,
+        capabilities_found=frozenset({"llm"}),
+    )
+    async with app.run_test():
+        context = app.probe()
+        assert context.llm.name == "ollama"

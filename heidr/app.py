@@ -6,8 +6,8 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import capabilities, config, keymap, registry, rite, session
-from heidr.contracts import Context
+from heidr import capabilities, config, keymap, llm, registry, rite, session
+from heidr.contracts import Context, Unavailable
 from heidr.events import Bus
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
@@ -42,7 +42,18 @@ class HeidrApp(App):
         found = self.capabilities_found
         if found is None:
             found = capabilities.detect_capabilities(self.settings)
-        self.context = replace(self.context, capabilities=found)
+
+        provider = None
+        if "llm" in found:
+            try:
+                provider = llm.build(self.settings)
+            except Unavailable:
+                # A provider that cannot be built is not a provider, so the
+                # readings that need one drop out of the lottery instead of
+                # failing halfway through a rite.
+                found = found - {"llm"}
+
+        self.context = replace(self.context, capabilities=found, llm=provider)
         return self.context
 
     def compose(self) -> ComposeResult:
