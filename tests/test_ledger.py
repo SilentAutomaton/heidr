@@ -52,12 +52,20 @@ def test_a_tampered_entry_is_caught(tmp_path):
     assert not ledger.chain_ok()
 
 
-def test_an_abandoned_draw_still_blocks_the_question(tmp_path):
+def test_a_released_draw_frees_the_question(tmp_path):
     ledger = Ledger(tmp_path)
-    ledger.abandon(ledger.commit("interrupted"))
+    ledger.abandon(ledger.commit("interrupted"), released=True)
+
+    assert ledger.asked_before("interrupted") is None
+    assert ledger.last().get("Status") == "void"
+
+
+def test_a_broken_draw_still_spends_the_question(tmp_path):
+    ledger = Ledger(tmp_path)
+    ledger.abandon(ledger.commit("interrupted"), released=False)
 
     assert ledger.asked_before("interrupted") is not None
-    assert ledger.last().get("Status") == "void"
+    assert ledger.last().get("Status") == "broken"
 
 
 def test_recent_modules_come_from_the_last_rites(tmp_path):
