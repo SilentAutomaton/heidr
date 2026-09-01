@@ -52,6 +52,9 @@ EN = {
     "error.draw_failed": "The draw stopped: {reason}. The question is free again.",
     "status.cancelled": "Stopped. The question is free again.",
     "status.stopping": "Stopping at the next step.",
+    "status.no_answer": (
+        "The reading returned nothing. Only the raw material remains."
+    ),
     "status.silent": "The oracle is silent. Only the raw material remains.",
     "status.listening": "Listening",
     "status.waiting": "Waiting",

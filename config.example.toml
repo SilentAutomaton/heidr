@@ -19,6 +19,7 @@ provider = "ollama"     # ollama, openai_compat, anthropic
 model = "qwen3.5:9B"
 base_url = "http://localhost:11434"
 api_key_env = "HEIDR_LLM_KEY"
+think = false           # ollama only: let a reasoning model think before it answers
 
 [stt]
 provider = "vosk"       # vosk, whisper_cpp, api

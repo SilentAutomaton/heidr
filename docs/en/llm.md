@@ -36,7 +36,14 @@ base_url = "http://localhost:11434"
 api_key_env = "HEIDR_LLM_KEY"
 timeout = 120
 max_tokens = 1024
+think = false
 ```
+
+`think` is read by the ollama provider only. A reasoning model asked to read a
+wall of random letters can spend its whole output budget on reasoning and stop
+with an empty answer, which reaches the screen as material and nothing else.
+The default is `false`, so the model answers at once. Set it to `true` only
+with a model and a context length that can afford it.
 
 `api_key_env` is the **name of an environment variable**, not a key. Keys are
 never read from the config file and never written to it.

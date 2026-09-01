@@ -14,6 +14,9 @@ class Ollama:
         self.base_url = config.get("llm.base_url", "http://localhost:11434").rstrip("/")
         self.model = config.get("llm.model", "")
         self.timeout = config.get("llm.timeout", 120)
+        # A reasoning model given a wall of noise thinks until it runs out of
+        # room and answers with nothing at all, so thinking is off by default.
+        self.think = bool(config.get("llm.think", False))
 
     def available(self) -> bool:
         # Building the object proves nothing; the daemon has to answer.
@@ -31,6 +34,7 @@ class Ollama:
                 "model": self.model,
                 "messages": [message.as_dict() for message in messages],
                 "stream": True,
+                "think": self.think,
             },
             timeout=self.timeout,
             stream=True,
