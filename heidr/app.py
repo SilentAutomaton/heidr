@@ -4,6 +4,7 @@ import threading
 from dataclasses import replace
 from pathlib import Path
 
+from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.containers import Vertical
 from textual.reactive import reactive
@@ -16,7 +17,7 @@ from heidr.history import History
 from heidr.ledger import Ledger
 from heidr.strings import NAME, SLOGANS, text
 from heidr.ui import browser
-from heidr.ui import mark, prompt, stages
+from heidr.ui import mark, panel, prompt, stages
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals.canvas import Canvas
@@ -79,7 +80,11 @@ class HeidrApp(App):
         self.bus = Bus()
         self.drawing = False
         self.stop_draw = threading.Event()
-        self.transcript: list[str] = []
+        self.asked = ""
+        self.found = ("", "")
+        self.said: list[str] = []
+        self.notice = ""
+        self.entry_id = ""
         self.stages: list[str] = []
         self.pinned = ""
         self.wanted: list[str] = []
@@ -219,7 +224,11 @@ class HeidrApp(App):
 
         self._enter("rite")
         self.stages = []
-        self.transcript = [f"> {question}", ""]
+        self.asked = question
+        self.found = ("", "")
+        self.said = []
+        self.notice = ""
+        self.entry_id = ""
         self._show_transcript()
         self.show_visual("waterfall")
         self._listen_to_the_draw()
@@ -258,7 +267,13 @@ class HeidrApp(App):
     def _draw_over(self, message: str) -> None:
         self.drawing = False
         self.show_idle()
+        self._announce(message)
+
+    def _announce(self, message: str) -> None:
+        """Say it where the reader is looking, and at the bottom as well."""
+        self.notice = message
         self.query_one(CommandLine).say(message)
+        self._render_body()
 
     def _drawn(self, drawn) -> None:
         self.drawing = False
@@ -267,15 +282,17 @@ class HeidrApp(App):
         self.stages = [drawn.rite.question.name, drawn.rite.world.name, drawn.rite.reading.name]
         self.query_one(StatusLine).rite = str(drawn.rite)
         self._enter("rite")
-        self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
+        self.entry_id = drawn.entry.identifier
+        self.found = (drawn.material.text, drawn.material.source)
+        self.said = list(drawn.lines)
         self._show_transcript()
         self.show_idle()
         if drawn.rite.silent:
-            self.query_one(CommandLine).say(text("status.silent"))
+            self._announce(text("status.silent"))
         elif not drawn.lines:
             # A reading that yields nothing is not an error, but the screen
             # would otherwise look the same as one that simply finished.
-            self.query_one(CommandLine).say(text("status.no_answer"))
+            self._announce(text("status.no_answer"))
 
     def do_stop(self) -> None:
         if self.drawing:
@@ -290,6 +307,7 @@ class HeidrApp(App):
         self.bus.subscribe("stage", lambda name: self._on_thread(self._stage, name))
         self.bus.subscribe("progress", lambda done: self._on_thread(self._progress, done))
         self.bus.subscribe("token", lambda line: self._on_thread(self._token, line))
+        self.bus.subscribe("found", lambda material: self._on_thread(self._found, material))
 
     def _on_thread(self, handler, payload) -> None:
         if threading.current_thread() is threading.main_thread():
@@ -352,8 +370,12 @@ class HeidrApp(App):
                 return found
         return None
 
+    def _found(self, material) -> None:
+        self.found = (material.text, material.source)
+        self._show_transcript()
+
     def _token(self, line: str) -> None:
-        self.transcript.append(str(line))
+        self.said.append(str(line))
         self._show_transcript()
 
     def _show_transcript(self) -> None:
@@ -449,12 +471,34 @@ class HeidrApp(App):
                 text("hint.ask"),
             )
         if self.view == "text":
-            return self.body_text
-        if not self.transcript:
+            return "\n".join(panel.wrap(self.body_text, panel.room(size.width)))
+        if not self.asked:
             return self._splash()
+        return self._rite_panel(panel.room(size.width))
+
+    def _rite_panel(self, width: int):
+        """The rite in labelled blocks: what was asked, what was found, what was said."""
+        dim, accent = self._panel_styles()
         active = len(self.stages) - 1 if self.drawing else -1
-        bar = stages.bar(self.stages, active, self.terminal.glyphs)
-        return "\n".join([bar, ""] + self.transcript)
+        parts = [Text(stages.bar(self.stages, active, self.terminal.glyphs), dim)]
+        if self.notice:
+            parts.append(panel.notice(self.notice, accent))
+
+        parts.append(panel.section("question", self.entry_id, panel.wrap(self.asked, width), dim))
+        found, source = self.found
+        if found:
+            parts.append(panel.section("found", source, panel.shorten(found, width), dim))
+        if self.said:
+            reading = self.stages[-1] if len(self.stages) == SLOTS else ""
+            answer = panel.wrap("\n".join(self.said), width)
+            parts.append(panel.section("answer", reading, answer, dim))
+        return panel.joined(parts)
+
+    def _panel_styles(self) -> tuple[str, str]:
+        # Dim text is not worth relying on in a console, so there the label is
+        # simply plain and the accent carries the whole difference.
+        dim = "dim" if self.terminal.colours > 16 else ""
+        return dim, mark.accent(self.terminal.colours)
 
     # Visualisations
 

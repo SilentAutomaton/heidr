@@ -360,3 +360,33 @@ async def test_a_chosen_chain_reaches_the_draw(default_config, offline, temporar
         assert "not this one" not in shown
         # The pin is spent by the draw, so the next question is drawn as usual.
         assert pilot.app.pinned == ""
+
+
+@pytest.mark.asyncio
+async def test_the_material_shows_before_the_reading_finishes(default_config, offline, only):
+    """The reading can take a minute; what was found is on screen at once."""
+    holding = threading.Event()
+
+    def slowly(ctx, question, material):
+        holding.wait(timeout=10)
+        yield "at last"
+
+    only(lambda ctx, key: Material("the found thing", source="fake"), slowly)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        shown = ""
+        for _ in range(100):
+            await pilot.pause()
+            shown = str(pilot.app.query_one("#body").content)
+            if "the found thing" in shown:
+                break
+
+        assert "the found thing" in shown
+        assert "at last" not in shown
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        assert "at last" in str(pilot.app.query_one("#body").content)

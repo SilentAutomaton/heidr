@@ -53,6 +53,10 @@ def perform(ctx: Context, ledger: Ledger, question: str, spec: str = "") -> Draw
         _still_wanted(ctx)
         ctx.emit("stage", drawn.world.name)
         material = drawn.world.run(_ready(ctx, drawn.world), key)
+        # The material is on screen as soon as it exists, not when the whole
+        # rite is over: the reading can take a minute, and the reader has
+        # something to look at meanwhile.
+        ctx.emit("found", material)
 
         _still_wanted(ctx)
         lines = _read(ctx, drawn, question, material)
