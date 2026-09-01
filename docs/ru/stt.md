@@ -78,6 +78,45 @@ threads = 0                 # 0 — пусть whisper.cpp решает сам
 CUDA или переустановка ollama на эту сборку не влияют никак, а оракул, переставший
 работать после обновления системы, — уже не оракул.
 
+## Как это собирается
+
+```
+git clone --depth 1 --branch b4938 https://github.com/ggml-org/whisper.cpp
+cd whisper.cpp
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+      -DGGML_NATIVE=ON -DGGML_CUDA=OFF -DGGML_VULKAN=OFF -DGGML_BLAS=OFF \
+      -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+cmake --build build -j"$(nproc)" --target whisper-cli
+```
+
+`BUILD_SHARED_LIBS=OFF` здесь не менее важен, чем всё остальное: на выходе
+исполняемый файл в три мегабайта, не тянущий за собой ни одной своей
+библиотеки, — его можно положить в `/usr/local/bin` и забыть о нём.
+
+Дальше нужна модель, и `stt.model_path`, указывающий на неё:
+
+```
+curl -L -o ggml-large-v3-turbo-q5_0.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
+```
+
+### Чего это стоит
+
+Замерено на шестиядерном i7-9750H с `ggml-large-v3-turbo-q5_0`, на одиннадцати
+секундах чистой речи:
+
+| | Секунд |
+|---|---|
+| `-l en`, шесть потоков | 26 |
+| `-l auto`, шесть потоков | 55 |
+| `-l en`, двенадцать потоков | 26 |
+
+Отсюда два вывода. Двенадцать потоков на шести физических ядрах не дают ничего,
+поэтому `stt.threads = 6`. А `language = "auto"` стоит второго прохода
+кодировщика — это цена того, чтобы иноязычная станция не была переврана на чужом
+языке. Для эфира она оправдана, и именно поэтому окно в тридцать секунд считается
+чуть дольше минуты.
+
 ## Зависимости
 
 `numpy`. Пакет `vosk` для соответствующего поставщика, ставится как дополнение

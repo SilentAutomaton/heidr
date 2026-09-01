@@ -77,6 +77,45 @@ trade is speed for durability: a driver update, a CUDA version change or an
 ollama reinstall cannot break it, and an oracle that stops working after a system
 upgrade is not an oracle.
 
+## Building it
+
+```
+git clone --depth 1 --branch b4938 https://github.com/ggml-org/whisper.cpp
+cd whisper.cpp
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+      -DGGML_NATIVE=ON -DGGML_CUDA=OFF -DGGML_VULKAN=OFF -DGGML_BLAS=OFF \
+      -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
+cmake --build build -j"$(nproc)" --target whisper-cli
+```
+
+`BUILD_SHARED_LIBS=OFF` matters as much as the rest: the result is a three
+megabyte executable that links nothing of its own, so it can be copied to
+`/usr/local/bin` and forgotten about.
+
+Then a model, and `stt.model_path` pointing at it:
+
+```
+curl -L -o ggml-large-v3-turbo-q5_0.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin
+```
+
+### What it costs
+
+Measured on a six core i7-9750H with `ggml-large-v3-turbo-q5_0`, on eleven
+seconds of clean speech:
+
+| | Seconds |
+|---|---|
+| `-l en`, six threads | 26 |
+| `-l auto`, six threads | 55 |
+| `-l en`, twelve threads | 26 |
+
+Two things follow. Twelve threads buy nothing on six physical cores, so
+`stt.threads = 6`. And `language = "auto"` costs a second pass of the encoder,
+which is the price of not mistranscribing a foreign station into the wrong
+language — worth paying for radio, and the reason a thirty second window takes
+a bit over a minute.
+
 ## Dependencies
 
 `numpy`. The `vosk` package for the vosk provider, installed as the `vosk` extra.
