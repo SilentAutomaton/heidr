@@ -27,3 +27,8 @@ CommandLine {
     color: $accent;
     overflow: hidden;
 }
+
+#visual > * {
+    height: 100%;
+    width: 100%;
+}

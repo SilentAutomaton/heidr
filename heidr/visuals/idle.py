@@ -8,19 +8,27 @@ from heidr.visuals.base import ASCII, BLOCKS, BRAILLE, Visualisation, row
 # claim to mean anything: it exists so the oracle looks awake rather than hung.
 
 
+# Wavelengths with no common multiple, so the pattern never tiles into
+# something that looks like a bug.
+STRETCHES = (0.0731, 0.1279, 0.2113)
+QUIET = 2.2
+
+
 def field(width: int, height: int, phase: float, seed: int) -> list[list[float]]:
     """A slow drifting interference pattern, the same every time for a seed."""
     rng = random.Random(seed)
-    offsets = [rng.uniform(0, math.tau) for _ in range(3)]
+    offsets = [rng.uniform(0, math.tau) for _ in range(len(STRETCHES))]
     rows = []
     for line in range(height):
         values = []
         for column in range(width):
-            value = 0.0
-            for index, offset in enumerate(offsets):
-                stretch = (index + 2) / 7
-                value += math.sin(column * stretch + line * stretch / 2 + phase + offset)
-            values.append((value / len(offsets) + 1) / 2)
+            value = sum(
+                math.sin(column * stretch + line * stretch * 3.7 + phase * (index + 1) / 2 + offset)
+                for index, (stretch, offset) in enumerate(zip(STRETCHES, offsets))
+            )
+            # Bias the whole field downward: this is something to glance past,
+            # not to read.
+            values.append(((value / len(STRETCHES) + 1) / 2) ** QUIET)
         rows.append(values)
     return rows
 

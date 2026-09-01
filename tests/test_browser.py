@@ -124,3 +124,34 @@ async def test_write_saves_the_configuration(default_config, tmp_path):
 
         assert default_config.path.is_file()
         assert "tty" in default_config.path.read_text()
+
+
+def test_a_short_list_is_shown_whole():
+    assert browser.window(5, 0, 10) == (0, 5)
+    assert browser.window(5, 4, 5) == (0, 5)
+
+
+def test_a_long_list_follows_the_cursor():
+    assert browser.window(30, 0, 10) == (0, 10)
+    assert browser.window(30, 15, 10) == (10, 20)
+    assert browser.window(30, 29, 10) == (20, 30)
+
+
+def test_a_windowed_list_says_where_it_is():
+    rows = [(str(index), f"row {index}") for index in range(30)]
+
+    shown = browser.render(rows, cursor=0, empty="", height=5)
+
+    assert shown.splitlines()[-1].strip() == "1-5 of 30"
+    assert "row 0" in shown and "row 6" not in shown
+
+
+@pytest.mark.asyncio
+async def test_the_module_list_scrolls_to_the_cursor(default_config):
+    async with make_app(default_config).run_test(size=(96, 28)) as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        for _ in range(25):
+            await pilot.press("j")
+
+        shown = str(pilot.app.query_one("#body").content)
+        assert pilot.app.rows[pilot.app.cursor][1] in shown

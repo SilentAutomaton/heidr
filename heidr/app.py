@@ -268,9 +268,9 @@ class HeidrApp(App):
         self._show_rows()
 
     def _show_rows(self) -> None:
-        self.query_one("#body", Static).update(
-            browser.render(self.rows, self.cursor, getattr(self, "empty", ""))
-        )
+        body = self.query_one("#body", Static)
+        # One line is kept for the "n of m" footer.
+        body.update(browser.render(self.rows, self.cursor, getattr(self, "empty", ""), body.size.height - 1))
 
     def do_line_down(self) -> None:
         self._move_cursor(1)

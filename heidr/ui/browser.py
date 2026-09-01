@@ -50,10 +50,22 @@ def ledger_rows(ledger) -> list[tuple[str, str]]:
     return rows
 
 
-def render(rows: list[tuple[str, str]], cursor: int, empty: str) -> str:
+def window(count: int, cursor: int, height: int) -> tuple[int, int]:
+    """The slice of a long list that keeps the cursor on screen."""
+    if height <= 0 or count <= height:
+        return 0, count
+    start = min(max(cursor - height // 2, 0), count - height)
+    return start, start + height
+
+
+def render(rows: list[tuple[str, str]], cursor: int, empty: str, height: int = 0) -> str:
     if not rows:
         return empty
+
+    start, end = window(len(rows), cursor, height)
     lines = []
-    for index, (_key, line) in enumerate(rows):
-        lines.append((CURSOR if index == cursor else BLANK) + line)
+    for index in range(start, end):
+        lines.append((CURSOR if index == cursor else BLANK) + rows[index][1])
+    if end < len(rows) or start > 0:
+        lines.append(f"  {start + 1}-{end} of {len(rows)}")
     return "\n".join(lines)
