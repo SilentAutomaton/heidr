@@ -38,6 +38,37 @@ DEFAULTS: dict[str, Any] = {
     "modules": {},
 }
 
+# Options with a known set of values, so the interface can offer the next one
+# instead of asking for it to be typed. Anything not named here is free text or
+# a number and is edited with :set. A test checks that every key here exists.
+CHOICES: dict[str, tuple[str, ...]] = {
+    "ui.theme": ("auto", "full", "tty"),
+    "llm.provider": ("ollama", "openai_compat", "anthropic"),
+    "stt.provider": ("vosk", "whisper_cpp", "api"),
+    "modules.fm_voice.sweep": ("forward", "backward", "bounce", "random"),
+    "modules.mw_voice.sweep": ("forward", "backward", "bounce", "random"),
+    "modules.sw_voice.sweep": ("forward", "backward", "bounce", "random"),
+    "modules.calendar.which": ("discordian", "republican", "long_count", "rotate"),
+    "modules.tarot.spread": ("one", "three"),
+    "modules.apt.satellite": ("noaa-15", "noaa-18", "noaa-19"),
+}
+
+
+def next_value(dotted: str, value, step: int = 1):
+    """The value after this one, or None when there is nothing to offer.
+
+    A switch has two values and turns over; a named list turns over as well, so
+    holding one key walks the whole set and comes back.
+    """
+    if isinstance(value, bool):
+        return not value
+    choices = CHOICES.get(dotted)
+    if not choices:
+        return None
+    here = choices.index(value) if value in choices else 0
+    return choices[(here + step) % len(choices)]
+
+
 SYSTEM_DIR = Path("/etc/heidr")
 USER_DIR = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser() / "heidr"
 EXAMPLE = Path(__file__).resolve().parent.parent / "config.example.toml"

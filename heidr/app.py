@@ -609,11 +609,51 @@ class HeidrApp(App):
         self._show_rows()
 
     def _edit_setting(self) -> None:
+        """Enter means change this now, when there is something to change it to."""
         key, _line = self.rows[self.cursor]
+        value = self._setting_value(key)
+        wanted = config.next_value(key, value)
+        if wanted is not None:
+            self._store_setting(key, wanted)
+            return
         line = self.query_one(CommandLine)
         line.open(":")
-        line.buffer = f"set {key}={self.settings.get(key)}"
+        line.buffer = f"set {key}={value}"
         self.edit_mode = "COMMAND"
+
+    def do_value_next(self) -> None:
+        self._switch_value(1)
+
+    def do_value_previous(self) -> None:
+        self._switch_value(-1)
+
+    def _switch_value(self, step: int) -> None:
+        if self.view == "modules":
+            self._toggle_module()
+            return
+        if self.view != "settings" or not self.rows:
+            return
+        key, _line = self.rows[self.cursor]
+        wanted = config.next_value(key, self._setting_value(key), step)
+        if wanted is None:
+            self.query_one(CommandLine).say(text("hint.typed_setting"))
+            return
+        self._store_setting(key, wanted)
+
+    def _setting_value(self, key: str):
+        # A module's options are not in the configuration until they are set,
+        # so they are read through the module the way the module reads them.
+        parts = key.split(".")
+        if parts[0] == "modules" and len(parts) == 3:
+            found = self._module_named(parts[1])
+            return self.settings.module(parts[1], found.defaults if found else {}).get(parts[2])
+        return self.settings.get(key)
+
+    def _store_setting(self, key: str, value) -> None:
+        self.settings.set(key, value)
+        self.panes["settings"] = (browser.setting_rows(self.settings), self.empty)
+        self._show_rows()
+        self.query_one(CommandLine).say(f"{key} is now {value}.")
 
     def do_mute(self) -> None:
         self.levels.muted = not self.levels.muted

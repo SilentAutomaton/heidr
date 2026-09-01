@@ -1,5 +1,6 @@
 import pytest
 
+from heidr import config
 from heidr.ui import browser
 
 from tests.test_app import make_app
@@ -108,14 +109,94 @@ async def test_enter_switches_a_module_off_and_on(default_config):
 
 
 @pytest.mark.asyncio
-async def test_enter_in_settings_prefills_the_command_line(default_config):
+async def test_enter_on_a_typed_setting_prefills_the_command_line(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await go_to(pilot, "audio.volume")
+        await pilot.press("enter")
+
+        line = pilot.app.query_one("#cmdline")
+        assert line.buffer.startswith("set audio.volume=")
+        assert pilot.app.edit_mode == "COMMAND"
+
+
+async def go_to(pilot, key):
+    """Walk the cursor to one row, the way a reader would."""
+    while pilot.app.rows[pilot.app.cursor][0] != key:
+        await pilot.press("down")
+
+
+@pytest.mark.asyncio
+async def test_enter_on_a_named_list_takes_the_next_value(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("colon", *"settings", "enter")
         await pilot.press("enter")
 
-        line = pilot.app.query_one("#cmdline")
-        assert line.buffer.startswith("set ui.theme=")
-        assert pilot.app.edit_mode == "COMMAND"
+        assert default_config.get("ui.theme") == "full"
+
+
+@pytest.mark.asyncio
+async def test_a_named_list_turns_over_at_the_end(default_config):
+    default_config.set("ui.theme", "tty")
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("right")
+
+        assert default_config.get("ui.theme") == "auto"
+
+
+@pytest.mark.asyncio
+async def test_the_left_arrow_goes_back_through_the_values(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("left")
+
+        assert default_config.get("ui.theme") == "tty"
+
+
+@pytest.mark.asyncio
+async def test_enter_on_a_switch_turns_it_over(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await go_to(pilot, "ui.splash")
+        await pilot.press("enter")
+
+        assert default_config.get("ui.splash") is False
+
+
+@pytest.mark.asyncio
+async def test_a_module_option_can_be_switched_from_the_list(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await go_to(pilot, "modules.tarot.spread")
+        await pilot.press("enter")
+
+        # The module's own default is "three", so the next one is "one".
+        assert default_config.get("modules.tarot.spread") == "one"
+
+
+@pytest.mark.asyncio
+async def test_a_typed_setting_says_so_when_the_arrows_are_used(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await go_to(pilot, "audio.volume")
+        await pilot.press("right")
+
+        assert "typed" in str(pilot.app.query_one("#cmdline").render())
+        assert default_config.get("audio.volume") == 0.6
+
+
+def test_every_named_list_names_a_real_option(default_config):
+    """A table that drifts away from the options is worse than no table."""
+    keys = [key for key, _line in browser.setting_rows(default_config)]
+
+    assert set(config.CHOICES) <= set(keys)
+
+
+def test_every_named_list_holds_its_own_default(default_config):
+    rows = dict(browser.setting_rows(default_config))
+    for key, choices in config.CHOICES.items():
+        assert str(rows[key]).split()[-1] in choices
 
 
 @pytest.mark.asyncio
