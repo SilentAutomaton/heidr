@@ -107,3 +107,11 @@ which = "rotate"        # discordian, republican, long_count, or rotate daily
 
 [modules.embed]
 model = "nomic-embed-text"
+
+[modules.hline]
+seconds = 30            # integration time; longer is cleaner
+step = "10k"
+
+[modules.apt]
+satellite = "noaa-19"   # noaa-15, noaa-18, noaa-19
+seconds = 600           # start a draw during a pass; there is no predictor
