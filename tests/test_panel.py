@@ -82,3 +82,46 @@ async def test_a_long_material_line_is_not_lost_on_screen(default_config):
 
         # Every character survives the fold; only the line breaks are new.
         assert shown.count("x") == len(LONG)
+
+
+# A message the reader cannot miss
+
+
+@pytest.mark.asyncio
+async def test_a_refusal_shows_in_the_panel_and_at_the_bottom(default_config):
+    from heidr.ui.commandline import CommandLine
+
+    async with make_app(default_config).run_test(size=(80, 24)) as pilot:
+        pilot.app._enter("rite")
+        pilot.app.asked = "will it rain"
+        pilot.app._announce("quake could not reach the feed.")
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "quake could not reach the feed." in shown
+        assert shown.startswith("!") or "!  quake" in shown
+        assert pilot.app.query_one(CommandLine).level == "error"
+
+
+@pytest.mark.asyncio
+async def test_an_error_line_carries_a_marker_and_the_accent(default_config):
+    from heidr.ui.commandline import CommandLine
+
+    async with make_app(default_config).run_test() as pilot:
+        line = pilot.app.query_one(CommandLine)
+        line.say("nothing to worry about")
+        quiet = line.render()
+        line.say("the draw stopped", level="error")
+        loud = line.render()
+
+        assert quiet.style == ""
+        assert str(loud).startswith("!")
+        assert loud.style == pilot.app.query_one(CommandLine).accent
+
+
+@pytest.mark.asyncio
+async def test_a_small_message_stays_at_the_bottom(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("right")
+
+        assert pilot.app.notice == ""

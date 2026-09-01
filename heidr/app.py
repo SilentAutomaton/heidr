@@ -145,6 +145,7 @@ class HeidrApp(App):
         status.mode = self.edit_mode
         status.volume = self.levels.volume
         status.provider = self.settings.get("llm.provider", "")
+        self.query_one(CommandLine).accent = mark.accent(self.terminal.colours)
         # The panel is plain text, so the figure in it is moved by a timer of
         # its own rather than by the canvas.
         self.set_interval(1 / 3, self._breathe)
@@ -219,7 +220,7 @@ class HeidrApp(App):
             return
         line = self.query_one(CommandLine)
         if self.drawing:
-            line.say(text("error.already_drawing"))
+            line.say(text("error.already_drawing"), level="error")
             return
 
         self._enter("rite")
@@ -256,8 +257,10 @@ class HeidrApp(App):
         except Unavailable as refused:
             # A module that cannot run is an ordinary outcome, not a crash.
             self._finish(str(refused))
-        except Exception as failure:
-            self._finish(text("error.draw_failed", reason=failure.__class__.__name__))
+        except Exception:
+            # The class name of an exception is a fact about the code, not
+            # about the reader's evening. The log keeps it; the screen does not.
+            self._finish(text("error.draw_failed"))
         else:
             self.call_from_thread(self._drawn, drawn)
 
@@ -270,9 +273,14 @@ class HeidrApp(App):
         self._announce(message)
 
     def _announce(self, message: str) -> None:
-        """Say it where the reader is looking, and at the bottom as well."""
+        """Say it where the reader is looking, and at the bottom as well.
+
+        A rite that refused, stopped or said nothing is not a footnote. It goes
+        into the panel, which is where the eye already is, and the bottom line
+        repeats it for whoever is watching that instead.
+        """
         self.notice = message
-        self.query_one(CommandLine).say(message)
+        self.query_one(CommandLine).say(message, level="error")
         self._render_body()
 
     def _drawn(self, drawn) -> None:
@@ -560,7 +568,7 @@ class HeidrApp(App):
     def do_voice_input(self) -> None:
         context = self.probe()
         if not mic.available(context):
-            self.query_one(CommandLine).say(text("error.no_voice"))
+            self.query_one(CommandLine).say(text("error.no_voice"), level="error")
             return
         self.run_worker(lambda: self._dictate(context), thread=True)
 
@@ -783,11 +791,11 @@ class HeidrApp(App):
         elif name in ("w", "write"):
             line.say(text("status.saved", path=config.save(self.settings)))
         elif name:
-            line.say(f"Unknown command: {name}. Type :help for the list.")
+            line.say(text("error.unknown_command", name=name), level="error")
 
     def _set_volume(self, argument: str, line: CommandLine) -> None:
         if not argument.isdigit():
-            line.say("Volume takes a number from 0 to 100, as in :vol 40.")
+            line.say(text("error.bad_volume"), level="error")
             return
         self.levels.volume = min(100, int(argument)) / 100
         self._show_volume()
@@ -795,7 +803,7 @@ class HeidrApp(App):
     def _set_option(self, argument: str, line: CommandLine) -> None:
         option, separator, value = argument.partition("=")
         if not separator:
-            line.say("Setting an option needs a value, as in :set ui.theme=tty.")
+            line.say(text("error.bad_setting"), level="error")
             return
         self.settings.set(option.strip(), _typed(value.strip()))
         line.say(f"{option.strip()} is now {value.strip()}.")

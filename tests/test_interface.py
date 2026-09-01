@@ -119,7 +119,7 @@ async def test_the_bottom_line_does_not_repeat_the_question(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("i", *"ok")
 
-        assert pilot.app.query_one(CommandLine).render() == ""
+        assert str(pilot.app.query_one(CommandLine).render()) == ""
 
 
 @pytest.mark.asyncio

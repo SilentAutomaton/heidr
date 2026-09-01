@@ -60,8 +60,14 @@ EN = {
     "error.no_modules": (
         "No modules are available here. Run :checkhealth to see what each one needs."
     ),
+    "error.unknown_command": "There is no command {name!r}. Type :help for the list.",
+    "error.bad_volume": "Volume is a number from 0 to 100, as in :vol 40.",
+    "error.bad_setting": "Setting an option needs a value, as in :set ui.theme=tty.",
     "error.already_drawing": "A draw is already running. Press Esc to stop it.",
-    "error.draw_failed": "The draw stopped: {reason}. The question is free again.",
+    "error.draw_failed": (
+        "The draw stopped before anything was found. The question is free "
+        "again, and :checkhealth says what is working."
+    ),
     "hint.typed_setting": "This value is typed. Press Enter to edit it.",
     "hint.ask": "Enter asks.  Up and down bring back past questions.  Ctrl-V dictates.",
     "status.cancelled": "Stopped. The question is free again.",

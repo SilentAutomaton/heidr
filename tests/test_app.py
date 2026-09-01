@@ -49,7 +49,7 @@ async def test_typing_a_command_and_running_it(default_config):
 async def test_unknown_command_explains_itself(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("colon", "z", "z", "enter")
-        assert "Unknown command" in pilot.app.query_one(CommandLine).message
+        assert "no command" in pilot.app.query_one(CommandLine).message
 
 
 @pytest.mark.asyncio

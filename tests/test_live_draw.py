@@ -216,7 +216,10 @@ async def test_an_unexpected_failure_is_reported_not_raised(default_config, offl
         while pilot.app.drawing:
             await pilot.pause()
 
-        assert "ZeroDivisionError" in pilot.app.query_one(CommandLine).message
+        # What broke is a fact about the code; the reader is told what it means.
+        said = pilot.app.query_one(CommandLine).message
+        assert "Error" not in said
+        assert "free again" in said
         assert pilot.app.is_running
 
 
