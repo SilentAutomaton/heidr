@@ -73,6 +73,18 @@ a failure.
 
 Compute geometry from the current size on every render, and cache nothing.
 
+## Where it is drawn
+
+The animation fills the whole terminal. The text sits on top of it in a panel
+that is centred and sized by what it holds, up to the size of the terminal
+itself, and the panel carries its own opaque background so the animation behind
+it never makes the reading harder to read.
+
+Two consequences follow. A painter is given the whole screen, so a moon or a
+gear train grows when the window does. And the panel is never taller than there
+is room for, so the status line and the command line keep their two rows
+whatever happens above them.
+
 ## Sources
 
 The register of the listening screen — an ASCII spectrum scrolling in the

@@ -6,6 +6,7 @@ SEPARATOR = "  "
 
 class StatusLine(Static):
     mode = reactive("NORMAL")
+    path = reactive("")
     rite = reactive("")
     volume = reactive(0.6)
     muted = reactive(False)
@@ -17,7 +18,7 @@ class StatusLine(Static):
     def _fit(self, width: int) -> str:
         # Fields drop from the right as the terminal narrows; the mode is last
         # to go, because without it a modal interface is unreadable.
-        fields = [self.mode, self.rite, self._volume_field(), self.provider]
+        fields = [self.mode, self.path, self.rite, self._volume_field(), self.provider]
         while fields:
             line = SEPARATOR.join(field for field in fields if field)
             if len(line) <= width:

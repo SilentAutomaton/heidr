@@ -175,6 +175,41 @@ async def test_a_terminal_too_small_says_so_and_recovers(default_config):
         assert "Terminal too small" not in str(pilot.app.query_one("#body").content)
 
 
+@pytest.mark.asyncio
+async def test_escape_climbs_back_out_of_a_view(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        await pilot.press("escape")
+
+        assert pilot.app.view == "rite"
+
+
+@pytest.mark.asyncio
+async def test_escape_at_the_root_stays_there(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("escape")
+        await pilot.press("escape")
+
+        assert pilot.app.views == ["rite"]
+
+
+@pytest.mark.asyncio
+async def test_a_view_entered_twice_is_not_stacked_twice(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        await pilot.press("colon", *"modules", "enter")
+
+        assert pilot.app.views == ["rite", "modules"]
+
+
+@pytest.mark.asyncio
+async def test_the_status_line_says_where_you_are(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"modules", "enter")
+
+        assert "modules" in pilot.app.query_one(StatusLine).path
+
+
 def test_the_status_line_sheds_fields_from_the_right():
     line = StatusLine()
     line.mode = "NORMAL"
@@ -277,12 +312,23 @@ async def test_the_splash_keeps_its_slogan_across_resizes(default_config):
 
 
 def test_the_stylesheets_agree_with_the_layout_arithmetic():
-    """The body's height is computed, so the pane it is computed from must match."""
+    """A long list is cut to fit, so the padding it is cut by must match."""
     from pathlib import Path
 
-    from heidr.app import VISUAL_SHARE
+    from heidr.app import PANEL_PADDING
 
     for name in ("theme_full.tcss", "theme_tty.tcss"):
         style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
-        block = style.split("#visual")[1]
-        assert f"height: {VISUAL_SHARE}%;" in block
+        panel = style.split("#body")[1]
+        top, sides = panel.split("padding: ")[1].split("\n")[0].strip(";").split()
+        assert int(top) * 2 == PANEL_PADDING and sides
+
+
+def test_the_animation_lies_behind_the_panel():
+    """The painter gets the whole terminal; the text keeps its own ground."""
+    from pathlib import Path
+
+    for name in ("theme_full.tcss", "theme_tty.tcss"):
+        style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
+        assert "layers: back front;" in style
+        assert "layer: back;" in style.split("#visual")[1].split("}")[0]

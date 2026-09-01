@@ -1,29 +1,12 @@
 Screen {
     background: $surface;
-}
-
-#body {
-    height: 1fr;
-    padding: 1 2;
-    color: $text;
-}
-
-StatusLine {
-    height: 1;
-    background: $primary-darken-2;
-    color: $text;
-    padding: 0 1;
-}
-
-CommandLine {
-    height: 1;
-    background: $surface;
-    color: $text-muted;
-    padding: 0 1;
+    layers: back front;
 }
 
 #visual {
-    height: 40%;
+    layer: back;
+    width: 100%;
+    height: 100%;
     color: $accent;
     overflow: hidden;
 }
@@ -31,4 +14,40 @@ CommandLine {
 #visual > * {
     height: 100%;
     width: 100%;
+}
+
+/* The panel floats in the middle of the animation and grows with what it
+   holds, up to the size of the terminal. */
+#frame {
+    layer: front;
+    height: 1fr;
+    align: center middle;
+    background: transparent;
+}
+
+#body {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 1 2;
+    background: $surface;
+    color: $text;
+    overflow: hidden;
+}
+
+StatusLine {
+    layer: front;
+    height: 1;
+    background: $primary-darken-2;
+    color: $text;
+    padding: 0 1;
+}
+
+CommandLine {
+    layer: front;
+    height: 1;
+    background: $surface;
+    color: $text-muted;
+    padding: 0 1;
 }

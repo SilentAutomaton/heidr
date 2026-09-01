@@ -32,20 +32,17 @@ def _typed(value: str):
 
 MIN_COLUMNS = 40
 MIN_ROWS = 12
-# The animation takes a share of the screen rather than a fixed strip, so every
-# painter grows when the terminal does. The stylesheets must agree, and a test
-# says so.
-VISUAL_SHARE = 40
 # Drawn by lot, like everything else here. The fallback is fixed so that a
 # missing animation cannot send the chooser round in circles.
 IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon")
 IDLE = "plasma"
-# The status line and the command line, which never change height.
+# The status line and the command line, which never change height, and the
+# blank row above and below the panel. The stylesheets must agree, and a test
+# says so.
 CHROME_ROWS = 2
+PANEL_PADDING = 2
+TRAIL = {"blocks": " \u203a ", "braille": " \u203a ", "box": " > ", "ascii": " > "}
 
-
-def visual_rows(height: int) -> int:
-    return height * VISUAL_SHARE // 100
 THEMES = Path(__file__).resolve().parent / "ui"
 
 
@@ -60,7 +57,7 @@ class HeidrApp(App):
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
         self.leader_pending = False
-        self.view = "rite"
+        self.views = ["rite"]
         self.cursor = 0
         self.rows: list[tuple[str, str]] = []
         self.body_text = ""
@@ -118,14 +115,18 @@ class HeidrApp(App):
         return built
 
     def compose(self) -> ComposeResult:
-        with Vertical():
+        # The animation fills the screen and the panel sits on top of it, so a
+        # painter has the whole terminal to grow into and the text stays
+        # readable on its own opaque ground.
+        yield Canvas(self.terminal.glyphs, id="visual")
+        with Vertical(id="frame"):
             yield Static(self._splash(), id="body")
-            yield Canvas(self.terminal.glyphs, id="visual")
-            yield StatusLine(id="status")
-            yield CommandLine(id="cmdline")
+        yield StatusLine(id="status")
+        yield CommandLine(id="cmdline")
 
     def on_mount(self) -> None:
         self.show_idle()
+        self._show_path()
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -186,7 +187,7 @@ class HeidrApp(App):
             line.say(text("error.already_drawing"))
             return
 
-        self.view = "rite"
+        self._enter("rite")
         self.transcript = [f"> {question}", ""]
         self._show_transcript()
         self.show_visual("waterfall")
@@ -230,7 +231,7 @@ class HeidrApp(App):
     def _drawn(self, drawn) -> None:
         self.drawing = False
         self.query_one(StatusLine).rite = str(drawn.rite)
-        self.view = "rite"
+        self._enter("rite")
         self.transcript = [f"{drawn.entry.identifier}  {drawn.rite}", "", drawn.entry.body]
         self._show_transcript()
         self.show_idle()
@@ -245,6 +246,8 @@ class HeidrApp(App):
         if self.drawing:
             self.stop_draw.set()
             self.query_one(CommandLine).say(text("status.stopping"))
+        else:
+            self._back()
 
     # What the reader sees while it runs
 
@@ -286,9 +289,33 @@ class HeidrApp(App):
         self._render_body()
 
     def _show_text(self, body: str) -> None:
-        self.view = "text"
+        self._enter("text")
         self.body_text = body
         self._render_body()
+
+    @property
+    def view(self) -> str:
+        return self.views[-1]
+
+    def _enter(self, view: str) -> None:
+        """Views stack, so Esc goes back the way it came in."""
+        if view == self.views[0]:
+            self.views = [view]
+        elif view != self.view:
+            self.views.append(view)
+        self._show_path()
+
+    def _back(self) -> bool:
+        if len(self.views) == 1:
+            return False
+        self.views.pop()
+        self._show_path()
+        self._render_body()
+        return True
+
+    def _show_path(self) -> None:
+        if self.is_mounted:
+            self.query_one(StatusLine).path = TRAIL[self.terminal.glyphs].join(self.views)
 
     def _render_body(self, size=None) -> None:
         """The single place that decides what the body shows.
@@ -306,7 +333,7 @@ class HeidrApp(App):
             return text("error.small_terminal", cols=MIN_COLUMNS, rows=MIN_ROWS)
         if self.view in ("modules", "settings", "ledger"):
             # One more line is kept for the "n of m" footer.
-            room = size.height - visual_rows(size.height) - CHROME_ROWS - 1
+            room = size.height - CHROME_ROWS - PANEL_PADDING - 1
             return browser.render(self.rows, self.cursor, getattr(self, "empty", ""), room)
         if self.view == "text":
             return self.body_text
@@ -410,7 +437,7 @@ class HeidrApp(App):
         self._open_browser("settings", browser.setting_rows(self.settings), text("empty.settings"))
 
     def _open_browser(self, view: str, rows, empty: str) -> None:
-        self.view = view
+        self._enter(view)
         self.rows = rows
         self.cursor = min(self.cursor, max(0, len(rows) - 1))
         self.empty = empty
