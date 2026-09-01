@@ -109,6 +109,24 @@ rite has not reached yet is named `...`. The stages are learnt one at a time
 from the same events that swap the animation, so the bar cannot show a module
 before it is really chosen.
 
+## The sign and the slogan
+
+The wordmark is white and its slashes are orange, and that is the only colour in
+the program. The exact orange steps down with the terminal: `#e08b1e` where
+there are sixteen million colours, xterm index 214 where there are 256, and
+plain yellow below that.
+
+A slogan is drawn under it, one of a dozen. One entry in that pool is not a
+slogan but an effect: the letters change three times a second while the shape of
+the words stays put, in the manner of obfuscated text in Minecraft.
+
+That entry is only in the pool when three things hold. The terminal must draw
+block glyphs, or random Unicode turns into empty squares. `TERM` must not be
+`dumb`. And `ui.motion` must be true, because flickering text is a thing some
+people cannot look at. Fail any one of them and the effect is simply not among
+the choices, the same way a radio module is not among the choices without a
+dongle.
+
 ## Sources
 
 The register of the listening screen — an ASCII spectrum scrolling in the

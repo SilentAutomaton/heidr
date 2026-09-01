@@ -1,3 +1,4 @@
+import random
 import threading
 from dataclasses import replace
 from pathlib import Path
@@ -12,9 +13,9 @@ from heidr.contracts import Cancelled, Context, Unavailable
 from heidr.events import Bus
 from heidr.history import History
 from heidr.ledger import Ledger
-from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
+from heidr.strings import NAME, SLOGANS, text
 from heidr.ui import browser
-from heidr.ui import prompt, stages
+from heidr.ui import mark, prompt, stages
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals.canvas import Canvas
@@ -65,7 +66,7 @@ class HeidrApp(App):
         self.panes: dict[str, tuple[list[tuple[str, str]], str]] = {}
         self.cursors: dict[str, int] = {}
         self.body_text = ""
-        self.ask_tick = 0
+        self.tick = 0
         self.bus = Bus()
         self.drawing = False
         self.stop_draw = threading.Event()
@@ -73,6 +74,11 @@ class HeidrApp(App):
         self.stages: list[str] = []
         self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
+        # The garbled slogan is one more entry in the same pool, and it is only
+        # in the pool where the terminal can really draw it.
+        self.slogan = random.choice(SLOGANS)
+        allowed = mark.can_garble(self.terminal.glyphs, self.settings)
+        self.garbled = allowed and random.randrange(len(SLOGANS) + 1) == len(SLOGANS)
         self.ledger = Ledger(self.settings.get("ledger.path", "~/.local/share/heidr/ledger"))
         # Commands and questions are looked through apart, because they are not
         # the same kind of thing and mixing them makes both harder to find.
@@ -143,8 +149,10 @@ class HeidrApp(App):
 
     def _breathe(self) -> None:
         # The timer outlives the screen for a moment when the program leaves.
-        if self.view == "ask" and self.query("#body"):
-            self.ask_tick += 1
+        if not self.query("#body"):
+            return
+        if self.view == "ask" or (self.view == "menu" and self.garbled):
+            self.tick += 1
             self._render_body()
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
@@ -394,14 +402,16 @@ class HeidrApp(App):
             if not self.settings.get("ui.splash", True):
                 return browser.render(self.rows, self.cursor, "", room)
             splash = self._splash()
-            listed = browser.render(self.rows, self.cursor, "", room - splash.count("\n") - 2)
-            return f"{splash}\n\n{listed}"
+            listed = browser.render(self.rows, self.cursor, "", room - splash.plain.count("\n") - 2)
+            body = splash.copy()
+            body.append(f"\n\n{listed}")
+            return body
         if self.view in ("modules", "settings", "ledger"):
             return browser.render(self.rows, self.cursor, self.empty, room)
         if self.view == "ask":
             return prompt.panel(
                 self.query_one(CommandLine).buffer,
-                self.ask_tick,
+                self.tick,
                 size.width - PANEL_PADDING * 2,
                 self.terminal.glyphs,
                 text("hint.ask"),
@@ -417,8 +427,6 @@ class HeidrApp(App):
     # Visualisations
 
     def show_idle(self) -> None:
-        import random
-
         self.show_visual(random.choice(IDLE_POOL))
 
     def show_visual(self, name: str) -> None:
@@ -650,13 +658,11 @@ class HeidrApp(App):
         # it yet, so the body is measured from the terminal rather than asked.
         self._render_body(event.size)
 
-    def _splash(self) -> str:
-        if not getattr(self, "_splash_text", ""):
-            import random
-
-            banner = BANNER_BLOCK if self.terminal.glyphs != "ascii" else BANNER_PLAIN
-            self._splash_text = f"{banner}\n\n{random.choice(SLOGANS)}"
-        return self._splash_text
+    def _splash(self):
+        shown = mark.garble(self.slogan, self.tick) if self.garbled else self.slogan
+        splash = mark.wordmark(self.terminal.glyphs, self.terminal.colours)
+        splash.append(f"\n\n{shown}")
+        return splash
 
     def _help_text(self) -> str:
         lines = [f"{NAME} keys", ""]

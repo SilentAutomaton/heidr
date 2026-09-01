@@ -8,7 +8,7 @@ from typing import Any
 import tomli_w
 
 DEFAULTS: dict[str, Any] = {
-    "ui": {"theme": "auto", "language": "en", "splash": True},
+    "ui": {"theme": "auto", "language": "en", "splash": True, "motion": True},
     "audio": {
         "volume": 0.6,
         "target_rms": 0.12,

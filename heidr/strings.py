@@ -9,20 +9,30 @@ SLOGANS = (
     "For the Rationally Desperate.",
     "Let Entropy Answer.",
     "Ask the Noise.",
+    "Found, Not Written.",
+    "One Draw. No Retries.",
+    "The World Answers, Not the Model.",
+    "The Answer Was Already There.",
+    "Listen to What Was Already Said.",
+    "Nothing Here Is Generated.",
+    "Meaning Is Not Included.",
+    "Tune In. Ask Once.",
+    "Coincidence, on Demand.",
 )
 
 TAGLINE = f"{NAME} — {SLOGANS[0]}"
 
-# Block wordmark for terminals with block glyphs.
-BANNER_BLOCK = "\n".join(
-    (
-        "█ █ ███ ███ ██    █   █ ██ ",
-        "█ █ █    █  █ █  █   █  █ █",
-        "███ ██   █  █ █  █   █  ██ ",
-        "█ █ █    █  █ █ █   █   █ █",
-        "█ █ ███ ███ ██  █   █   █ █",
-    )
+# Block wordmark for terminals with block glyphs. Each row is split where the
+# slashes begin and end, because the slashes are the one thing on the screen
+# that is allowed a colour of its own.
+BANNER_ROWS = (
+    ("█ █ ███ ███ ██ ", "   █   █ ", "██ "),
+    ("█ █ █    █  █ █", "  █   █  ", "█ █"),
+    ("███ ██   █  █ █", "  █   █  ", "██ "),
+    ("█ █ █    █  █ █", " █   █   ", "█ █"),
+    ("█ █ ███ ███ ██ ", " █   █   ", "█ █"),
 )
+BANNER_BLOCK = "\n".join("".join(row) for row in BANNER_ROWS)
 
 # Plain fallback for the Linux console and anything else without block glyphs.
 BANNER_PLAIN = NAME

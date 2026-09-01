@@ -6,6 +6,7 @@
 theme = "auto"          # auto, full, tty
 language = "en"
 splash = true
+motion = true           # false stops the slogan flickering
 
 [audio]
 volume = 0.6            # 0.0 to 1.0, also bound to - and + in the interface
