@@ -28,21 +28,22 @@ def body(material: Material, lines: list[str]) -> str:
     return "\n\n".join(part for part in parts if part)
 
 
-def perform(ctx: Context, ledger: Ledger, question: str) -> Draw:
-    seen = ledger.asked_before(question)
-    if seen is not None:
-        raise AlreadyAsked(seen)
+def perform(ctx: Context, ledger: Ledger, question: str, spec: str = "") -> Draw:
+    # A chosen rite is an experiment rather than a divination, so the same
+    # question may be put to a different chain.
+    if not spec:
+        seen = ledger.asked_before(question)
+        if seen is not None:
+            raise AlreadyAsked(seen)
 
     # The promise is written before anything is drawn, so the answer cannot be
     # rolled again once it is known.
     entry = ledger.commit(question)
     material = None
     try:
-        drawn = rite.draw(
-            ctx,
-            seed=entropy.world_seed(entropy.collect(ctx)),
-            recent=ledger.recent_modules(),
-        )
+        seed = entropy.world_seed(entropy.collect(ctx))
+        recent = ledger.recent_modules()
+        drawn = rite.chosen(ctx, spec, seed, recent) if spec else rite.draw(ctx, seed, recent)
         _still_wanted(ctx)
         ctx.emit("stage", drawn.question.name)
         key = drawn.question.run(_ready(ctx, drawn.question), question)

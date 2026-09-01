@@ -338,3 +338,25 @@ async def test_a_stage_that_says_nothing_counts_itself(default_config, offline, 
         holding.set()
         while pilot.app.drawing:
             await pilot.pause()
+
+
+@pytest.mark.asyncio
+async def test_a_chosen_chain_reaches_the_draw(default_config, offline, temporary_slot):
+    """What the command pinned is what the rite runs."""
+    registry.question("q")(lambda ctx, text: Key(seed=1, anchors=()))
+    registry.world("w")(lambda ctx, key: Material("found", source="fake"))
+    registry.world("other")(lambda ctx, key: Material("not this one", source="fake"))
+    registry.reading("r")(lambda ctx, text, material: iter(["said"]))
+    default_config.set("rite.silence_chance", 0.0)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"draw q//w//r", "enter")
+        await pilot.press(*QUESTION, "enter")
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        shown = str(pilot.app.query_one("#body").content)
+        assert "found" in shown and "said" in shown
+        assert "not this one" not in shown
+        # The pin is spent by the draw, so the next question is drawn as usual.
+        assert pilot.app.pinned == ""

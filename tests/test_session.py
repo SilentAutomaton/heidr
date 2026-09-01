@@ -89,3 +89,39 @@ def test_the_walk_announces_every_stage(offline, ledger, events):
     stages = [payload for name, payload in events if name == "stage"]
     for module in (drawn.rite.question, drawn.rite.world, drawn.rite.reading):
         assert module.name in stages
+
+
+# A rite chosen instead of drawn
+
+CHAIN = "blind//babel//iching"
+
+
+def test_a_chosen_rite_runs_exactly_what_was_named(offline, ledger):
+    drawn = session.perform(offline, ledger, QUESTION, CHAIN)
+
+    assert [drawn.rite.question.name, drawn.rite.world.name, drawn.rite.reading.name] == [
+        "blind",
+        "babel",
+        "iching",
+    ]
+
+
+def test_a_chosen_rite_is_marked_in_the_ledger(offline, ledger):
+    session.perform(offline, ledger, QUESTION, CHAIN)
+
+    assert "(chosen)" in ledger.last().get("Rite")
+
+
+def test_a_chosen_rite_may_repeat_a_question(offline, ledger):
+    session.perform(offline, ledger, QUESTION, CHAIN)
+    session.perform(offline, ledger, QUESTION, "blind//babel//cutup")
+
+    assert len(ledger.entries()) == 2
+    assert ledger.chain_ok()
+
+
+def test_a_drawn_rite_still_spends_the_question_after_a_chosen_one(offline, ledger):
+    session.perform(offline, ledger, QUESTION, CHAIN)
+
+    with pytest.raises(session.AlreadyAsked):
+        session.perform(offline, ledger, QUESTION)

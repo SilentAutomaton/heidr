@@ -408,3 +408,33 @@ def test_the_animation_lies_behind_the_panel():
         style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
         assert "layers: back front;" in style
         assert "layer: back;" in style.split("#visual")[1].split("}")[0]
+
+
+# A rite chosen instead of drawn
+
+
+@pytest.mark.asyncio
+async def test_draw_with_a_chain_pins_it_and_asks(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"draw blind//babel//iching", "enter")
+
+        assert pilot.app.pinned == "blind//babel//iching"
+        assert pilot.app.view == "ask"
+        assert pilot.app.edit_mode == "INSERT"
+
+
+@pytest.mark.asyncio
+async def test_draw_without_a_chain_pins_nothing(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"draw", "enter")
+
+        assert pilot.app.pinned == ""
+        assert pilot.app.view == "ask"
+
+
+@pytest.mark.asyncio
+async def test_the_pinned_chain_shows_in_the_status_line(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"draw blind//babel//iching", "enter")
+
+        assert pilot.app.query_one(StatusLine).rite == "blind//babel//iching"

@@ -81,6 +81,7 @@ class HeidrApp(App):
         self.stop_draw = threading.Event()
         self.transcript: list[str] = []
         self.stages: list[str] = []
+        self.pinned = ""
         self._visual_off = None
         self.levels = audio.Levels.from_config(self.settings)
         # The garbled slogan is one more entry in the same pool, and it is only
@@ -134,6 +135,10 @@ class HeidrApp(App):
     def on_mount(self) -> None:
         self.show_idle()
         self.do_menu()
+        status = self.query_one(StatusLine)
+        status.mode = self.edit_mode
+        status.volume = self.levels.volume
+        status.provider = self.settings.get("llm.provider", "")
         # The panel is plain text, so the figure in it is moved by a timer of
         # its own rather than by the canvas.
         self.set_interval(1 / 3, self._breathe)
@@ -147,10 +152,6 @@ class HeidrApp(App):
         if self.view == "ask" or (self.view == "menu" and self.garbled):
             self.tick += 1
             self._render_body()
-        status = self.query_one(StatusLine)
-        status.mode = self.edit_mode
-        status.volume = self.levels.volume
-        status.provider = self.settings.get("llm.provider", "")
 
     def watch_edit_mode(self, value: str) -> None:
         line = self._status()
@@ -225,16 +226,17 @@ class HeidrApp(App):
         self.drawing = True
         self.stop_draw.clear()
         context = self.probe()
-        self.run_worker(lambda: self._draw(context, question), thread=True, exclusive=True)
+        spec, self.pinned = self.pinned, ""
+        self.run_worker(lambda: self._draw(context, question, spec), thread=True, exclusive=True)
 
-    def _draw(self, context, question: str) -> None:
+    def _draw(self, context, question: str, spec: str = "") -> None:
         """The whole rite, off the interface thread.
 
         Nothing here touches a widget: everything the reader sees arrives as an
         event and is put on screen by the handlers below.
         """
         try:
-            drawn = session.perform(context, self.ledger, question)
+            drawn = session.perform(context, self.ledger, question, spec)
         except session.AlreadyAsked as repeated:
             self._finish(text("error.repeat_question", entry=repeated.entry.identifier))
         except rite.NothingAvailable:
@@ -542,6 +544,12 @@ class HeidrApp(App):
         # A draw needs a question, so asking for one is the whole of it.
         self.do_ask()
 
+    def pin(self, spec: str) -> None:
+        """Name the rite for the next draw instead of drawing one."""
+        self.pinned = spec
+        self.query_one(StatusLine).rite = spec
+        self.do_ask()
+
     def do_menu(self) -> None:
         self._open_browser("menu", browser.menu_rows(self.leader), "")
 
@@ -698,7 +706,7 @@ class HeidrApp(App):
         elif name == "ledger":
             self.do_ledger()
         elif name in ("ask", "draw"):
-            self.do_ask()
+            self.pin(argument.strip()) if argument.strip() else self.do_ask()
         elif name == "settings":
             self.do_settings()
         elif name == "menu":
@@ -748,7 +756,7 @@ class HeidrApp(App):
                 lines.append(f"  {key:<16} {action}")
             lines.append("")
         lines.append(
-            "Commands: :ask :draw :ledger :modules :settings :set option=value "
-            ":vol N :mute :checkhealth :w :help :q"
+            "Commands: :ask :draw :draw question//world//reading :ledger :modules "
+            ":settings :set option=value :vol N :mute :checkhealth :w :help :q"
         )
         return "\n".join(lines)
