@@ -1,3 +1,5 @@
+import textwrap
+
 from heidr.visuals.art.seeress import figure
 from heidr.visuals.paint import ASCII
 
@@ -37,9 +39,15 @@ def beside(left: list[str], right: list[str]) -> list[str]:
 
 
 def panel(typed: str, tick: int, width: int, glyphs: str, hint: str) -> str:
-    """Heiðr waits on the left, the question is typed on the right."""
+    """Heiðr waits on the left, the question is typed on the right.
+
+    The hint goes underneath rather than beside her: it is a whole sentence, and
+    a sentence squeezed into the column left over by a figure wraps into rubble.
+    """
     drawn = figure(tick, ASCII)
     if width < ROOM_FOR_HER:
-        return "\n".join(field(typed, min(WIDEST, width), glyphs) + ["", hint])
-    room = min(WIDEST, width - len(drawn[0]) - len(GAP))
-    return "\n".join(beside(drawn, field(typed, room, glyphs) + ["", hint]))
+        rows = field(typed, min(WIDEST, width), glyphs)
+    else:
+        room = min(WIDEST, width - len(drawn[0]) - len(GAP))
+        rows = beside(drawn, field(typed, room, glyphs))
+    return "\n".join(rows + [""] + textwrap.wrap(hint, max(20, width)))

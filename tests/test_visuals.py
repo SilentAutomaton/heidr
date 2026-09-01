@@ -424,3 +424,13 @@ def test_a_narrow_terminal_keeps_the_field_and_drops_the_figure():
     assert "o o" in wide
     assert "o o" not in narrow
     assert "ok_" in narrow
+
+
+def test_the_question_panel_fits_the_room_it_is_given():
+    """A field wider than the panel wraps into rubble, so it must not be."""
+    from heidr.ui import prompt
+
+    for width in (76, 90, 120):
+        drawn = prompt.panel("ok", 0, width, "blocks", "a hint that is fairly long, as hints go")
+
+        assert max(len(line) for line in drawn.splitlines()) <= width

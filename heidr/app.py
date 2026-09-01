@@ -475,7 +475,7 @@ class HeidrApp(App):
             return prompt.panel(
                 self.query_one(CommandLine).buffer,
                 self.tick,
-                size.width - PANEL_PADDING * 2,
+                panel.room(size.width),
                 self.terminal.glyphs,
                 text("hint.ask"),
             )
