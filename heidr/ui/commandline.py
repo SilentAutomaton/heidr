@@ -8,13 +8,15 @@ class CommandLine(Static):
     prefix = reactive("")
     buffer = reactive("")
     message = reactive("")
+    echo = reactive(True)
 
     def render(self) -> str:
-        if self.prefix:
+        if self.prefix and self.echo:
             return f"{self.prefix}{self.buffer}"
         return self.message
 
     def open(self, prefix: str) -> None:
+        self.echo = True
         self.prefix = prefix
         self.buffer = ""
         self.message = ""

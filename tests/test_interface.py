@@ -101,6 +101,38 @@ async def test_the_wordmark_can_be_switched_off(default_config):
         assert "ask a question" in shown and "Ask the Noise" not in shown
 
 
+# The question field
+
+
+@pytest.mark.asyncio
+async def test_the_question_is_typed_into_the_panel(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *"ok")
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert pilot.app.view == "ask"
+        assert "ok_" in shown and "Enter asks." in shown
+
+
+@pytest.mark.asyncio
+async def test_the_bottom_line_does_not_repeat_the_question(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *"ok")
+
+        assert pilot.app.query_one(CommandLine).render() == ""
+
+
+@pytest.mark.asyncio
+async def test_the_seeress_moves_while_the_question_is_typed(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i")
+        first = str(pilot.app.query_one("#body").content)
+        for _ in range(4):
+            pilot.app._breathe()
+
+        assert str(pilot.app.query_one("#body").content) != first
+
+
 # Commands
 
 

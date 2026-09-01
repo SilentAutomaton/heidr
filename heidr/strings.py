@@ -50,6 +50,7 @@ EN = {
     ),
     "error.already_drawing": "A draw is already running. Press Esc to stop it.",
     "error.draw_failed": "The draw stopped: {reason}. The question is free again.",
+    "hint.ask": "Enter asks.  Esc leaves the field.  Ctrl-V dictates.",
     "status.cancelled": "Stopped. The question is free again.",
     "status.stopping": "Stopping at the next step.",
     "status.no_answer": (

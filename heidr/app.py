@@ -13,6 +13,7 @@ from heidr.events import Bus
 from heidr.ledger import Ledger
 from heidr.strings import BANNER_BLOCK, BANNER_PLAIN, NAME, SLOGANS, text
 from heidr.ui import browser
+from heidr.ui import prompt
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals.canvas import Canvas
@@ -63,6 +64,7 @@ class HeidrApp(App):
         self.panes: dict[str, tuple[list[tuple[str, str]], str]] = {}
         self.cursors: dict[str, int] = {}
         self.body_text = ""
+        self.ask_tick = 0
         self.bus = Bus()
         self.drawing = False
         self.stop_draw = threading.Event()
@@ -129,6 +131,15 @@ class HeidrApp(App):
     def on_mount(self) -> None:
         self.show_idle()
         self.do_menu()
+        # The panel is plain text, so the figure in it is moved by a timer of
+        # its own rather than by the canvas.
+        self.set_interval(1 / 3, self._breathe)
+
+    def _breathe(self) -> None:
+        # The timer outlives the screen for a moment when the program leaves.
+        if self.view == "ask" and self.query("#body"):
+            self.ask_tick += 1
+            self._render_body()
         status = self.query_one(StatusLine)
         status.mode = self.edit_mode
         status.volume = self.levels.volume
@@ -180,6 +191,8 @@ class HeidrApp(App):
             line.backspace()
         elif event.character and event.character.isprintable():
             line.type(event.character)
+        if self.view == "ask":
+            self._render_body()
 
     def _accept_question(self, question: str) -> None:
         if not question.strip():
@@ -359,6 +372,14 @@ class HeidrApp(App):
             return f"{splash}\n\n{listed}"
         if self.view in ("modules", "settings", "ledger"):
             return browser.render(self.rows, self.cursor, self.empty, room)
+        if self.view == "ask":
+            return prompt.panel(
+                self.query_one(CommandLine).buffer,
+                self.ask_tick,
+                size.width - PANEL_PADDING * 2,
+                self.terminal.glyphs,
+                text("hint.ask"),
+            )
         if self.view == "text":
             return self.body_text
         return "\n".join(self.transcript) if self.transcript else self._splash()
@@ -413,8 +434,14 @@ class HeidrApp(App):
         self.edit_mode = "COMMAND"
 
     def do_ask(self) -> None:
-        self.query_one(CommandLine).open("> ")
+        self._enter("ask")
+        line = self.query_one(CommandLine)
+        line.open("> ")
+        # The question is typed into the panel, so the bottom line stays quiet
+        # instead of showing the same words twice.
+        line.echo = False
         self.edit_mode = "INSERT"
+        self._render_body()
 
     def do_voice_input(self) -> None:
         context = self.probe()

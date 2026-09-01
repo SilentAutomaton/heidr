@@ -85,6 +85,17 @@ gear train grows when the window does. And the panel is never taller than there
 is room for, so the status line and the command line keep their two rows
 whatever happens above them.
 
+## The question field
+
+Asking opens a view of its own: Heiðr on the left, a box on the right with the
+question in it, and one line under the box saying what the keys do. The bottom
+line stays quiet while the box is open, because the same words in two places
+read as two different things.
+
+The figure is plain text inside the panel rather than a painter behind it, so a
+timer of its own moves her three times a second. She blinks, her staff head
+brightens, and the hem of her cloak shifts; nothing else.
+
 ## Sources
 
 The register of the listening screen — an ASCII spectrum scrolling in the

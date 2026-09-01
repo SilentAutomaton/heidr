@@ -75,10 +75,11 @@ async def test_the_canvas_shows_what_its_painter_paints(default_config):
 async def test_the_canvas_advances_on_its_own(default_config):
     async with make_app(default_config).run_test() as pilot:
         canvas = pilot.app.query_one("#visual", Canvas)
+        started = canvas.tick
         canvas.advance()
         canvas.advance()
 
-        assert canvas.tick == 2
+        assert canvas.tick == started + 2
 
 
 @pytest.mark.asyncio
