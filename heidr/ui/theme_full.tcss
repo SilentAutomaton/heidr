@@ -1,0 +1,23 @@
+Screen {
+    background: $surface;
+}
+
+#body {
+    height: 1fr;
+    padding: 1 2;
+    color: $text;
+}
+
+StatusLine {
+    height: 1;
+    background: $primary-darken-2;
+    color: $text;
+    padding: 0 1;
+}
+
+CommandLine {
+    height: 1;
+    background: $surface;
+    color: $text-muted;
+    padding: 0 1;
+}

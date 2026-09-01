@@ -1,0 +1,27 @@
+/* The bare Linux console gives eight colours and no dim text worth relying on,
+   so this theme uses reversed video instead of shades. */
+
+Screen {
+    background: black;
+    color: white;
+}
+
+#body {
+    height: 1fr;
+    padding: 0 1;
+    color: white;
+}
+
+StatusLine {
+    height: 1;
+    background: white;
+    color: black;
+    padding: 0 1;
+}
+
+CommandLine {
+    height: 1;
+    background: black;
+    color: white;
+    padding: 0 1;
+}

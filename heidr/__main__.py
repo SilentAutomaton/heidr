@@ -34,7 +34,9 @@ def main(argv: list[str] | None = None) -> int:
         print(tomli_w.dumps(settings.data).rstrip())
         return 0
 
-    print(f"{NAME} {__version__}: the interface is not built yet.")
+    from heidr.app import HeidrApp
+
+    HeidrApp(settings=settings).run()
     return 0
 
 

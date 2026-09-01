@@ -1,27 +1,26 @@
 # Copy to ~/.config/heidr/keymap.toml and edit.
-# Keys follow the neovim notation: <C-w> is control and w, <leader> is the
-# leader key set below.
+# Key names are the ones Textual reports: "colon", "minus", "tab", "escape",
+# "ctrl+v", "question_mark". The leader key is set below.
 
 leader = "space"
 
 [normal]
-":" = "command_line"
+"colon" = "command_line"
 "i" = "ask"
 "h" = "pane_left"
 "j" = "pane_down"
 "k" = "pane_up"
 "l" = "pane_right"
-"<Tab>" = "pane_next"
-"<C-w>s" = "split_horizontal"
-"<C-w>v" = "split_vertical"
-"-" = "volume_down"
-"+" = "volume_up"
+"tab" = "pane_next"
+"minus" = "volume_down"
+"plus" = "volume_up"
+"equals_sign" = "volume_up"
 "m" = "mute"
-"g?" = "help"
+"question_mark" = "help"
 
 [insert]
-"<Esc>" = "normal_mode"
-"<C-v>" = "voice_input"
+"escape" = "normal_mode"
+"ctrl+v" = "voice_input"
 
 [leader]
 "a" = "ask"
@@ -30,3 +29,4 @@ leader = "space"
 "m" = "modules"
 "s" = "settings"
 "h" = "checkhealth"
+"q" = "quit"
