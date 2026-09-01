@@ -2,6 +2,7 @@ import hashlib
 import os
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor, wait
 
 import requests
 
@@ -72,12 +73,12 @@ def busy_message(stderr: bytes) -> str:
     return f"The radio gave nothing: {last} Check the antenna and the dongle, then draw again."
 
 
-def beacon_pulse(timeout: float = 5.0) -> bytes:
+def beacon_pulse(timeout: float = 3.0) -> bytes:
     reply = requests.get(BEACON, timeout=timeout, headers={"Accept": "application/json"})
     return reply.json()["pulse"]["outputValue"].encode()
 
 
-def merkle_root(timeout: float = 5.0) -> bytes:
+def merkle_root(timeout: float = 3.0) -> bytes:
     # The block hash loses entropy as mining difficulty pushes leading zeros
     # into it. The Merkle root does not. Pointed out by callebtc/randombtc.
     latest = requests.get(LATEST_BLOCK, timeout=timeout).json()["hash"]
@@ -99,20 +100,34 @@ def world_seed(sources: list[bytes] | None = None) -> int:
     return int.from_bytes(digest.digest(), "big")
 
 
-def collect(ctx, seconds: float = 2.0) -> list[bytes]:
-    sources: list[bytes] = []
+def collect(ctx, seconds: float = 2.0, budget_s: float = 6.0) -> list[bytes]:
+    """Ask every source at once and keep whatever answered in time.
+
+    Sources are asked in parallel and the whole gathering is bounded, because a
+    slow public endpoint must not hold up a rite. A source that says nothing in
+    time is simply absent from the mix, which is the same as being unreachable.
+    """
+    producers = []
     if ctx.has("sdr"):
-        _append(sources, lambda: whiten(*von_neumann(radio_noise(seconds))))
+        producers.append(lambda: whiten(*von_neumann(radio_noise(seconds))))
     if ctx.has("net"):
-        _append(sources, beacon_pulse)
-        _append(sources, merkle_root)
-    return sources
+        producers.extend([beacon_pulse, merkle_root])
+    if not producers:
+        return []
+
+    pool = ThreadPoolExecutor(max_workers=len(producers))
+    running = [pool.submit(_quietly, produce) for produce in producers]
+    done, _unfinished = wait(running, timeout=budget_s)
+    # Whatever is still out there is abandoned rather than waited for: the
+    # budget is the budget, and a straggler's answer is no longer wanted.
+    pool.shutdown(wait=False, cancel_futures=True)
+    return [answer for answer in (task.result() for task in done) if answer]
 
 
-def _append(sources: list[bytes], produce) -> None:
+def _quietly(produce) -> bytes:
     try:
-        sources.append(produce())
+        return produce()
     except Exception:
         # A source that cannot answer today is not an error; the mix goes on
         # without it.
-        pass
+        return b""

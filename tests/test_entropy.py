@@ -1,6 +1,7 @@
 import hashlib
 import random
 import subprocess
+import time
 
 import pytest
 
@@ -84,3 +85,26 @@ def test_an_unexplained_failure_still_says_what_to_check(monkeypatch):
         entropy.radio_noise(0.1)
 
     assert "Check the antenna" in str(refused.value)
+
+
+def test_a_slow_source_is_left_behind(stub_context, monkeypatch):
+    def slow():
+        time.sleep(5)
+        return b"too late"
+
+    monkeypatch.setattr(entropy, "beacon_pulse", slow)
+    monkeypatch.setattr(entropy, "merkle_root", lambda *a, **k: b"in time")
+
+    started = time.monotonic()
+    sources = entropy.collect(stub_context.with_capabilities("net"), budget_s=0.5)
+
+    assert sources == [b"in time"]
+    assert time.monotonic() - started < 3
+
+
+def test_nothing_available_means_nothing_gathered(stub_context):
+    assert entropy.collect(stub_context) == []
+
+
+def test_the_mix_is_never_empty_even_with_no_sources():
+    assert entropy.world_seed([]) != entropy.world_seed([])
