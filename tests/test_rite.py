@@ -1,0 +1,64 @@
+import random
+
+import pytest
+
+from heidr import registry, rite
+from heidr.contracts import Key, Material
+
+
+@pytest.fixture
+def three_slots(temporary_slot):
+    for name in ("alpha", "beta"):
+        registry.question(name)(lambda ctx, text, _n=name: Key(len(text)))
+        registry.world(name)(lambda ctx, key, _n=name: Material(_n))
+        registry.reading(name)(lambda ctx, text, material, _n=name: iter(()))
+
+
+def test_a_draw_names_one_module_per_slot(stub_context, three_slots):
+    drawn = rite.draw(stub_context, seed=1)
+    assert {drawn.question.slot, drawn.world.slot, drawn.reading.slot} == {
+        "question",
+        "world",
+        "reading",
+    }
+
+
+def test_the_same_seed_draws_the_same_rite(stub_context, three_slots):
+    assert str(rite.draw(stub_context, seed=7)) == str(rite.draw(stub_context, seed=7))
+
+
+def test_different_seeds_eventually_draw_different_rites(stub_context, three_slots):
+    drawn = {str(rite.draw(stub_context, seed=seed)) for seed in range(20)}
+    assert len(drawn) > 1
+
+
+def test_an_empty_slot_stops_the_draw(stub_context, temporary_slot):
+    with pytest.raises(rite.NothingAvailable):
+        rite.draw(stub_context, seed=1)
+
+
+def test_recent_modules_lose_weight_without_being_banned():
+    modules = list(registry.MODULES["question"].values())
+    assert rite.weights([], (), 4) == []
+
+    class Fake:
+        def __init__(self, name):
+            self.name = name
+
+    pair = [Fake("alpha"), Fake("beta")]
+    assert rite.weights(pair, ("alpha",), 4) == [0.25, 1.0]
+
+    picked = {rite.pick(pair, ("alpha",), 4, random.Random(s)).name for s in range(50)}
+    assert picked == {"alpha", "beta"}
+
+
+def test_silence_happens_at_the_configured_rate(stub_context, three_slots):
+    stub_context.config.set("rite.silence_chance", 1.0)
+    assert rite.draw(stub_context, seed=3).silent is True
+
+    stub_context.config.set("rite.silence_chance", 0.0)
+    assert rite.draw(stub_context, seed=3).silent is False
+
+
+def test_a_rite_prints_as_the_wordmark_separator(stub_context, three_slots):
+    assert "//" in str(rite.draw(stub_context, seed=5))
