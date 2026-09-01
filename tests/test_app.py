@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+import heidr.__main__ as main_module
 from heidr.app import HeidrApp
 from heidr.capabilities import Terminal
 from heidr.ui.commandline import CommandLine
@@ -201,3 +202,36 @@ async def test_an_explicit_capability_set_keeps_providers_out(default_config):
 
         assert context.capabilities == frozenset()
         assert context.llm is None and context.stt is None
+
+
+def test_a_built_binary_does_not_check_the_repository_documents(monkeypatch):
+    """There is no repository inside a bundle, so there is nothing to check."""
+    from heidr.__main__ import _undocumented
+
+    monkeypatch.setattr("sys.frozen", True, raising=False)
+
+    assert _undocumented() == []
+
+
+def test_the_self_check_builds_the_providers_before_it_reports(default_config, monkeypatch):
+    """Whether a model answers cannot be read out of the configuration."""
+    from heidr import capabilities
+
+    class Answering:
+        name = "fake"
+
+        def __init__(self, settings):
+            pass
+
+        def available(self):
+            return True
+
+    monkeypatch.setattr("heidr.llm.build", Answering)
+    monkeypatch.setattr("heidr.stt.build", Answering)
+    monkeypatch.setattr(capabilities, "detect_capabilities", lambda: frozenset())
+
+    printed = []
+    monkeypatch.setattr("builtins.print", lambda *parts: printed.append(" ".join(map(str, parts))))
+    main_module.self_check(default_config)
+
+    assert any("language model" in line and "fake" in line for line in printed)

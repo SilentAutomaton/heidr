@@ -100,6 +100,21 @@ heidr --splash
 
 Optional extras: `pip install -e '.[audio,vosk,effects]'`
 
+### As one file
+
+There is a PyInstaller recipe, for a machine where nothing should be installed:
+
+```
+python -m venv build-env
+build-env/bin/pip install pyinstaller '.[audio,effects]'
+build-env/bin/pyinstaller heidr.spec
+```
+
+`dist/heidr` is then a single executable of about 37 MB carrying Python and
+every dependency. The external programs stay external: `rtl_fm`, `whisper-cli`
+and the rest are run as subprocesses, so they are found on the path or the
+capability is simply absent, exactly as with an ordinary install.
+
 ## Configure
 
 ```

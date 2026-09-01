@@ -15,20 +15,42 @@ def splash(block_glyphs: bool = True) -> str:
 
 def self_check(settings) -> int:
     """What works on this machine, without starting the interface."""
-    from heidr import capabilities, health, registry
+    from heidr import capabilities, health, llm, registry, stt
     from heidr.contracts import Context
     from heidr.ledger import Ledger
-    from tools.check_docs import complaints
 
     registry.discover(config.USER_DIR / "modules")
-    context = Context(config=settings, capabilities=capabilities.detect_capabilities())
+    # The providers are built here for the same reason the interface builds
+    # them: whether a model or a recogniser really answers cannot be read out
+    # of the configuration.
+    provider = capabilities.provider(llm.build, settings, "llm")
+    listener = capabilities.provider(stt.build, settings, "stt")
+    context = Context(
+        config=settings,
+        capabilities=capabilities.with_providers(capabilities.detect_capabilities(), provider, listener),
+        llm=provider,
+        stt=listener,
+    )
     ledger = Ledger(settings.get("ledger.path", "~/.local/share/heidr/ledger"))
     print(health.as_text(health.report(context, capabilities.detect_terminal(), ledger)))
 
-    undocumented = complaints()
+    undocumented = _undocumented()
     for line in undocumented:
         print(f"- documentation  {line}")
     return 1 if undocumented else 0
+
+
+def _undocumented() -> list[str]:
+    """Whether the repository documents every module.
+
+    A built binary carries no repository, so there is nothing to check and
+    nothing to complain about. The question belongs to the source tree.
+    """
+    if getattr(sys, "frozen", False):
+        return []
+    from tools.check_docs import complaints
+
+    return complaints()
 
 
 def main(argv: list[str] | None = None) -> int:

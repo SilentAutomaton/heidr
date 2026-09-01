@@ -3,7 +3,7 @@ import shutil
 import socket
 from dataclasses import dataclass
 
-from heidr.contracts import CAPABILITIES
+from heidr.contracts import CAPABILITIES, Unavailable
 
 GLYPH_LEVELS = ("ascii", "box", "blocks", "braille")
 
@@ -75,6 +75,34 @@ def detect_capabilities(timeout: float = 0.4) -> frozenset[str]:
     if _audio_present():
         found.add("audio")
     return frozenset(found & set(CAPABILITIES))
+
+
+def provider(make, settings, capability: str, allowed=None):
+    """Build a provider, or return nothing at all.
+
+    A provider that cannot be built is not a provider: the capability is granted
+    by building one, so a module that needs it is never handed something that
+    does not work. An explicit capability set is the whole truth, which is how a
+    test keeps the program away from a real daemon.
+    """
+    if allowed is not None and capability not in allowed:
+        return None
+    try:
+        built = make(settings)
+    except Unavailable:
+        return None
+    if hasattr(built, "available") and not built.available():
+        return None
+    return built
+
+
+def with_providers(found: frozenset[str], llm_provider, stt_provider) -> frozenset[str]:
+    found = set(found) - {"llm", "stt"}
+    if llm_provider is not None:
+        found.add("llm")
+    if stt_provider is not None:
+        found.add("stt")
+    return frozenset(found)
 
 
 def _network_reachable(timeout: float) -> bool:

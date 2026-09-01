@@ -108,36 +108,17 @@ class HeidrApp(App):
         # A provider that cannot be built is not a provider. The capability is
         # granted by building one, so a module that needs it is never handed a
         # provider that does not work.
-        provider = self._provider(llm.build, "llm", allowed)
-        listener = self._provider(stt.build, "stt", allowed)
-
-        found = found - {"llm", "stt"}
-        if provider is not None:
-            found = found | {"llm"}
-        if listener is not None:
-            found = found | {"stt"}
+        provider = capabilities.provider(llm.build, self.settings, "llm", allowed)
+        listener = capabilities.provider(stt.build, self.settings, "stt", allowed)
 
         self.context = replace(
             self.context,
-            capabilities=found,
+            capabilities=capabilities.with_providers(found, provider, listener),
             llm=provider,
             stt=listener,
             cancelled=self.stop_draw.is_set,
         )
         return self.context
-
-    def _provider(self, make, capability: str, allowed):
-        # An explicit capability set is the whole truth, which is how a test
-        # keeps the interface away from a real daemon.
-        if allowed is not None and capability not in allowed:
-            return None
-        try:
-            built = make(self.settings)
-        except Unavailable:
-            return None
-        if hasattr(built, "available") and not built.available():
-            return None
-        return built
 
     def compose(self) -> ComposeResult:
         # The animation fills the screen and the panel sits on top of it, so a
