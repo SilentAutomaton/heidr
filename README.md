@@ -137,6 +137,12 @@ the same thing, so the modal control is read off the screen rather than learned
 from a manual. `j` and `k` move, `Enter` chooses, `Esc` goes back a level, and
 `ui.splash=false` drops the wordmark above the list.
 
+The keys are vim's: `i a A I o O` all open the question field, `gg` and `G` jump
+to the ends, `Ctrl-D` and `Ctrl-U` move half a screen, `{` and `}` walk the
+groups of settings, `/` searches with `n` and `N`, `y` copies, `u` takes a
+setting back, `ZZ` saves and leaves. The whole map, and the five places where
+this and vim cannot agree, is in [docs/en/keys.md](docs/en/keys.md).
+
 Modal, in the manner of neovim. `:ask` puts a question, `Ctrl-V` in insert mode
 dictates it instead. Up and down, or `Ctrl-P` and `Ctrl-N`, bring back what was
 typed before; commands and questions are kept in two files under
