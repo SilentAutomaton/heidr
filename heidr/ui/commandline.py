@@ -15,6 +15,9 @@ class CommandLine(Static):
     level = reactive(INFO)
     accent = reactive("yellow")
     echo = reactive(True)
+    # What can be pressed here, shown while the line has nothing else to say.
+    # The line is empty most of the time, so the help costs no room at all.
+    hint = reactive("")
 
     def render(self) -> Text:
         if self.prefix and self.echo:
@@ -24,7 +27,9 @@ class CommandLine(Static):
             # very bottom of the screen: it gets the accent and a marker, so it
             # is not read as another "setting changed".
             return Text(f"{MARKER}  {self.message}", self.accent)
-        return Text(self.message)
+        if self.message:
+            return Text(self.message)
+        return Text(self.hint, "dim")
 
     def open(self, prefix: str) -> None:
         self.echo = True
@@ -51,3 +56,8 @@ class CommandLine(Static):
     def say(self, message: str, level: str = INFO) -> None:
         self.level = level
         self.message = message
+
+    def hush(self) -> None:
+        """Drop the message, so the hint underneath it shows again."""
+        self.level = INFO
+        self.message = ""

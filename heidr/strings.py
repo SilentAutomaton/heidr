@@ -77,6 +77,14 @@ EN = {
     "error.nothing_to_copy": "There is nothing on this panel to copy yet.",
     "error.nothing_to_undo": "Nothing to undo. Only settings can be taken back.",
     "status.copied": "Copied to the clipboard.",
+    "hint.list": "Up and down move · Enter chooses · Esc goes back · ? for help",
+    "hint.menu": "Up and down move · Enter chooses · ? for help · Ctrl-C leaves",
+    "hint.rite": "y copies · Esc goes back · ? for help",
+    "hint.text": "Esc goes back · ? for help",
+    "hint.drawing": "Esc stops",
+    # The question panel already says what typing does, so the line below it
+    # says the one thing the panel does not.
+    "hint.asking": "Esc leaves the field",
     "hint.typed_setting": "This value is typed. Press Enter to edit it.",
     "hint.ask": "Enter asks.  Up and down bring back past questions.  Ctrl-V dictates.",
     "answer.silence_drawn": (

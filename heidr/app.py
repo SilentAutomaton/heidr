@@ -176,6 +176,7 @@ class HeidrApp(App):
         status.volume = self.levels.volume
         status.provider = self.settings.get("llm.provider", "")
         self.query_one(CommandLine).accent = mark.accent(self.terminal.colours)
+        self._show_hint()
         # The panel is plain text, so the figure in it is moved by a timer of
         # its own rather than by the canvas.
         self.set_interval(1 / 3, self._breathe)
@@ -277,6 +278,7 @@ class HeidrApp(App):
         self._listen_to_the_draw()
 
         self.drawing = True
+        self._show_hint()
         self.stop_draw.clear()
         context = self.probe()
         spec, self.pinned = self.pinned, ""
@@ -325,6 +327,7 @@ class HeidrApp(App):
         where the eye is waiting. The bottom line repeats it in one breath.
         """
         self.drawing = False
+        self._show_hint()
         self.show_idle()
         self.unanswered = (note, message)
         self.query_one(CommandLine).say(message)
@@ -343,6 +346,7 @@ class HeidrApp(App):
 
     def _drawn(self, drawn) -> None:
         self.drawing = False
+        self._show_hint()
         # A silent rite never announces its reading, so the finished bar is
         # filled from the rite itself: those three were drawn, whatever spoke.
         self.stages = [drawn.rite.question.name, drawn.rite.world.name, drawn.rite.reading.name]
@@ -502,10 +506,12 @@ class HeidrApp(App):
             return False
         self.views.pop()
         self._show_path()
+        self._show_hint()
         self._render_body()
         return True
 
     def _show_path(self) -> None:
+        self._show_hint(hush=True)
         line = self._status()
         if line is not None:
             line.path = TRAIL[self.terminal.glyphs].join(self.views)
@@ -515,6 +521,33 @@ class HeidrApp(App):
         # leaves, and a missing status line then is ordinary rather than wrong.
         found = self.query("#status")
         return found.first(StatusLine) if found else None
+
+    def _show_hint(self, hush: bool = False) -> None:
+        """The bottom line teaches while it has nothing else to say."""
+        line = self._command_line()
+        if line is None:
+            return
+        if hush:
+            # A message belongs to the view it was said in.
+            line.hush()
+        line.hint = text(self._hint_name())
+
+    def _hint_name(self) -> str:
+        if self.drawing:
+            return "hint.drawing"
+        if self.view == "menu":
+            return "hint.menu"
+        if self.view == "ask":
+            return "hint.asking"
+        if self.view == "rite":
+            return "hint.rite"
+        if self.view == "text":
+            return "hint.text"
+        return "hint.list"
+
+    def _command_line(self):
+        found = self.query("#cmdline")
+        return found.first(CommandLine) if found else None
 
     def _render_body(self, size=None) -> None:
         """The single place that decides what the body shows.

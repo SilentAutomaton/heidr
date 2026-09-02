@@ -257,3 +257,32 @@ async def test_yanking_a_setting_takes_its_key(default_config, monkeypatch):
         await pilot.press("y")
 
         assert taken == ["ui.theme"]
+
+
+# The line that is usually empty teaches instead
+
+
+@pytest.mark.asyncio
+async def test_each_view_says_what_can_be_pressed(default_config):
+    from heidr.ui.commandline import CommandLine
+
+    async with make_app(default_config).run_test(size=(90, 26)) as pilot:
+        line = pilot.app.query_one(CommandLine)
+        assert "Enter chooses" in str(line.render())
+
+        await pilot.press("colon", *"settings", "enter")
+        assert "Esc goes back" in str(line.render())
+
+
+@pytest.mark.asyncio
+async def test_a_message_wins_over_the_hint_and_then_gives_it_back(default_config):
+    from heidr.ui.commandline import CommandLine
+
+    async with make_app(default_config).run_test(size=(90, 26)) as pilot:
+        line = pilot.app.query_one(CommandLine)
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("right")
+        assert "is now" in str(line.render())
+
+        await pilot.press("escape")
+        assert "Enter chooses" in str(line.render())

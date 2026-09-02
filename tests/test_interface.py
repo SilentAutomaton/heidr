@@ -118,8 +118,11 @@ async def test_the_question_is_typed_into_the_panel(default_config):
 async def test_the_bottom_line_does_not_repeat_the_question(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("i", *"ok")
+        shown = str(pilot.app.query_one(CommandLine).render())
 
-        assert str(pilot.app.query_one(CommandLine).render()) == ""
+        # It holds the one hint the panel does not, and never the question.
+        assert "ok" not in shown
+        assert shown == "Esc leaves the field"
 
 
 @pytest.mark.asyncio
