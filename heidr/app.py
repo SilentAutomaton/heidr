@@ -983,6 +983,20 @@ class HeidrApp(App):
         self._after_setting(key)
         line.say(f"{key} is {was if before else now} again.")
 
+    def do_write(self) -> None:
+        self.query_one(CommandLine).say(text("status.saved", path=config.save(self.settings)))
+
+    def do_stop_or_quit(self) -> None:
+        """Ctrl-C interrupts what is running, and leaves when nothing is.
+
+        Without this the key does nothing at all, which in a terminal program
+        is the worst of the three possible answers.
+        """
+        if self.drawing:
+            self.do_stop()
+        else:
+            self.exit()
+
     def do_write_and_quit(self) -> None:
         config.save(self.settings)
         self.exit()

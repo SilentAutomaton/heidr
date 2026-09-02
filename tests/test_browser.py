@@ -442,3 +442,104 @@ async def test_nothing_to_undo_says_so(default_config):
         await pilot.press("u")
 
         assert "Nothing to undo" in pilot.app.query_one(CommandLine).message
+
+
+# The same thing, said the way everybody else says it
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("familiar, vim", [("home", "gg"), ("end", "G")])
+async def test_the_familiar_key_lands_where_the_vim_key_lands(default_config, familiar, vim):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press(*vim)
+        with_vim = pilot.app.cursor
+
+        await pilot.press("g", "g") if vim == "G" else await pilot.press("G")
+        await pilot.press(familiar)
+
+        assert pilot.app.cursor == with_vim
+
+
+@pytest.mark.asyncio
+async def test_tab_and_shift_tab_move_a_line(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("tab", "tab")
+        assert pilot.app.cursor == 2
+
+        await pilot.press("shift+tab")
+        assert pilot.app.cursor == 1
+
+
+@pytest.mark.asyncio
+async def test_insert_opens_the_question_like_i(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("insert")
+
+        assert pilot.app.view == "ask" and pilot.app.edit_mode == "INSERT"
+
+
+@pytest.mark.asyncio
+async def test_f1_opens_the_same_help_as_the_question_mark(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("question_mark")
+        by_vim = str(pilot.app.query_one("#body").content)
+        await pilot.press("escape")
+
+        await pilot.press("f1")
+
+        assert str(pilot.app.query_one("#body").content) == by_vim
+
+
+@pytest.mark.asyncio
+async def test_backspace_goes_back_a_level(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        await pilot.press("backspace")
+
+        assert pilot.app.view == "menu"
+
+
+@pytest.mark.asyncio
+async def test_f3_walks_the_matches_like_n(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("slash", *"dwell", "enter")
+        first = pilot.app.cursor
+
+        await pilot.press("f3")
+        assert pilot.app.cursor != first
+
+        await pilot.press("shift+f3")
+        assert pilot.app.cursor == first
+
+
+@pytest.mark.asyncio
+async def test_control_z_and_control_y_undo_and_redo(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("enter")
+        await pilot.press("ctrl+z")
+        assert default_config.get("ui.theme") == "auto"
+
+        await pilot.press("ctrl+y")
+        assert default_config.get("ui.theme") == "full"
+
+
+@pytest.mark.asyncio
+async def test_control_s_saves_the_settings(default_config, tmp_path):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("ctrl+s")
+
+        assert "Saved" in pilot.app.query_one(CommandLine).message
+        assert default_config.path.is_file()
+
+
+@pytest.mark.asyncio
+async def test_control_c_leaves_when_nothing_is_running(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("ctrl+c")
+        await pilot.pause()
+
+        assert not pilot.app.is_running

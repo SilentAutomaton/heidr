@@ -465,3 +465,21 @@ async def test_the_bar_shows_who_is_running_not_who_gave_way(default_config, off
         holding.set()
         while pilot.app.drawing:
             await pilot.pause()
+
+
+@pytest.mark.asyncio
+async def test_control_c_stops_a_run_rather_than_leaving(default_config, offline, only):
+    holding = threading.Event()
+    only(lambda ctx, key: holding.wait(timeout=10) or Material("found", source="fake"))
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *QUESTION, "enter")
+        await pilot.pause()
+        await pilot.press("ctrl+c")
+
+        assert pilot.app.is_running
+        assert pilot.app.stop_draw.is_set()
+
+        holding.set()
+        while pilot.app.drawing:
+            await pilot.pause()
