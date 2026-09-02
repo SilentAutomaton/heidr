@@ -163,7 +163,8 @@ brightens, and the hem of her cloak swings; nothing else. Below seventy four
 columns she is dropped and the field keeps the room: half a figure beside half a
 field helps nobody.
 
-Her marks, the eyes and the mouth and the head of the staff and the hem, are found in
+Her marks, the eyes and the mouth and the head of the staff and the hem, are
+found in
 the drawing at import time rather than written down as coordinates. The drawing
 changed once and the coordinates did not, and her face came out bent.
 
@@ -200,7 +201,8 @@ dongle.
 
 ## The window title
 
-The title is the only thing visible when the window is not. While a run is going it
+The title is the only thing visible when the window is not. While a run is going
+it
 reads:
 
 ```

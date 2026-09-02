@@ -28,11 +28,11 @@
 | [libraryofbabel.info-algo](https://github.com/librarianofbabel/libraryofbabel.info-algo) | Jonathan Basile | не указана | Обратимая биекция: адрес превращается в текст, текст восстанавливает адрес. Написано заново по опубликованному описанию |
 | [ichingshifa](https://github.com/kentang2017/ichingshifa) | kentang2017 | не указана | Подтверждение счёта Да Янь в три перекладывания. Сам метод традиционный и реализован по классическому описанию |
 | [randombtc](https://github.com/callebtc/randombtc) | callebtc | не проверена | Брать корень Меркла, а не хэш блока: сложность майнинга загоняет в хэш ведущие нули и вымывает энтропию |
-| [drand](https://github.com/drand/drand) | Protocol Labs и другие | Apache-2.0 / MIT | Сцепление каждой вытяжки с предыдущей, чтобы вся история проверялась |
+| [drand](https://github.com/drand/drand) | Protocol Labs и другие | Apache-2.0 / MIT | Сцепление каждой записи с предыдущей, чтобы вся история проверялась |
 | [retrogram-rtlsdr](https://github.com/r4d10n/retrogram-rtlsdr) | r4d10n | GPL | ASCII-спектр в терминале как регистр экрана прослушивания |
 | [astroterm](https://github.com/da-luce/astroterm) | da-luce | MIT | Проекция из прямого восхождения в горизонтальные координаты, звёздная величина в плотность глифа |
 | [gum](https://github.com/charmbracelet/gum) и [huh](https://github.com/charmbracelet/huh) | Charm | MIT | Церемониальный словарь: подтвердить, крутить, выбрать, по одному полю на экран |
-| [fortune-mod](https://github.com/shlomif/fortune-mod) | Shlomi Fish и другие | ISC | Плоский офлайновый корпус, чтобы обряд не зависел от чужого сайта |
+| [fortune-mod](https://github.com/shlomif/fortune-mod) | Shlomi Fish и другие | ISC | Плоский офлайновый корпус, чтобы прогон не зависел от чужого сайта |
 | [Kerykeion](https://github.com/g-battaglia/kerykeion) | Giacomo Battaglia | не проверена | Отдельное форматирование найденного в блок под языковую модель, помимо человекочитаемого вида |
 | [Stellium](https://github.com/katelouie/stellium) | katelouie | не проверена | Планетарные часы: семь управителей от восхода до восхода, дневные и ночные считаются отдельно |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic, Bo Tso | GPL | Перевод в дискордианский календарь |
@@ -53,7 +53,7 @@ GPL.
 |---|---|---|
 | [whisper.cpp](https://github.com/ggml-org/whisper.cpp) | MIT | `stt/whisper_cpp` |
 | [vosk-api](https://github.com/alphacep/vosk-api) | Apache-2.0 | `stt/vosk` |
-| rtl_sdr, rtl_fm, rtl_power | GPL-2.0 | радиомодули мира |
+| rtl_sdr, rtl_fm, rtl_power | GPL-2.0 | радиоисточники |
 | [rtl_433](https://github.com/merbanan/rtl_433) | GPL-2.0 | `world/ism` |
 | [dump1090](https://github.com/antirez/dump1090) | ISC | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
@@ -69,7 +69,7 @@ GPL.
 
 ## Данные
 
-Публичные сетевые источники модулей мира: лента землетрясений USGS,
+Публичные сетевые источники источников: лента землетрясений USGS,
 blockchain.info, api.adsb.lol, маяк NIST, журналы Certificate Transparency,
 libraryofbabel.info. Документ каждого модуля называет точный адрес и его условия.
 

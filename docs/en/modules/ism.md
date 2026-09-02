@@ -21,7 +21,8 @@ a person — temperature, humidity, pressure, wind speed, battery state — and
 builds the material's text from them. Device identifiers become its numbers.
 
 The material comes out funny and very concrete: `Nexus-TH: temperature_C 18.4,
-humidity 62`. None of these devices know your question, and that is the condition the module needs.
+humidity 62`. None of these devices know your question, and that is the
+condition the module needs.
 
 ## Settings
 

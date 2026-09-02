@@ -23,7 +23,8 @@ import requests
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
-FEED = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
+FEED =
+"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
 
 
 def available(ctx) -> bool:
@@ -76,7 +77,8 @@ That is the whole module. Notes:
 Declare defaults on the decorator and read them from `ctx.settings`:
 
 ```python
-@world("fm_voice", needs=("sdr", "stt"), defaults={"dwell_s": 4, "sweep": "random"})
+@world("fm_voice", needs=("sdr", "stt"), defaults={"dwell_s": 4, "sweep":
+"random"})
 def run(ctx, key):
     dwell = ctx.settings["dwell_s"]
 ```

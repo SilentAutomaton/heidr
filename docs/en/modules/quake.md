@@ -13,7 +13,8 @@ the past hour:
 https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
 ```
 
-The feed needs no key and no account, and asks only for ordinary courtesy. The feed usually holds
+The feed needs no key and no account, and asks only for ordinary courtesy. The
+feed usually holds
 somewhere between ten and a hundred events.
 
 ## How it is processed

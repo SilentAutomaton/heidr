@@ -211,7 +211,8 @@ answer.
 
 The hold lasts a day rather than for good. "How will today go" is a different
 question tomorrow, and the entry already carries the date it was promised on, so
-the rule reads it instead of scanning the whole history for ever. `ledger.repeat_after_h`
+the rule reads it instead of scanning the whole history for ever.
+`ledger.repeat_after_h`
 sets the window, and zero restores the older rule where a question was spent
 permanently. A date nobody can parse keeps the question spent: only time lifts
 the rule, never a damaged file.
