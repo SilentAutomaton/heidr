@@ -10,7 +10,20 @@ from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
 
-from heidr import audio, capabilities, config, health, keymap, llm, mic, registry, rite, session, stt
+from heidr import (
+    audio,
+    capabilities,
+    clipboard,
+    config,
+    health,
+    keymap,
+    llm,
+    mic,
+    registry,
+    rite,
+    session,
+    stt,
+)
 from heidr.contracts import Cancelled, Context, Unavailable
 from heidr.events import Bus
 from heidr.history import History
@@ -21,6 +34,10 @@ from heidr.ui import mark, panel, prompt, stages
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals.canvas import Canvas
+
+def _section(key: str) -> str:
+    return key.rsplit(".", 1)[0]
+
 
 def _typed(value: str):
     """Read what was typed as the kind of value it looks like."""
@@ -51,6 +68,9 @@ PANEL_PADDING = 2
 SPINNERS = {"braille": "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏", "ascii": "|/-\\"}
 SPIN_HZ = 10
 SLOTS = 3
+# Keys that wait for a second one, each naming its own section of the keymap.
+PREFIXES = ("g", "Z")
+UNDO_KEPT = 50
 TRAIL = {"blocks": " \u203a ", "braille": " \u203a ", "box": " > ", "ascii": " > "}
 
 THEMES = Path(__file__).resolve().parent / "ui"
@@ -66,7 +86,12 @@ class HeidrApp(App):
         self.terminal = terminal or capabilities.detect_terminal()
         self.keymap = keymap.load(self.user_dir)
         self.leader = keymap.leader_key(self.user_dir)
-        self.leader_pending = False
+        # A key that waits for a second one. The leader is the first of these,
+        # and vim's own g and Z work the same way.
+        self.pending = ""
+        self.needle = ""
+        self.done: list[tuple[str, object, object]] = []
+        self.redone: list[tuple[str, object, object]] = []
         self.views = ["menu"]
         # Rows, cursor and empty text belong to the view that owns them, so
         # coming back from one list finds the other one where it was left.
@@ -175,19 +200,23 @@ class HeidrApp(App):
     def on_key(self, event) -> None:
         event.stop()
         if self.edit_mode == "COMMAND":
-            self._type_into_command_line(event, self._run_command)
+            asked = self.query_one(CommandLine).prefix == "/"
+            self._type_into_command_line(event, self._search if asked else self._run_command)
         elif self.edit_mode == "INSERT":
             self._handle_insert_key(event)
         else:
             self._handle_normal_key(event)
 
     def _handle_normal_key(self, event) -> None:
-        if self.leader_pending:
-            self.leader_pending = False
-            self._act(self.keymap["leader"].get(event.key, ""))
+        if self.pending:
+            section, self.pending = self.pending, ""
+            self._act(self.keymap[section].get(event.key, ""))
             return
         if event.key == self.leader:
-            self.leader_pending = True
+            self.pending = "leader"
+            return
+        if event.key in PREFIXES:
+            self.pending = event.key
             return
         self._act(self.keymap["normal"].get(event.key, ""))
 
@@ -215,6 +244,10 @@ class HeidrApp(App):
             accept(typed)
         elif event.key == "backspace":
             line.backspace()
+        elif event.key == "ctrl+w":
+            line.delete_word()
+        elif event.key == "ctrl+u":
+            line.buffer = ""
         elif event.character and event.character.isprintable():
             line.type(event.character)
         if self.view == "ask":
@@ -697,6 +730,53 @@ class HeidrApp(App):
     def do_line_up(self) -> None:
         self._move_cursor(-1)
 
+    def do_back(self) -> None:
+        self._back()
+
+    def do_first_line(self) -> None:
+        self._move_cursor(-len(self.rows))
+
+    def do_last_line(self) -> None:
+        self._move_cursor(len(self.rows))
+
+    def do_half_page_down(self) -> None:
+        self._move_cursor(max(1, self._room() // 2))
+
+    def do_half_page_up(self) -> None:
+        self._move_cursor(-max(1, self._room() // 2))
+
+    def do_section_down(self) -> None:
+        self._to_section(1)
+
+    def do_section_up(self) -> None:
+        self._to_section(-1)
+
+    def _to_section(self, step: int) -> None:
+        """Between groups of settings, the way vim moves between paragraphs.
+
+        Going back lands on the top of this group first, and only then on the
+        top of the one before it: paragraph movement, not row movement.
+        """
+        if not self.rows:
+            return
+        if step > 0:
+            number = self.cursor
+            here = _section(self.rows[number][0])
+            while number + 1 < len(self.rows) and _section(self.rows[number + 1][0]) == here:
+                number += 1
+            number += 1
+        else:
+            top = self._top(self.cursor)
+            number = top if top < self.cursor else self._top(max(0, top - 1))
+        self.cursor = max(0, min(len(self.rows) - 1, number))
+        self._show_rows()
+
+    def _top(self, number: int) -> int:
+        here = _section(self.rows[number][0])
+        while number > 0 and _section(self.rows[number - 1][0]) == here:
+            number -= 1
+        return number
+
     def do_page_down(self) -> None:
         self._move_cursor(self._room())
 
@@ -780,10 +860,97 @@ class HeidrApp(App):
         return self.settings.get(key)
 
     def _store_setting(self, key: str, value) -> None:
+        self._remember(key, self._setting_value(key), value)
         self.settings.set(key, value)
-        self.panes["settings"] = (browser.setting_rows(self.settings), self.empty)
-        self._show_rows()
+        self._after_setting(key)
         self.query_one(CommandLine).say(f"{key} is now {value}.")
+
+    def _remember(self, key: str, was, now) -> None:
+        # Settings are the only thing here that can be undone: the ledger is
+        # written once and a rite cannot be taken back.
+        self.done.append((key, was, now))
+        del self.done[:-UNDO_KEPT]
+        self.redone.clear()
+
+    def _after_setting(self, key: str) -> None:
+        if "settings" in self.panes:
+            self.panes["settings"] = (browser.setting_rows(self.settings), self.panes["settings"][1])
+        if self.view == "settings":
+            self._show_rows()
+        else:
+            self._render_body()
+
+    def do_search(self) -> None:
+        self.query_one(CommandLine).open("/")
+        self.edit_mode = "COMMAND"
+
+    def _search(self, needle: str) -> None:
+        self.needle = needle.strip()
+        if self.needle:
+            self._to_match(1, self.cursor)
+
+    def do_search_next(self) -> None:
+        self._to_match(1, self.cursor + 1)
+
+    def do_search_previous(self) -> None:
+        self._to_match(-1, self.cursor - 1)
+
+    def _to_match(self, step: int, start: int) -> None:
+        """The next row holding what was searched for, wrapping round the end."""
+        line = self.query_one(CommandLine)
+        if not self.needle:
+            line.say(text("error.no_search"), level="error")
+            return
+        if not self.rows:
+            return
+        wanted = self.needle.lower()
+        for offset in range(len(self.rows)):
+            number = (start + offset * step) % len(self.rows)
+            if wanted in self.rows[number][1].lower():
+                self.cursor = number
+                self._show_rows()
+                return
+        line.say(text("error.no_match", needle=self.needle), level="error")
+
+    def do_yank(self) -> None:
+        line = self.query_one(CommandLine)
+        if clipboard.copy(self._to_yank()):
+            line.say(text("status.copied"))
+        else:
+            line.say(text("error.nothing_to_copy"), level="error")
+
+    def _to_yank(self) -> str:
+        """What copying means here depends on what is on the panel."""
+        if self.view == "rite":
+            return "\n".join(self.said) or self.found[0]
+        if self.view == "text":
+            return self.body_text
+        if self.view == "ledger" and self.rows:
+            found = [e for e in self.ledger.entries() if e.identifier == self.rows[self.cursor][0]]
+            return found[0].body if found else ""
+        return self.rows[self.cursor][0] if self.rows else ""
+
+    def do_undo(self) -> None:
+        self._step_back(self.done, self.redone, before=True)
+
+    def do_redo(self) -> None:
+        self._step_back(self.redone, self.done, before=False)
+
+    def _step_back(self, taken, kept, before: bool) -> None:
+        line = self.query_one(CommandLine)
+        if not taken:
+            line.say(text("error.nothing_to_undo"), level="error")
+            return
+        change = taken.pop()
+        kept.append(change)
+        key, was, now = change
+        self.settings.set(key, was if before else now)
+        self._after_setting(key)
+        line.say(f"{key} is {was if before else now} again.")
+
+    def do_write_and_quit(self) -> None:
+        config.save(self.settings)
+        self.exit()
 
     def do_mute(self) -> None:
         self.levels.muted = not self.levels.muted
@@ -850,8 +1017,10 @@ class HeidrApp(App):
         if not separator:
             line.say(text("error.bad_setting"), level="error")
             return
-        self.settings.set(option.strip(), _typed(value.strip()))
-        line.say(f"{option.strip()} is now {value.strip()}.")
+        key = option.strip()
+        self._remember(key, self._setting_value(key), _typed(value.strip()))
+        self.settings.set(key, _typed(value.strip()))
+        line.say(f"{key} is now {value.strip()}.")
         if self.view == "settings":
             self.do_settings()
         elif self.view == "modules":
@@ -872,8 +1041,8 @@ class HeidrApp(App):
 
     def _help_text(self) -> str:
         lines = [f"{NAME} keys", ""]
-        for section in ("normal", "insert", "leader"):
-            lines.append(section)
+        for section in ("normal", "insert", "leader", *PREFIXES):
+            lines.append(section if section not in PREFIXES else f"{section} then")
             for key, action in sorted(self.keymap[section].items()):
                 lines.append(f"  {key:<16} {action}")
             lines.append("")

@@ -188,11 +188,11 @@ async def test_a_past_draw_can_be_read_again(default_config, offline):
 async def test_the_leader_needs_a_second_key(default_config):
     async with make_app(default_config).run_test() as pilot:
         await pilot.press("space")
-        assert pilot.app.leader_pending is True
+        assert pilot.app.pending == "leader"
         assert pilot.app.edit_mode == "NORMAL"
 
         await pilot.press("h")
-        assert pilot.app.leader_pending is False
+        assert pilot.app.pending == ""
 
 
 @pytest.mark.asyncio

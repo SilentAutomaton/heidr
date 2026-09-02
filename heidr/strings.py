@@ -72,6 +72,11 @@ EN = {
         "again, and :checkhealth says what is working."
     ),
     "note.instead": "{failed} could not answer, and {following} was drawn instead.",
+    "error.no_search": "Nothing has been searched for yet. Press / and type something.",
+    "error.no_match": "Nothing here holds {needle!r}. Press / to search for something else.",
+    "error.nothing_to_copy": "There is nothing on this panel to copy yet.",
+    "error.nothing_to_undo": "Nothing to undo. Only settings can be taken back.",
+    "status.copied": "Copied to the clipboard.",
     "hint.typed_setting": "This value is typed. Press Enter to edit it.",
     "hint.ask": "Enter asks.  Up and down bring back past questions.  Ctrl-V dictates.",
     "answer.silence_drawn": (

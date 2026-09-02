@@ -6,7 +6,13 @@ leader = "space"
 
 [normal]
 "colon" = "command_line"
+# Six ways into the question field, as vim has six ways into insert.
 "i" = "ask"
+"a" = "ask"
+"A" = "ask"
+"I" = "ask"
+"o" = "ask"
+"O" = "ask"
 "h" = "value_previous"
 "j" = "line_down"
 "k" = "line_up"
@@ -17,6 +23,20 @@ leader = "space"
 "right" = "value_next"
 "pageup" = "page_up"
 "pagedown" = "page_down"
+"ctrl+f" = "page_down"
+"ctrl+b" = "page_up"
+"ctrl+d" = "half_page_down"
+"ctrl+u" = "half_page_up"
+"G" = "last_line"
+"left_curly_bracket" = "section_up"
+"right_curly_bracket" = "section_down"
+"ctrl+o" = "back"
+"slash" = "search"
+"n" = "search_next"
+"N" = "search_previous"
+"y" = "yank"
+"u" = "undo"
+"ctrl+r" = "redo"
 "enter" = "choose"
 "minus" = "volume_down"
 "plus" = "volume_up"
@@ -28,6 +48,16 @@ leader = "space"
 [insert]
 "escape" = "normal_mode"
 "ctrl+v" = "voice_input"
+
+# Keys that wait for a second one, each its own section. Ctrl-W and Ctrl-U
+# while typing delete a word and the line; they belong to the line itself and
+# are not rebound here.
+[g]
+"g" = "first_line"
+
+[Z]
+"Z" = "write_and_quit"
+"Q" = "quit"
 
 [leader]
 "a" = "ask"

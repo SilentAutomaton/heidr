@@ -4,7 +4,14 @@ from pathlib import Path
 DEFAULTS: dict[str, dict[str, str]] = {
     "normal": {
         "colon": "command_line",
+        # Six ways into insert, as in vim, all opening the one field there is.
+        # The point is that the hand cannot miss.
         "i": "ask",
+        "a": "ask",
+        "A": "ask",
+        "I": "ask",
+        "o": "ask",
+        "O": "ask",
         "h": "value_previous",
         "j": "line_down",
         "k": "line_up",
@@ -15,6 +22,20 @@ DEFAULTS: dict[str, dict[str, str]] = {
         "right": "value_next",
         "pageup": "page_up",
         "pagedown": "page_down",
+        "ctrl+f": "page_down",
+        "ctrl+b": "page_up",
+        "ctrl+d": "half_page_down",
+        "ctrl+u": "half_page_up",
+        "G": "last_line",
+        "left_curly_bracket": "section_up",
+        "right_curly_bracket": "section_down",
+        "ctrl+o": "back",
+        "slash": "search",
+        "n": "search_next",
+        "N": "search_previous",
+        "y": "yank",
+        "u": "undo",
+        "ctrl+r": "redo",
         "enter": "choose",
         "minus": "volume_down",
         "plus": "volume_up",
@@ -26,6 +47,15 @@ DEFAULTS: dict[str, dict[str, str]] = {
     "insert": {
         "escape": "normal_mode",
         "ctrl+v": "voice_input",
+    },
+    # Two keys that wait for a second one, the way the leader does. In vim `g`
+    # and `Z` are prefixes and nothing else, so they are prefixes here too.
+    "g": {
+        "g": "first_line",
+    },
+    "Z": {
+        "Z": "write_and_quit",
+        "Q": "quit",
     },
     "leader": {
         "a": "ask",

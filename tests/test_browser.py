@@ -2,6 +2,7 @@ import pytest
 
 from heidr import config
 from heidr.ui import browser
+from heidr.ui.commandline import CommandLine
 
 from tests.test_app import make_app
 
@@ -299,3 +300,145 @@ async def test_a_page_stops_at_both_ends(default_config):
         for _ in range(20):
             await pilot.press("pageup")
         assert pilot.app.cursor == 0
+
+
+# Keys a vim user will try without thinking
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("key", ["i", "a", "A", "I", "o", "O"])
+async def test_every_vim_way_into_insert_opens_the_question(default_config, key):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press(key)
+
+        assert pilot.app.view == "ask"
+        assert pilot.app.edit_mode == "INSERT"
+
+
+@pytest.mark.asyncio
+async def test_gg_and_capital_g_jump_to_the_ends(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("G")
+        assert pilot.app.cursor == len(pilot.app.rows) - 1
+
+        await pilot.press("g", "g")
+        assert pilot.app.cursor == 0
+
+
+@pytest.mark.asyncio
+async def test_a_pending_prefix_lets_the_next_key_go(default_config):
+    """gq means nothing, and must not eat the keystroke after it either."""
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("g", "q")
+        assert pilot.app.cursor == 0
+        assert pilot.app.pending == ""
+
+        await pilot.press("j")
+        assert pilot.app.cursor == 1
+
+
+@pytest.mark.asyncio
+async def test_half_a_page_is_half_of_what_is_shown(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("ctrl+d")
+
+        assert pilot.app.cursor == max(1, pilot.app._room() // 2)
+
+
+@pytest.mark.asyncio
+async def test_the_braces_move_between_groups_of_settings(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("right_curly_bracket")
+        assert pilot.app.rows[pilot.app.cursor][0] == "audio.volume"
+
+        await pilot.press("j")
+        await pilot.press("left_curly_bracket")
+        assert pilot.app.rows[pilot.app.cursor][0] == "audio.volume"
+
+        await pilot.press("left_curly_bracket")
+        assert pilot.app.rows[pilot.app.cursor][0] == "ui.theme"
+
+
+@pytest.mark.asyncio
+async def test_control_o_goes_back_like_escape(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"modules", "enter")
+        await pilot.press("ctrl+o")
+
+        assert pilot.app.view == "menu"
+
+
+# Searching
+
+
+@pytest.mark.asyncio
+async def test_a_search_finds_a_line_and_n_walks_the_matches(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("slash", *"dwell", "enter")
+        first = pilot.app.rows[pilot.app.cursor][0]
+        assert "dwell" in first
+
+        await pilot.press("n")
+        assert "dwell" in pilot.app.rows[pilot.app.cursor][0]
+        assert pilot.app.rows[pilot.app.cursor][0] != first
+
+        await pilot.press("N")
+        assert pilot.app.rows[pilot.app.cursor][0] == first
+
+
+@pytest.mark.asyncio
+async def test_a_search_ignores_the_case(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("slash", *"DWELL", "enter")
+
+        assert "dwell" in pilot.app.rows[pilot.app.cursor][0]
+
+
+@pytest.mark.asyncio
+async def test_nothing_found_says_so_and_does_not_move(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("slash", *"zzzz", "enter")
+
+        assert pilot.app.cursor == 0
+        assert "zzzz" in pilot.app.query_one(CommandLine).message
+
+
+# Undoing a setting
+
+
+@pytest.mark.asyncio
+async def test_a_setting_can_be_taken_back_and_put_again(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("enter")
+        assert default_config.get("ui.theme") == "full"
+
+        await pilot.press("u")
+        assert default_config.get("ui.theme") == "auto"
+
+        await pilot.press("ctrl+r")
+        assert default_config.get("ui.theme") == "full"
+
+
+@pytest.mark.asyncio
+async def test_a_set_command_can_be_taken_back_too(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"set rite.recent_penalty=9", "enter")
+        await pilot.press("u")
+
+        assert default_config.get("rite.recent_penalty") == 4
+
+
+@pytest.mark.asyncio
+async def test_nothing_to_undo_says_so(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("u")
+
+        assert "Nothing to undo" in pilot.app.query_one(CommandLine).message

@@ -178,3 +178,82 @@ async def test_a_real_answer_still_wins_over_the_explanation(default_config):
 
         assert "the rain has fallen" in shown
         assert "answer · silence" not in shown
+
+
+# Typing, copying
+
+
+@pytest.mark.asyncio
+async def test_control_w_deletes_a_word_and_control_u_the_line(default_config):
+    from heidr.ui.commandline import CommandLine
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("i", *"how will the day go")
+        await pilot.press("ctrl+w")
+        assert pilot.app.query_one(CommandLine).buffer == "how will the day"
+
+        await pilot.press("ctrl+u")
+        assert pilot.app.query_one(CommandLine).buffer == ""
+
+
+def test_deleting_a_word_from_one_word_leaves_nothing():
+    from heidr.ui.commandline import CommandLine
+
+    line = CommandLine()
+    line.buffer = "alone"
+    line.delete_word()
+
+    assert line.buffer == ""
+
+
+def test_the_clipboard_sequence_is_osc_52():
+    from heidr import clipboard
+
+    assert clipboard.sequence("hi") == "\x1b]52;c;aGk=\x07"
+    assert clipboard.copy("   ") is False
+
+
+@pytest.mark.asyncio
+async def test_yanking_takes_the_answer_when_there_is_one(default_config, monkeypatch):
+    from heidr import clipboard
+
+    taken = []
+    monkeypatch.setattr(clipboard, "copy", lambda text: taken.append(text) or True)
+
+    async with make_app(default_config).run_test() as pilot:
+        pilot.app._enter("rite")
+        pilot.app.asked = "will it rain"
+        pilot.app.found = ("the material", "fake")
+        pilot.app.said = ["the answer"]
+        await pilot.press("y")
+
+        assert taken == ["the answer"]
+
+
+@pytest.mark.asyncio
+async def test_yanking_takes_the_material_when_nothing_was_said(default_config, monkeypatch):
+    from heidr import clipboard
+
+    taken = []
+    monkeypatch.setattr(clipboard, "copy", lambda text: taken.append(text) or True)
+
+    async with make_app(default_config).run_test() as pilot:
+        pilot.app._enter("rite")
+        pilot.app.found = ("the material", "fake")
+        await pilot.press("y")
+
+        assert taken == ["the material"]
+
+
+@pytest.mark.asyncio
+async def test_yanking_a_setting_takes_its_key(default_config, monkeypatch):
+    from heidr import clipboard
+
+    taken = []
+    monkeypatch.setattr(clipboard, "copy", lambda text: taken.append(text) or True)
+
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("y")
+
+        assert taken == ["ui.theme"]

@@ -44,6 +44,10 @@ class CommandLine(Static):
     def backspace(self) -> None:
         self.buffer = self.buffer[:-1]
 
+    def delete_word(self) -> None:
+        """Back to the start of the last word, as ctrl+w does everywhere else."""
+        self.buffer = self.buffer.rstrip().rsplit(" ", 1)[0] if " " in self.buffer.strip() else ""
+
     def say(self, message: str, level: str = INFO) -> None:
         self.level = level
         self.message = message
