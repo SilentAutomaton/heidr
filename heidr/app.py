@@ -391,6 +391,10 @@ class HeidrApp(App):
     def _instead(self, names) -> None:
         failed, following = names
         self.notes.append(text("note.instead", failed=failed, following=following))
+        # The one that gave way leaves the bar: a rite has three slots, and the
+        # count in the window title has to stay out of three.
+        if failed in self.stages:
+            self.stages.remove(failed)
         self._show_transcript()
 
     def _found(self, material) -> None:
