@@ -611,3 +611,22 @@ async def test_the_wheel_moves_the_cursor(default_config):
 
         pilot.app.on_mouse_scroll_up(None)
         assert pilot.app.cursor == 1
+
+
+@pytest.mark.asyncio
+async def test_the_leader_twice_goes_home(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.press("space", "space")
+
+        assert pilot.app.view == "menu"
+
+
+@pytest.mark.asyncio
+async def test_the_help_is_written_in_tasks_not_in_action_names(default_config):
+    async with make_app(default_config).run_test(size=(100, 34)) as pilot:
+        await pilot.press("f1")
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "Ask a question" in shown and "Find" in shown
+        assert "value_previous" not in shown and "line_down" not in shown

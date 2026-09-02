@@ -73,6 +73,8 @@ DEFAULTS: dict[str, dict[str, str]] = {
         "Q": "quit",
     },
     "leader": {
+        # Twice on the leader is the way home, wherever you are.
+        "space": "menu",
         "a": "ask",
         "c": "compose",
         "d": "draw",

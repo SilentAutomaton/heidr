@@ -1137,14 +1137,37 @@ class HeidrApp(App):
         return splash
 
     def _help_text(self) -> str:
-        lines = [f"{NAME} keys", ""]
-        for section in ("normal", "insert", "leader", *PREFIXES):
-            lines.append(section if section not in PREFIXES else f"{section} then")
-            for key, action in sorted(self.keymap[section].items()):
-                lines.append(f"  {key:<16} {action}")
-            lines.append("")
-        lines.append(
-            "Commands: :ask :draw :draw question//world//reading :ledger :modules "
-            ":settings :set option=value :vol N :mute :checkhealth :w :help :q"
+        """Help written for someone who has never opened vim.
+
+        It used to print the keymap with the internal action names in it, which
+        told a newcomer nothing at all. Now it answers the question actually
+        being asked: how do I do the thing I want to do.
+        """
+        leader = f"<{self.leader}>"
+        tasks = (
+            ("Ask a question", f"i  a  Insert  {leader}a"),
+            ("Move", "Up Down  j k  Tab  Home End  gg G  PageUp PageDown"),
+            ("Choose", "Enter  double click"),
+            ("Change a setting", "Enter  Left Right  h l  :set key=value"),
+            ("Find", "/ then n N or F3"),
+            ("Copy", "y"),
+            ("Undo, redo", "u  Ctrl-Z    Ctrl-R  Ctrl-Y"),
+            ("Go back", "Esc  Backspace  Ctrl-O"),
+            ("Stop a run", "Esc  Ctrl-C"),
+            ("Save, leave", "Ctrl-S  :w    :q  ZZ  Ctrl-C"),
+            ("This page", "?  F1  :help"),
         )
+        lines = [f"{NAME} keys", ""]
+        for task, keys in tasks:
+            lines.append(f"  {task:<18} {keys}")
+        lines += [
+            "",
+            "Commands",
+            "  :ask   :draw   :draw question//world//reading   :ledger   :modules",
+            "  :settings   :set option=value   :vol N   :mute   :checkhealth",
+            "  :w   :help   :q",
+            "",
+            f"{leader}{leader} goes back to the menu from anywhere, and every list "
+            "answers the mouse.",
+        ]
         return "\n".join(lines)

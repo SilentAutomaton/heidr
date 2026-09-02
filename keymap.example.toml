@@ -74,6 +74,7 @@ leader = "space"
 "Q" = "quit"
 
 [leader]
+"space" = "menu"       # the leader twice goes home
 "a" = "ask"
 "c" = "compose"
 "d" = "draw"
