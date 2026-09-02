@@ -3,16 +3,18 @@
 ## The idea
 
 A fixed pipeline gets boring after three runs: once you can see the mechanism,
-the program is just a button. So the *rite itself* is the variable. Three slots,
-each holding a set of interchangeable modules, and a lottery draws one module
-per slot before every session.
+the program is just a button. So the chain itself is the variable. There are
+three slots, each holding a set of interchangeable modules, and one module is
+picked at random for each slot before every run.
 
 ```
-question ──> [slot A: question] ──> Key ──> [slot B: world] ──> Material ──> [slot C: reading] ──> answer
+question ──> [slot A: question] ──> Key ──> [slot B: source] ──> Material ──> [slot C: reading] ──> answer
 ```
 
-With ten question modules, twelve world modules and eight readings there are 960
-distinct rites. You never learn the schema, because it never settles.
+Ten question modules, twelve sources and eight readings make 960 distinct
+chains. The schema never settles long enough to be learnt. The code calls a
+chain a `Rite` and the interface calls it a "rite"; this document calls it a
+run, because that is what it is.
 
 ## Contracts
 
@@ -25,8 +27,8 @@ Material(text: str, numbers: tuple[int, ...], source: str, extra: dict)
 ```
 
 `seed` supplies addresses, frequencies and indices. `anchors` are the words a
-world module looks for in what it finds. Any slot A module fits any slot B
-module, because the contract is the only thing they share.
+source looks for in what it fetches. Any slot A module fits any slot B module,
+because the contract is the only thing they share.
 
 Module signatures:
 
@@ -50,12 +52,12 @@ def run(ctx, key): ...
 ```
 
 Discovery walks `heidr/question`, `heidr/world`, `heidr/reading`,
-`heidr/visuals` and then `~/.config/heidr/modules/*.py`. Dropping a file in the
-user directory is enough to enter the lottery. The core is never edited.
+`heidr/visuals` and then `~/.config/heidr/modules/*.py`. A file dropped in the
+user directory joins the choice without the core being edited.
 
-Every module also declares `available(ctx) -> bool`. No dongle, no network, no
-speech binary — the module simply does not enter the draw, and `:checkhealth`
-explains why.
+Every module also declares `available(ctx) -> bool`. A missing dongle, an
+unreachable network or an absent speech binary keeps it out of the choice, and
+`:checkhealth` explains which of the three it was.
 
 ## Events, not wiring
 
@@ -70,7 +72,7 @@ ctx.emit("stage", name)
 
 A visualisation does not know which module feeds it, and a module does not know
 who draws it. Adding a visualisation means subscribing to an event that already
-exists — no change anywhere else.
+exists, and nothing else changes.
 
 ## Configuration
 
@@ -88,8 +90,8 @@ A bare Linux console reports eight colours, blocks and boxes but no braille and
 no graphics.
 
 Two stylesheets follow from that, and every visualisation declares the glyph
-level it needs. The waterfall exists three times — braille, half blocks, and
-`#.:` — and the right one is chosen for you.
+level it needs. The waterfall exists three times, in braille, in half blocks and
+in `#.:`, and the registry returns whichever one this terminal can draw.
 
 ## Audio
 
@@ -110,113 +112,111 @@ live from the interface.
 
 The same dongle serves two purposes that must not be confused with each other.
 
-**As a source of entropy.** `sdr_noise` tunes to an empty frequency and takes
-the noise floor itself. Nothing is being listened to; the samples are debiased
-and whitened, and what comes out is a number. This is the oldest use of the
-radio here and it stays.
+As a source of entropy, `sdr_noise` tunes to an empty frequency and samples the
+noise floor. Nothing is being listened to: the samples are debiased, whitened,
+and turned into a number. This is the oldest use of the radio here and it stays.
 
-**As a source of voices.** `fm_voice`, `sw_voice` and `mw_voice` tune to real
-transmitters and turn what people are saying into text. Here the content is the
-whole point.
+As a source of voices, `fm_voice`, `sw_voice` and `mw_voice` tune to real
+transmitters and turn speech into text. There the content is what matters.
 
-They are not alternatives. One asks the world for a number, the other asks it
-for words, and the lottery may draw either. A voice module that finds an empty
-band is not falling back on the entropy module — it simply found an empty band.
+The two are not alternatives, and either can be picked. A voice module that
+lands on an empty band has not fallen back on the entropy module; it has found
+an empty band, which is a different fact about the evening.
 
 ## Nothing waits forever
 
-A rite talks to a radio, to public endpoints and to a daemon, and every one of
-them can be slow. A timeout handed to `requests` bounds one socket operation,
-not the whole exchange: a slow public feed held a draw for eighty seconds
+A run talks to a radio, to public endpoints and to a daemon, and any of them can
+be slow. A timeout handed to `requests` bounds one socket operation rather than
+the whole exchange: a slow public feed once held a run for eighty seconds
 without ever exceeding a ten second timeout.
 
 So waiting is bounded in one place per kind of wait.
 
 `heidr/net.py` runs a fetch in a thread and abandons it when the budget is
 spent, raising a message that names the host and says what to do. Every network
-world module goes through it.
+source goes through it.
 
 `entropy.collect` asks all its sources at once and keeps whatever answered
 within the budget. A source that is too slow is simply absent from the mix,
 which is the same as being unreachable, and the seed is never short of material
 because `os.urandom` and the clock are always in it.
 
-The radio fails loudly rather than quietly. A capture that returns no samples
-does not become a hash of nothing: it raises, and the draw is recorded as void.
+The radio fails loudly. A capture that returns no samples never becomes a hash
+of nothing: it raises, and the run is recorded as void.
 
 ## A module that cannot answer
 
-A rite talks to feeds, daemons and hardware, and any of them can be silent
-today. Until recently the first silence ended everything: an unreachable feed, a
-field missing from a reply, a dongle held by another program, and the whole rite
-stopped with thirteen other worlds standing idle beside it.
+Every source can be unavailable today. Until recently the first failure ended
+the whole run: an unreachable feed, a field missing from a reply, a dongle held
+by another program. Thirteen other sources stood idle while that happened.
 
-Now the slot draws again. The lottery had already chosen honestly; a module that
-cannot answer is a source gone quiet, not an answer somebody disliked, so
-putting another in its place is not a second roll of the dice.
+Now the slot picks again. The choice was made at random in the first place, and
+a module that cannot answer is unavailable rather than unwanted, so replacing it
+does not repeat the draw.
 
-| What happened | What the rite does |
+| What happened | What the run does |
 |---|---|
-| `Unavailable` | Draws another module for the slot |
-| Anything else raised — a parse error, a missing field | The same |
-| Material with neither text nor numbers | The same: the source said nothing |
-| A reading that yields no lines | The same, unless silence is what it is for |
-| `Cancelled` | Stops. This is the reader's own decision, not a failure |
+| `Unavailable` | Picks another module for the slot |
+| Any other exception, such as a parse error or a missing field | The same |
+| Material with neither text nor numbers | The same: the source returned nothing |
+| A reading that yields no lines | The same, unless it declares that it returns none |
+| `Cancelled` | Stops. The reader asked for it, so it is not a failure |
 
-`rite.attempts` sets how many modules a slot may try, three by default; one
-restores the old behaviour where the first silence ends the rite. When the
-attempts run out, or no module is left, the rite gives up and names the last
+`rite.attempts` sets how many modules a slot may try, three by default. One
+restores the old behaviour where the first failure ends the run. When the
+attempts run out, or no module is left, the run gives up and repeats the last
 refusal it was given.
 
 A reading is the one slot that can fail in the middle of a sentence. If it broke
-before saying anything, another reading is drawn. If it broke after saying
-something, what it said is kept and the rite ends there — running it again would
-say the first line twice.
+before producing a line, another reading is picked. If it broke after producing
+one, what it produced is kept and the run ends there, because running it again
+would repeat the first line.
 
-Silence needs declaring rather than guessing, so a module says so:
-`@reading("mute", silent=True)`. Only such a module is allowed to answer with
-nothing.
+An empty answer has to be declared rather than guessed at, so the module states
+it: `@reading("mute", silent=True)`. Only a module that says this may return
+nothing without being replaced.
 
-Everything that gave way is on screen while it happens, and in the entry
-afterwards as an `Instead` header. A substitution nobody can see would be a lie
-by omission.
+Every module that gave way appears on screen at the moment it happens, and in
+the entry afterwards under an `Instead` header. A substitution the reader cannot
+see would be a lie by omission.
 
 ## Ledger
 
-Draws are stored as one plain text file each, in the manner of `dreamdir`: a
+Runs are stored as one plain text file each, in the manner of `dreamdir`: a
 fixed width identifier, a `key: value` header, a blank line, then the body.
 Greppable, readable by a human, and still readable in ten years without this
 program.
 
-The hash of the question is written *before* the draw, and each entry chains to
-the previous one. Re-rolling after an unwanted answer is not possible, and the
-whole history verifies with one command.
+The hash of the question is written before anything is fetched, and each entry
+is sealed against the one before it. Asking again after an unwanted answer is
+not possible, and the whole history verifies with one command.
 
 An entry ends in one of three states, and the difference matters:
 
 | Status | Meaning | Can the question be asked again? |
 |---|---|---|
-| `complete` | The rite ran and something was said | Not for a day |
-| `broken` | The world answered, nothing read it | Yes, at once |
+| `complete` | The run finished and produced lines | Not for a day |
+| `broken` | A source answered and no reading could read it | Yes, at once |
 | `void` | Nothing was found at all | Yes, at once |
 
-The rule is about not re-rolling an unwelcome answer, not about spending a
-question on a timeout, so a question is spent by an **answer arriving** and by
-nothing else. `void` and `broken` differ in what the journal records — whether
-it came to material at all — and neither of them costs the asker anything.
+The rule exists to stop a second attempt at an unwelcome answer, not to spend a
+question on a timeout. A question is therefore spent by an answer arriving, and
+by nothing else. `void` and `broken` record different facts, namely whether any
+material was found, and neither of them costs the asker anything.
 
-Silence is the exception that proves it: a rite the lottery silenced, or one
-read by `mute`, is complete and does spend the question. The oracle answered by
-keeping its mouth shut, and the material stands in the entry as the answer.
+One case looks like a failure and is not. A run silenced by the random choice,
+or read by `mute`, counts as complete and does spend the question: returning
+nothing was the outcome, and the material in the entry stands in place of the
+answer.
 
 The hold lasts a day rather than for good. "How will today go" is a different
 question tomorrow, and the entry already carries the date it was promised on, so
 the rule reads it instead of scanning the whole history for ever. `ledger.repeat_after_h`
 sets the window, and zero restores the older rule where a question was spent
-permanently. A date nobody can parse keeps the question spent: the rule is lifted
-by time passing, never by a file going wrong.
+permanently. A date nobody can parse keeps the question spent: only time lifts
+the rule, never a damaged file.
 
-A rite that was **chosen** rather than drawn — `:draw rarest//babel//iching`, or
-the same thing picked from the menu — skips the check entirely and is marked
-`(chosen)` in the entry. Putting one question to several chains is an experiment,
-not a second roll, and the mark is there so the two can never be confused.
+A chain named by hand skips the check entirely: `:draw rarest//babel//iching`,
+or the same thing picked from the menu. Such an entry is marked `(chosen)`.
+Putting one question to several chains is an experiment, and the mark keeps it
+apart from a chain that was picked at random.

@@ -27,7 +27,7 @@ signal then really did come out of the sky and into your house.
 4. Barometric altitude and track angle become the numbers.
 
 Nothing is fetched until latitude and longitude are set. Until then the module
-reports itself unavailable and stays out of the lottery, because an oracle
+reports itself unavailable and is left out of the choice, because a program
 pointed at the sky above the Gulf of Guinea is not pointed at yours.
 
 ## Settings

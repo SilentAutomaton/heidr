@@ -21,7 +21,7 @@ only final results.
 
 | `stt.provider` | Kind | Notes |
 |---|---|---|
-| `vosk` | genuinely streaming | Partial words appear while you are still speaking. Weaker on noisy shortwave, but right for dictation |
+| `vosk` | streaming | Partial words appear while you are still speaking. Weaker on noisy shortwave, but right for dictation |
 | `whisper_cpp` | window at a time | Nothing until the window closes, then a much better transcript. Right for radio |
 | `api` | hosted | The OpenAI transcription shape, which other services copied |
 
@@ -65,8 +65,8 @@ module's document.
 ## When a provider cannot be used
 
 A missing model, a missing binary or a missing key is checked at probe time, not
-in the middle of a rite. The `stt` capability is dropped, voice input says so,
-the radio modules that need transcription leave the lottery, and everything else
+in the middle of a run. The `stt` capability is dropped, voice input says so,
+the radio sources that need transcription are left out, and everything else
 keeps working.
 
 ## Why whisper.cpp is built the way it is
@@ -74,8 +74,8 @@ keeps working.
 The build is CPU only, `-march=native`, a pinned version, and no CUDA at all.
 That is deliberately not the fastest arrangement available on this machine. The
 trade is speed for durability: a driver update, a CUDA version change or an
-ollama reinstall cannot break it, and an oracle that stops working after a system
-upgrade is not an oracle.
+ollama reinstall cannot break it, and a program that stops working after a system
+upgrade is worse than a slow one.
 
 ## Building it
 

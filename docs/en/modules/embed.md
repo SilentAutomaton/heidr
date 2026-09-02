@@ -1,4 +1,4 @@
-# embed — question rite
+# embed — question module
 
 ## What it does
 
@@ -12,7 +12,7 @@ is `nomic-embed-text`.
 
 The module works with ollama only: ordinary chat providers do not serve
 embeddings, and carrying a second client for it would not be worth the weight.
-With any other provider the rite stays out of the lottery.
+With any other provider the module is left out of the choice.
 
 ## How it is processed
 

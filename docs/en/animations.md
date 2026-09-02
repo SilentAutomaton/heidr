@@ -11,7 +11,7 @@ def paint(frame: Frame) -> list[str]:
     ...
 ```
 
-The frame carries everything a painter is allowed to know — `width`, `height`,
+The frame carries everything a painter is allowed to know: `width`, `height`,
 `tick`, the character `ramp`, the terminal's `glyphs`, and the last event as
 `payload`. Geometry arrives on every frame and is never remembered, which is why
 the terminal can be resized in the middle of a capture and nothing notices.
@@ -27,7 +27,7 @@ it each event of the name the animation declared.
 ## Adding one
 
 One file in `heidr/visuals/art/`, one function or class, one decorator. No core
-file is edited, exactly as with a module of the world.
+file is edited, exactly as with a source module.
 
 Declare the glyph level honestly. An animation that needs braille will simply
 not be chosen in a bare console, and that is correct behaviour rather than a
@@ -60,7 +60,7 @@ at rather than only the named ones.
 | Animation | Shown for | What it is |
 |---|---|---|
 | `plasma` | `blind`, idle | Four sine waves radiating from four points |
-| `life` | idle | Conway's rules, seeded from world entropy |
+| `life` | idle | Conway's rules, seeded from the measured entropy |
 | `rain` | idle | Falling columns of glyphs |
 | `starfield` | `planetary`, idle | Stars with parallax |
 | `moon` | `moment`, `calendar`, idle | The phase of the moon, growing with the terminal |
@@ -73,7 +73,7 @@ at rather than only the named ones.
 | `chain` | `chain` | Blocks, with a hash running along them |
 | `dish` | `apt`, `hline` | A dish, and a noise floor rising under it |
 | `cog` | `pythia`, `embed`, `reversal` | A train of meshed gears, turning |
-| `hush` | `mute` | The oracle keeping its mouth shut |
+| `hush` | `mute` | The reading that returns nothing |
 | `hexagram` | `iching` | Six lines building from the bottom up |
 | `cards` | `tarot` | A card turning over |
 | `scissors` | `cutup`, `oblique` | Text cut up and scattered |
@@ -86,16 +86,16 @@ that work is happening, which is the honest amount to say.
 ### Silence is allowed to be funny
 
 `hush` is not one picture but a set, and the lot decides which is shown. The
-oracle has refused to answer, and this is the one place the program is allowed
+reading has returned nothing, and this is the one place the program is allowed
 a joke: there is no answer either way, so there is nothing to lose.
 
 The set holds the serious figure with a finger to its lips and the thoroughly
-unserious shrug, `¯\_(ツ)_/¯`. The glyph ladder applies here too — `ツ` is
+unserious shrug, `¯\_(ツ)_/¯`. The glyph ladder applies here too. `ツ` is
 katakana and a console font usually has none, so the same pose exists in plain
 ASCII for poor terminals.
 
-The dignity of the rite is not damaged by this. Only the absence of an answer
-jokes; the answer itself, when there is one, is delivered straight.
+Nothing else takes this tone. The joke belongs to the empty answer alone, and a
+real answer is shown plainly.
 
 ## Where it is drawn
 
@@ -107,7 +107,7 @@ background so the animation behind it never makes the reading harder to read.
 even when that widget's background is fully transparent: the compositor gives
 the cell to whoever is on top, and blending colours does not bring the glyphs
 underneath back. A full width container over the canvas is therefore the same
-thing as no animation at all — which is exactly what happened here for a whole
+thing as no animation at all, which is exactly what happened here for a whole
 cycle, while every test about sizes and stylesheets stayed green.
 
 The test that catches it composites the screen and looks for the characters of
@@ -120,7 +120,7 @@ the width and wraps its text, so it can never grow to cover everything.
 
 ## The panel
 
-The rite is shown in labelled blocks rather than as one flat run of text:
+A run is shown in labelled blocks rather than as one flat stretch of text:
 
 ```
 · gematria  //  · babel  //  ▸ pythia
@@ -141,13 +141,13 @@ characters was cut at the edge and the rest was simply gone from the screen,
 with nothing to say so. The material is capped at ten lines and says how much is
 left over; the whole of it is always in the ledger.
 
-The material appears as soon as the world hands it over, on a `found` event,
-rather than when the whole rite finishes. A reading through a language model
+The material appears as soon as the source hands it over, on a `found` event,
+rather than when the whole run finishes. A reading through a language model
 takes half a minute, and there is no reason to stare at nothing meanwhile.
 
-A message that ends a rite — a refusal, a failure, a reading that said nothing —
-is written into the panel with a `!` in the accent colour, and repeated in the
-bottom line. Small talk, such as a setting that changed, stays at the bottom
+A message that ends a run is written into the panel with a `!` in the accent
+colour and repeated in the bottom line: a refusal, a failure, or a reading that
+produced no lines. Small talk, such as a setting that changed, stays at the bottom
 alone.
 
 ## The question field
@@ -163,20 +163,20 @@ brightens, and the hem of her cloak swings; nothing else. Below seventy four
 columns she is dropped and the field keeps the room: half a figure beside half a
 field helps nobody.
 
-Her marks — the eyes, the mouth, the head of the staff, the hem — are found in
+Her marks, the eyes and the mouth and the head of the staff and the hem, are found in
 the drawing at import time rather than written down as coordinates. The drawing
 changed once and the coordinates did not, and her face came out bent.
 
 ## The stage bar
 
-A rite has three slots, and the panel shows them across the top:
+A run has three slots, and the panel shows them across the top:
 
 ```
 · gematria  //  ▸ babel  //    ...
 ```
 
 A slot that has run is dotted, the slot at work is pointed at, and a slot the
-rite has not reached yet is named `...`. The stages are learnt one at a time
+run has not reached yet is named `...`. The stages are learnt one at a time
 from the same events that swap the animation, so the bar cannot show a module
 before it is really chosen.
 
@@ -200,7 +200,7 @@ dongle.
 
 ## The window title
 
-The title is the only thing visible when the window is not. While a rite runs it
+The title is the only thing visible when the window is not. While a run is going it
 reads:
 
 ```
@@ -208,14 +208,14 @@ reads:
 ```
 
 The spinner comes first, then the sign, then the module at work and how far it
-has got. In between rites it is the sign alone, with no trailing dashes or
+has got. Between runs it is the sign alone, with no trailing dashes or
 zeroes, and the program restores it on the way out so nothing is left spinning
 in a window list.
 
 The spinner is braille where the terminal draws braille and `|/-\` where it does
 not. Progress comes from a `progress` event carrying a done and a total. The
 sweep across the band sends it, because it is the longest thing the program
-does; a module that sends nothing shows the stage of the rite instead, `2/3`.
+does; a module that sends nothing shows the stage of the run instead, `2/3`.
 Inventing a percentage for work that cannot measure itself would be worse than
 saying nothing.
 
@@ -236,8 +236,8 @@ The plasma field and the turning cog come from
 [asciimatics](https://github.com/peterbrittain/asciimatics) by Peter Brittain,
 Apache-2.0.
 
-The register of the listening screen — an ASCII spectrum scrolling in the
-terminal — comes from
+The register of the listening screen, an ASCII spectrum scrolling in the
+terminal, comes from
 [retrogram-rtlsdr](https://github.com/r4d10n/retrogram-rtlsdr) by r4d10n.
 
 The text reveal mechanic comes from

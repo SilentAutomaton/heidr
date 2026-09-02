@@ -38,8 +38,8 @@ def draw_rite(config: Config) -> Rite: ...
 
 ## Errors the user sees
 
-Three parts, in this order: what happened, why, what to do. No codes, no
-tracebacks, no blame.
+Three parts, in this order: what happened, why, what to do. No exception class
+names, no tracebacks, and nothing that blames the reader.
 
 ```python
 # no
@@ -79,7 +79,7 @@ The Russian files in `docs/ru/` are written in proper literary Russian. They are
 connected prose, not a word-for-word rendering of the English and not a pile of
 clipped fragments: full sentences, real transitions between paragraphs, a term
 introduced only when it is needed and explained the first time it appears. A
-table belongs where the data is genuinely tabular — module lists, licences,
+table belongs where the data is tabular: module lists, licences,
 signatures — but an explanation is never replaced by one.
 
 The test is simple: read a paragraph aloud. If it sounds like the translated

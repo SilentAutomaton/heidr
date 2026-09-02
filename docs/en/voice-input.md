@@ -10,7 +10,7 @@ talk, and the words appear in the input line as they are recognised.
 The microphone is used here and nowhere else in this program.
 
 It does not record ambience, it is not an entropy source, it takes part in no
-rite, and it never turns itself on. The oracle listens to the air, not to the
+run, and it never turns itself on. The program listens to the air, not to the
 room — and that is not a promise in the documentation but a property of the code:
 `sounddevice.InputStream` is opened in exactly one place in the whole project,
 `heidr/mic.py`.

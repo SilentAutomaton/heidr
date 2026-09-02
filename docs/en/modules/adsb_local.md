@@ -41,7 +41,7 @@ and then the material comes back empty.
 ## Dependencies
 
 An RTL-SDR dongle plugged in and `dump1090` running. The module checks the port
-and stays out of the lottery when nothing answers.
+and is left out of the choice when nothing answers.
 
 ## Sources
 

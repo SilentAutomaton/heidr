@@ -30,8 +30,8 @@ open, which frequency to listen to, or which of several findings to prefer. By
 the time it is called, the finding is already fixed and already written into the
 ledger's commitment. The model reads it and nothing else.
 
-This module stays out of the lottery when no provider is configured, so an
-oracle with no model still works — it simply draws one of the readings that
+This module is left out of the choice when no provider is configured, so an
+program with no model still works: it picks one of the readings that
 needs nothing.
 
 ## Settings

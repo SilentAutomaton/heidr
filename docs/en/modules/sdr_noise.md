@@ -2,7 +2,7 @@
 
 ## What it does
 
-Listens to an empty frequency and hands the rite the noise itself — not a
+Listens to an empty frequency and hands the run the noise itself, rather than a
 signal, but what is left when there is no signal.
 
 ## Where the data comes from

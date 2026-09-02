@@ -2,7 +2,7 @@
 
 ## What it does
 
-Takes the last hour of earthquakes and hands one of them to the rite.
+Takes the last hour of earthquakes and hands one of them to the run.
 
 ## Where the data comes from
 
@@ -13,14 +13,14 @@ the past hour:
 https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
 ```
 
-No key, no account, no terms beyond ordinary courtesy. The feed usually holds
+The feed needs no key and no account, and asks only for ordinary courtesy. The feed usually holds
 somewhere between ten and a hundred events.
 
 ## How it is processed
 
 1. The feed is fetched and its list of events read.
 2. The key's seed selects one of them, modulo however many there are — so the
-   choice depends on the question rite, not on a fresh coin toss.
+   choice depends on the question module rather than on a fresh coin toss.
 3. The place name becomes the material's text; the magnitude in tenths and the
    depth in kilometres become its numbers; coordinates go into the extras.
 

@@ -6,14 +6,14 @@ usually no test of its own. There are four kinds.
 | Kind | Package | Signature |
 |---|---|---|
 | Question | `heidr/question/` | `run(ctx, question) -> Key` |
-| World | `heidr/world/` | `run(ctx, key) -> Material` |
+| Source | `heidr/world/` | `run(ctx, key) -> Material` |
 | Reading | `heidr/reading/` | `run(ctx, question, material) -> Iterator[str]` |
 | Visual | `heidr/visuals/` | a widget subscribing to an event |
 
 You can also drop the same file into `~/.config/heidr/modules/` and it joins the
-lottery without touching the repository.
+choice without touching the repository.
 
-## A complete world module
+## A complete source module
 
 `heidr/world/quake.py`:
 
@@ -53,10 +53,10 @@ def run(ctx, key: Key) -> Material:
 That is the whole module. Notes:
 
 - `needs` uses the known capability names: `net`, `sdr`, `stt`, `llm`, `audio`.
-  The lottery skips a module whose needs are not met.
+  A module whose needs are unmet is left out of the choice.
 - `available()` is a cheap probe. It must never raise and never block for long.
 - Raising is allowed and expected. A feed that will not answer, a reply that
-  will not parse, a device somebody else is holding: raise, and the rite draws
+  will not parse, a device somebody else is holding: raise, and the run picks
   another module for the slot rather than ending. Returning material with no
   text and no numbers means the same thing and is treated the same way.
 - A reading whose whole point is to say nothing declares it:

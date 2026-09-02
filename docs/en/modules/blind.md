@@ -1,4 +1,4 @@
-# blind — question rite
+# blind — question module
 
 ## What it does
 
@@ -16,7 +16,7 @@ are produced, so the world module has nothing to search for and must return
 whatever it finds.
 
 This is the double blind case. When it is drawn, nothing you wrote can steer
-where the answer comes from — which is the strongest form of the guarantee the
+where the answer comes from, which is the strongest form of the guarantee the
 whole program is built on.
 
 ## Dependencies

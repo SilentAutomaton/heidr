@@ -1,4 +1,4 @@
-# reversal — question rite
+# reversal — question module
 
 ## What it does
 
@@ -28,7 +28,7 @@ It rewrites the question — it changes where the gaze is pointed. What is in th
 direction is still the world's business: the key leads to a page, a frequency or
 an aircraft overhead, and the model knows nothing about that and never will.
 
-With no provider configured the rite simply stays out of the lottery.
+With no provider configured the module is left out of the choice.
 
 ## Dependencies
 

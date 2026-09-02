@@ -19,7 +19,7 @@ from, and the five places where the two cannot agree.
 | `i` `a` `A` `I` `o` `O` | insert at six different places in the line | all open the question field |
 | `<space>a` | — | the same, from the menu |
 | `:ask`, `:draw` | — | the same |
-| `:draw question//world//reading` | — | name the rite instead of drawing it |
+| `:draw question//world//reading` | — | name the chain instead of leaving it to chance |
 | `Ctrl-V` while typing | — | dictate instead of typing |
 
 There is one field and one place in it, so all six do the same thing. That is
@@ -35,7 +35,7 @@ not carelessness: the point is that the hand cannot miss.
 | `Ctrl-F` `Ctrl-B`, `PageDown` `PageUp` | a whole screen |
 | `{` `}` | the previous and the next group of settings |
 | `Enter` | choose the line under the cursor |
-| `Esc`, `Ctrl-O` | back one level; during a rite, `Esc` stops it |
+| `Esc`, `Ctrl-O` | back one level; during a run, `Esc` stops it |
 
 ## Changing a value
 
@@ -73,7 +73,7 @@ backwards is `N` after a `/`, which is enough for a list.
 
 **`h` and `l` change a value; in vim they move left and right.** There is no
 horizontal movement in a list to be had, and a value really is walked left and
-right — `alsamixer` and the setup screen of `htop` do the same. The arrow keys
+right, as `alsamixer` and the setup screen of `htop` also do. The arrow keys
 do it too, so the hand finds it blind.
 
 **`Ctrl-U` means two things.** Half a screen up in normal mode, delete the line

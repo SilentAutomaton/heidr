@@ -5,9 +5,9 @@ works, what does not, and what to do about it.
 
 ## Why it exists
 
-This program has a lot of optional parts. The dongle, speech recognition, a
-language model, a sound card, the network — without any of them the oracle keeps
-working, just with a smaller set of rites.
+This program has a lot of optional parts: the dongle, speech recognition, a
+language model, a sound card, the network. Without any of them it keeps working,
+only with fewer chains to pick from.
 
 Which means "nothing is broken, that module simply did not come up" and "it is
 broken" look identical from outside. `:checkhealth` is where the difference
@@ -18,8 +18,7 @@ becomes visible.
 **Terminal.** Colour depth, glyph level, graphics protocol. A bare console is a
 warning rather than an error: the program works there, only more plainly.
 
-**Network.** Reachable or not. If not, the network world modules leave the
-lottery.
+**Network.** Reachable or not. If not, the network sources are left out.
 
 **Radio.** Whether an RTL-SDR device is present. On its own line, which of
 `rtl_sdr`, `rtl_fm`, `rtl_power`, `rtl_433` and `dump1090` are installed.
@@ -34,7 +33,7 @@ check that can report `-` rather than `~`: a chain that does not verify means an
 entry was edited by hand, and that cannot be passed over quietly.
 
 **Slots.** How many modules in each slot are usable right now. An empty slot is
-an error too: without one, no rite can be assembled.
+an error too: without one, no chain can be assembled.
 
 ## Reading it
 
@@ -44,7 +43,7 @@ Three marks at the start of a line.
 and the line says what goes with it. `-` is broken and needs fixing.
 
 Plenty of warnings in ordinary use is normal. On a laptop with no dongle plugged
-in the oracle will honestly show six `~` marks and remain entirely usable.
+in it shows six `~` marks and stays entirely usable.
 
 ## Wording
 

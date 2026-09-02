@@ -30,7 +30,7 @@ it into a PNG. The image is kept, and its path becomes the material's text.
 It does not predict passes.
 
 Orbital prediction needs fresh TLE elements and the SGP4 algorithm, which is a
-library and a project of its own. So the draw has to be started while the
+library and a project of its own. So the run has to be started while the
 satellite is actually above the horizon — take the time from any pass predictor.
 
 If no satellite was there, `noaa-apt` finds no picture in the recording, the
@@ -49,7 +49,7 @@ module says so plainly, and the question comes back unspent.
 
 A dongle, a circularly polarised antenna for 137 MHz, `rtl_fm`, and
 [noaa-apt](https://github.com/martinber/noaa-apt) (GPL-3.0) installed. Without
-it the module stays out of the lottery.
+it the module is left out of the choice.
 
 ## Sources
 

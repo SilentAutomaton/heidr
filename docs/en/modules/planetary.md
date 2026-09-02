@@ -1,4 +1,4 @@
-# planetary — question rite
+# planetary — question module
 
 ## What it does
 
@@ -39,7 +39,7 @@ together with the question. The anchor is the planet's name in lower case.
 | `latitude` | 0.0 | Your position, required |
 | `longitude` | 0.0 | Your position, required |
 
-Without a position the module stays out of the lottery: sunrise in the Gulf of
+Without a position the module is left out of the choice: sunrise in the Gulf of
 Guinea has nothing to do with your day.
 
 ## Inside the polar circle
@@ -56,6 +56,6 @@ None. Standard library only.
 ## Sources
 
 Planetary hours are common property and more than a thousand years old. The idea
-of making them a question rite, and of counting day and night hours separately,
+of making them a question module, and of counting day and night hours separately,
 was seen in [Stellium](https://github.com/katelouie/stellium). No code was
 copied.

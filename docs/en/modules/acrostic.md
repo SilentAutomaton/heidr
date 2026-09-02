@@ -1,4 +1,4 @@
-# acrostic — question rite
+# acrostic — question module
 
 ## What it does
 

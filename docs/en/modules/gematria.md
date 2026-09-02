@@ -1,4 +1,4 @@
-# gematria — question rite
+# gematria — question module
 
 ## What it does
 

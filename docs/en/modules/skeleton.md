@@ -1,4 +1,4 @@
-# skeleton — question rite
+# skeleton — question module
 
 ## What it does
 
@@ -19,7 +19,7 @@ years and lost nothing that mattered. Vowels carry grammar; consonants carry the
 root.
 
 A pleasant side effect follows. The anchor `krsh` matches every inflection of a
-word at once. A rite that looks for an exact word trips over grammar; this one
+word at once. A module that looks for an exact word trips over grammar; this one
 does not.
 
 ## Dependencies

@@ -32,7 +32,7 @@ logic a contract test cannot see.
 
 One test per behaviour that can actually break:
 
-- a question rite is deterministic — the same question yields the same key;
+- a question module is deterministic: the same question yields the same key;
 - the Da Yan casting produces the real distribution, where old lines are much
   rarer than young ones, checked statistically over many casts with a tolerance;
 - Von Neumann debiasing removes the bias from a deliberately biased stream;
@@ -66,7 +66,7 @@ Tests never touch the network, the radio or an audio device. Use the fakes in
 | `fake_stt` | any speech provider, yielding fixed text |
 | `tests/fixtures/*.json` | recorded USGS, blockchain, beacon and ADS-B replies |
 
-If a test genuinely needs the real thing, mark it:
+If a test needs the real thing, mark it:
 
 ```python
 @pytest.mark.live

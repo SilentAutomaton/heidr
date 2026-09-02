@@ -33,13 +33,13 @@ This produces the classical distribution, which is **not** uniform:
 
 Casting with three coins instead gives 1/8, 3/8, 3/8, 1/8 — the two kinds of
 change become equally likely, and old yin stops being rare. That is a different
-oracle wearing the same name, and it is the mistake this module exists to avoid.
+book wearing the same name, and this module exists to avoid it.
 
 ### The hand that splits the heap
 
 The split is not a fresh coin toss. The material — its source, its text, its
 numbers — seeds the sequence, so the same finding always yields the same
-hexagram. The randomness of the rite was already spent when the world was
+hexagram. The randomness was already spent when the source was
 consulted; spending more of it here would only dilute what was found.
 
 ### The reading

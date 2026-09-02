@@ -9,7 +9,7 @@ Every registered module: slot, name and state.
 
 | State | Meaning |
 |---|---|
-| `ready` | Works here and now, and is in the lottery |
+| `ready` | Works here and now, and can be picked |
 | `needs sdr, stt` | Something listed is missing |
 | `unavailable` | The module's own probe said no |
 | `off` | You switched it off |
@@ -20,12 +20,12 @@ hardware, the second with the same `Enter` key.
 
 Navigation: `j` and `k` or the arrow keys move, `PageUp` and `PageDown` jump by
 a screenful, `Enter` toggles and so do `h` and `l`. A module switched off leaves
-the lottery immediately, with no restart.
+the choice immediately, with no restart.
 
 ## `:settings`
 
 Every configurable option the program has: interface, audio, language model,
-speech, rite, ledger, and every option every module declares. Each shows its
+speech, run, ledger, and every option every module declares. Each shows its
 effective value across all layers, not what happens to be written in the file.
 A module's options are read from the module itself, so a new module brings its
 own settings into this list with nothing to register.

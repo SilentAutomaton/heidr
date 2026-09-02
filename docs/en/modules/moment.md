@@ -1,4 +1,4 @@
-# moment — question rite
+# moment — question module
 
 ## What it does
 
@@ -20,7 +20,7 @@ The moon's age becomes one of eight names, from new moon to waning crescent. The
 name and the timestamp are hashed into the key's number, and the name itself is
 the anchor.
 
-## How this rite differs
+## How this module differs
 
 Like [blind](blind.md) it ignores the words of the question. But where `blind`
 discards content for the sake of a double blind, `moment` replaces it with

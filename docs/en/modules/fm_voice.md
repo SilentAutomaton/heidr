@@ -8,7 +8,7 @@ plays what is there out loud, and transcribes it.
 ## Where the data comes from
 
 An RTL-SDR dongle through `rtl_fm`, from ordinary 88–108 MHz radio. This is the
-one module where the oracle can be heard.
+one module you can listen to.
 
 ## How it is processed
 
@@ -40,7 +40,7 @@ same instant.
 The gathered audio is decimated to sixteen kilohertz and handed to the speech
 provider. Finished phrases become the material's text.
 
-If the question rite produced anchors, phrases containing those words are kept.
+If the question module produced anchors, phrases containing those words are kept.
 But if nothing matches, everything is kept: staying silent because the air did
 not happen to say your word would be cheating in the other direction.
 
@@ -62,7 +62,7 @@ retuning.
 ## Dependencies
 
 An RTL-SDR dongle plugged in, `rtl_fm` on the system, and a configured speech
-provider. Missing any of the three keeps the module out of the lottery. A sound
+provider. Missing any of the three keeps the module out of the choice. A sound
 card is optional: without one everything works silently.
 
 ## Sources

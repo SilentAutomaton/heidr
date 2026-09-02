@@ -69,7 +69,7 @@ All five change live and need no restart.
 ## Who owns the levels
 
 The interface holds one `Levels` object, and the volume keys change that object
-rather than a copy of the numbers. It travels into the rite on the context as
+rather than a copy of the numbers. It travels into the run on the context as
 `ctx.levels`, and the sweep hands it to the `Output` it opens, so `-`, `+` and
 `m` reach a station **while it is still playing** instead of at the next draw.
 
@@ -93,7 +93,7 @@ exists so it cannot happen twice.
 
 `sounddevice` is imported lazily, and if that fails `Output` keeps running dry:
 blocks are processed, the spectrum is computed, the waterfall draws, and nothing
-leaves. The oracle stays fully usable, just silent.
+leaves. The program stays fully usable, just silent.
 
 ## Dependencies
 

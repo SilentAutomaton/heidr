@@ -1,4 +1,4 @@
-# calendar — question rite
+# calendar — question module
 
 ## What it does
 

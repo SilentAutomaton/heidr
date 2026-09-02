@@ -11,8 +11,8 @@ The material, and a local file: `heidr/data/tarot.txt`, one line per card.
 
 ## How it is processed
 
-1. The material seeds the shuffle — the same finding always draws the same
-   cards. As with `iching`, the randomness of the rite was spent when the world
+1. The material seeds the shuffle, so the same finding always deals the same
+   cards. As with `iching`, the randomness was spent when the source
    was consulted.
 2. Cards are sampled without replacement, so a spread never repeats a card.
 3. Each card is drawn upright or reversed, and gets the matching line.
@@ -41,6 +41,6 @@ Pollack, and every deck's little white book — are under copyright. The two lin
 per card in `tarot.txt` were written for this project. Point `deck` at a file of
 your own for anything else.
 
-No ASCII art was borrowed. Several MIT-licensed decks exist, notably
+No ASCII art was borrowed. Several MIT-licensed decks exist, among them
 [lawreka/ascii-tarot](https://github.com/lawreka/ascii-tarot); none of it is in
 this repository.

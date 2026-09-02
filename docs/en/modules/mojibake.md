@@ -7,8 +7,8 @@ character encoding, keeping whatever accidentally spells out as letters.
 
 ## Where the data comes from
 
-`os.urandom`, which draws from the kernel entropy pool. No network, no hardware,
-no files. This is the module that keeps the oracle working with the dongle
+`os.urandom`, which reads the kernel entropy pool. It needs no network, no
+hardware and no files, which is what keeps the program working with the dongle
 unplugged and the network down.
 
 ## How it is processed
@@ -21,7 +21,7 @@ unplugged and the network down.
 4. The runs become the material's text, their lengths become its numbers.
 
 Nothing here pretends the runs are words. They are the shapes that survive being
-read wrongly, which is the whole point.
+read wrongly, which is what the module is for.
 
 ## Settings
 

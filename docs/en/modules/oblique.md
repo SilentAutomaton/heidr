@@ -6,7 +6,7 @@ Draws exactly one terse instruction from a deck and says nothing else.
 
 ## Where the data comes from
 
-A flat text file, `heidr/data/strategies.txt`, read from disk. The rite never
+A flat text file, `heidr/data/strategies.txt`, read from disk. The module never
 goes to the network for meaning: a website must not be able to stay silent when
 you have asked a question.
 
