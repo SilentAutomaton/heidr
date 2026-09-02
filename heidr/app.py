@@ -258,7 +258,9 @@ class HeidrApp(App):
             return
         line = self.query_one(CommandLine)
         if self.drawing:
-            line.say(text("error.already_drawing"), level="error")
+            # Not the outcome of a rite but an answer to what was just pressed,
+            # so it keeps the loud marker rather than the answer's place.
+            self._announce(text("error.already_drawing"))
             return
 
         self._enter("rite")
