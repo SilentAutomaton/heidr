@@ -110,6 +110,8 @@ class HeidrApp(App):
         self.said: list[str] = []
         self.notice = ""
         self.notes: list[str] = []
+        # Where the rows begin on screen, and which row is at the top of them.
+        self.rows_at = (0, 0)
         # What stands in the place of an answer when there is none: a heading
         # and a paragraph saying what happened and what it cost.
         self.unanswered: tuple[str, str] = ("", "")
@@ -567,17 +569,17 @@ class HeidrApp(App):
         room = size.height - CHROME_ROWS - PANEL_PADDING - 1
         if self.view == "menu":
             if not self.settings.get("ui.splash", True):
-                return browser.render(self.rows, self.cursor, "", room)
+                return self._listed(room, 0, "")
             splash = self._splash()
-            listed = browser.render(self.rows, self.cursor, "", room - splash.plain.count("\n") - 2)
+            above = splash.plain.count("\n") + 2
             body = splash.copy()
-            body.append(f"\n\n{listed}")
+            body.append(f"\n\n{self._listed(room - above, above, '')}")
             return body
         if self.view.startswith("choose."):
             heading = text("prompt.choose", slot=self.view.split(".")[1])
-            return f"{heading}\n\n{browser.render(self.rows, self.cursor, '', room - 2)}"
+            return f"{heading}\n\n{self._listed(room - 2, 2, '')}"
         if self.view in ("modules", "settings", "ledger"):
-            return browser.render(self.rows, self.cursor, self.empty, room)
+            return self._listed(room, 0, self.empty)
         if self.view == "ask":
             return prompt.panel(
                 self.query_one(CommandLine).buffer,
@@ -591,6 +593,16 @@ class HeidrApp(App):
         if not self.asked:
             return self._splash()
         return self._rite_panel(panel.room(size.width))
+
+    def _listed(self, room: int, above: int, empty: str) -> str:
+        """Draw the rows, and remember where they landed for the mouse.
+
+        The pointer is turned back into a row by the same numbers the drawing
+        used, so the two cannot drift apart.
+        """
+        start, _end = browser.window(len(self.rows), self.cursor, room)
+        self.rows_at = (above, start)
+        return browser.render(self.rows, self.cursor, empty, room)
 
     def _rite_panel(self, width: int):
         """The rite in labelled blocks: what was asked, what was found, what was said."""
@@ -620,6 +632,42 @@ class HeidrApp(App):
         # simply plain and the accent carries the whole difference.
         dim = "dim" if self.terminal.colours > 16 else ""
         return dim, mark.accent(self.terminal.colours)
+
+    # The mouse
+
+    def on_click(self, event) -> None:
+        """The first thing anybody tries is a click, so it has to do something."""
+        if event.widget is not self._body():
+            return
+        if self.view == "ask":
+            self.do_ask()
+            return
+        number = self._row_at(event.y)
+        if number is None:
+            return
+        self.cursor = number
+        self._show_rows()
+        if event.chain > 1:
+            # One click chooses the line, two run it: a stray touch must not
+            # start anything.
+            self.do_choose()
+
+    def _row_at(self, y: int) -> int | None:
+        above, start = self.rows_at
+        if not self.rows:
+            return None
+        number = start + y - PANEL_PADDING // 2 - above
+        return number if 0 <= number < len(self.rows) else None
+
+    def on_mouse_scroll_down(self, event) -> None:
+        self._move_cursor(1)
+
+    def on_mouse_scroll_up(self, event) -> None:
+        self._move_cursor(-1)
+
+    def _body(self):
+        found = self.query("#body")
+        return found.first(Static) if found else None
 
     # Visualisations
 

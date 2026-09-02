@@ -543,3 +543,71 @@ async def test_control_c_leaves_when_nothing_is_running(default_config):
         await pilot.pause()
 
         assert not pilot.app.is_running
+
+
+# The mouse
+
+
+@pytest.mark.asyncio
+async def test_a_click_puts_the_cursor_on_the_line(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.click("#body", offset=(4, 3))
+
+        assert pilot.app.cursor == 2
+
+
+@pytest.mark.asyncio
+async def test_a_click_lands_right_under_a_heading_too(default_config):
+    """The menu has the wordmark above the rows, and the picker a heading."""
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        above, _start = pilot.app.rows_at
+        await pilot.click("#body", offset=(4, above + 2))
+        assert pilot.app.cursor == 1
+
+        await pilot.press("space", "c")
+        above, _start = pilot.app.rows_at
+        await pilot.click("#body", offset=(4, above + 2))
+        assert pilot.app.cursor == 1
+
+
+@pytest.mark.asyncio
+async def test_one_click_chooses_and_two_run_it(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        above, _start = pilot.app.rows_at
+        await pilot.click("#body", offset=(4, above + 3))
+        assert pilot.app.view == "menu"
+
+        await pilot.click("#body", offset=(4, above + 3), times=2)
+        assert pilot.app.view == "ledger"
+
+
+@pytest.mark.asyncio
+async def test_a_click_on_the_question_panel_starts_typing(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("space", "a", "escape")
+        assert pilot.app.edit_mode == "NORMAL"
+
+        await pilot.click("#body", offset=(10, 5))
+        assert pilot.app.edit_mode == "INSERT"
+
+
+@pytest.mark.asyncio
+async def test_a_click_past_the_last_row_does_nothing(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        await pilot.click("#body", offset=(4, 0))
+
+        assert pilot.app.cursor == 0
+
+
+@pytest.mark.asyncio
+async def test_the_wheel_moves_the_cursor(default_config):
+    async with make_app(default_config).run_test(size=(100, 30)) as pilot:
+        await pilot.press("colon", *"settings", "enter")
+        pilot.app.on_mouse_scroll_down(None)
+        pilot.app.on_mouse_scroll_down(None)
+        assert pilot.app.cursor == 2
+
+        pilot.app.on_mouse_scroll_up(None)
+        assert pilot.app.cursor == 1
