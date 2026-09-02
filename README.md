@@ -98,12 +98,44 @@ outside world.
 
 ## Install
 
+Python 3.11 or newer, and a terminal from this century. What each system needs,
+and what does not work where, is in [docs/en/install.md](docs/en/install.md).
+
+### Linux
+
 ```
-pip install -e .
-heidr --splash
+pip install -e '.[audio]'
+heidr
 ```
 
-Optional extras: `pip install -e '.[audio,vosk,effects]'`
+Everything works here: radio, sound, speech, local models. The receiver needs
+`rtl-sdr` from your package manager.
+
+### macOS
+
+The same, natively. Nothing needs emulating.
+
+```
+brew install rtl-sdr ollama
+pip install -e '.[audio]'
+```
+
+### Windows
+
+Use Windows Terminal, not the old console host. Everything works except the
+receiver: `numpy` and `sounddevice` install from wheels, ollama has its own
+build, and Windows Terminal understands the escape sequence `y` uses to copy.
+
+```
+py -m pip install -e ".[audio]"
+py -m heidr
+```
+
+The dongle is the exception. A USB device reaches a Linux driver only through
+WSL2, with [usbipd-win](https://github.com/dorssel/usbipd-win) forwarding it;
+inside WSL2 the radio then behaves as it does on Linux.
+
+Optional extras everywhere: `pip install -e '.[audio,vosk,effects]'`
 
 ### As one file
 
