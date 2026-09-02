@@ -121,7 +121,7 @@ async def test_the_same_question_twice_is_refused(default_config, monkeypatch):
         await pilot.press("i", *"rain", "enter")
         await pilot.pause()
 
-        assert "was drawn in entry" in pilot.app.query_one(CommandLine).message
+        assert "was answered in entry" in pilot.app.query_one(CommandLine).message
 
 
 @pytest.mark.asyncio

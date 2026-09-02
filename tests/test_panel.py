@@ -125,3 +125,56 @@ async def test_a_small_message_stays_at_the_bottom(default_config):
         await pilot.press("right")
 
         assert pilot.app.notice == ""
+
+
+# When there is no answer, the panel says why
+
+
+async def rite_with(pilot, **state):
+    pilot.app._enter("rite")
+    pilot.app.asked = "will it rain"
+    for name, value in state.items():
+        setattr(pilot.app, name, value)
+    pilot.app._render_body()
+    return str(pilot.app.query_one("#body").content)
+
+
+@pytest.mark.asyncio
+async def test_a_silence_that_was_drawn_says_so(default_config):
+    from heidr.strings import text
+
+    async with make_app(default_config).run_test(size=(80, 30)) as pilot:
+        pilot.app._enter("rite")
+        pilot.app.asked = "will it rain"
+        pilot.app._silence(text("answer.silence_drawn"))
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "answer · silence" in shown
+        assert "one of them" in shown
+        assert "question is spent" in shown
+
+
+@pytest.mark.asyncio
+async def test_a_rite_that_found_nothing_says_the_question_is_free(default_config):
+    from heidr.strings import text
+
+    async with make_app(default_config).run_test(size=(80, 30)) as pilot:
+        pilot.app._enter("rite")
+        pilot.app.asked = "will it rain"
+        pilot.app._draw_over(text("note.nothing"), text("answer.nothing", reason="No network."))
+        shown = str(pilot.app.query_one("#body").content)
+
+        assert "answer · nothing found" in shown
+        assert "Nothing was spent" in shown
+        assert "No network." in shown
+        # The explanation is the answer now, so there is no shout above it.
+        assert pilot.app.notice == ""
+
+
+@pytest.mark.asyncio
+async def test_a_real_answer_still_wins_over_the_explanation(default_config):
+    async with make_app(default_config).run_test(size=(80, 30)) as pilot:
+        shown = await rite_with(pilot, said=["the rain has fallen"], unanswered=("silence", "no"))
+
+        assert "the rain has fallen" in shown
+        assert "answer · silence" not in shown

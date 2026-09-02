@@ -118,7 +118,7 @@ class Lots:
             except Cancelled:
                 raise
             except Exception as refusal:
-                value, reason = None, str(refusal) or refusal.__class__.__name__
+                value, reason = None, _sentence(refusal)
             else:
                 if enough(value):
                     return module, value
@@ -136,6 +136,16 @@ class Lots:
         if following is not None:
             self.ctx.emit("instead", (module.name, following.name))
         return following
+
+
+def _sentence(failure: Exception) -> str:
+    """A refusal, said the way a sentence is said.
+
+    Module messages already end in a full stop; the text of a bare exception
+    does not, and it is about to be read in the middle of a paragraph.
+    """
+    said = str(failure).strip() or failure.__class__.__name__
+    return said if said.endswith((".", "!", "?")) else f"{said}."
 
 
 def _is_key(key: Key) -> bool:
@@ -166,7 +176,7 @@ def _read(lots: Lots, drawn: rite.Rite, question: str, material: Material, gave_
         if isinstance(broke, Cancelled):
             raise broke
         if broke is not None:
-            reason = str(broke) or broke.__class__.__name__
+            reason = _sentence(broke)
         # Whatever was already said is kept: running the reading again would
         # say it twice. Silence counts as an answer from a module that declares
         # silence to be the whole point of it.

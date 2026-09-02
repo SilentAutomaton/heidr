@@ -74,6 +74,37 @@ EN = {
     "note.instead": "{failed} could not answer, and {following} was drawn instead.",
     "hint.typed_setting": "This value is typed. Press Enter to edit it.",
     "hint.ask": "Enter asks.  Up and down bring back past questions.  Ctrl-V dictates.",
+    "answer.silence_drawn": (
+        "The lot fell on silence. One rite in twenty is drawn silent before "
+        "anything is read, and this was one of them. What was found above is "
+        "the whole of the answer. The question is spent: silence was the answer."
+    ),
+    "answer.silence_read": (
+        "The rite drew mute, and saying nothing is the whole of what mute does. "
+        "What was found stands on its own, without a voice over it. The question "
+        "is spent: this was an answer."
+    ),
+    "answer.unread": (
+        "Something was found, and no reading could put words to it. {reason} "
+        "Nothing was spent — ask the same question again whenever you like."
+    ),
+    "answer.nothing": (
+        "Nothing was found to read. {reason} Nothing was spent, and :checkhealth "
+        "says which sources are working here."
+    ),
+    "answer.stopped": (
+        "Stopped on your word, part way through. Nothing was spent — ask again "
+        "when you have the time for it."
+    ),
+    "answer.repeat": (
+        "This question was answered in entry {entry}. Ask a different one, or "
+        "ask this one again a day after that draw."
+    ),
+    "note.silence": "silence",
+    "note.unread": "unread",
+    "note.nothing": "nothing found",
+    "note.stopped": "stopped",
+    "note.refused": "refused",
     "status.cancelled": "Stopped. The question is free again.",
     "status.stopping": "Stopping at the next step.",
     "status.no_answer": (

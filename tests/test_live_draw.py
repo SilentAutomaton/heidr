@@ -219,7 +219,7 @@ async def test_an_unexpected_failure_is_reported_not_raised(default_config, offl
         # What broke is a fact about the code; the reader is told what it means.
         said = pilot.app.query_one(CommandLine).message
         assert "Error" not in said
-        assert "free again" in said
+        assert "Nothing was spent" in said
         assert pilot.app.is_running
 
 

@@ -85,6 +85,9 @@ class HeidrApp(App):
         self.said: list[str] = []
         self.notice = ""
         self.notes: list[str] = []
+        # What stands in the place of an answer when there is none: a heading
+        # and a paragraph saying what happened and what it cost.
+        self.unanswered: tuple[str, str] = ("", "")
         self.entry_id = ""
         self.stages: list[str] = []
         self.pinned = ""
@@ -232,6 +235,7 @@ class HeidrApp(App):
         self.said = []
         self.notice = ""
         self.notes = []
+        self.unanswered = ("", "")
         self.entry_id = ""
         self._show_transcript()
         self.show_visual("waterfall")
@@ -252,32 +256,44 @@ class HeidrApp(App):
         try:
             drawn = session.perform(context, self.ledger, question, spec)
         except session.AlreadyAsked as repeated:
-            self._finish(text("error.repeat_question", entry=repeated.entry.identifier))
+            self._finish(
+                text("note.refused"),
+                text("answer.repeat", entry=repeated.entry.identifier),
+            )
         except rite.NothingAvailable:
-            self._finish(text("error.no_modules"))
+            self._finish(text("note.nothing"), text("error.no_modules"))
         except session.NothingAnswered as empty:
             # Every module of one slot was asked. The last refusal is the
             # nearest thing to an explanation there is.
-            self._finish(text("error.slot_exhausted", slot=empty.slot, reason=empty.reason))
+            said = "answer.unread" if empty.slot == "reading" else "answer.nothing"
+            note = "note.unread" if empty.slot == "reading" else "note.nothing"
+            self._finish(text(note), text(said, reason=empty.reason))
         except Cancelled:
-            self._finish(text("status.cancelled"))
+            self._finish(text("note.stopped"), text("answer.stopped"))
         except Unavailable as refused:
             # A module that cannot run is an ordinary outcome, not a crash.
-            self._finish(str(refused))
+            self._finish(text("note.refused"), str(refused))
         except Exception:
             # The class name of an exception is a fact about the code, not
             # about the reader's evening. The log keeps it; the screen does not.
-            self._finish(text("error.draw_failed"))
+            self._finish(text("note.nothing"), text("error.draw_failed"))
         else:
             self.call_from_thread(self._drawn, drawn)
 
-    def _finish(self, message: str) -> None:
-        self.call_from_thread(self._draw_over, message)
+    def _finish(self, note: str, message: str) -> None:
+        self.call_from_thread(self._draw_over, note, message)
 
-    def _draw_over(self, message: str) -> None:
+    def _draw_over(self, note: str, message: str) -> None:
+        """A rite that ended without an answer still owes the reader one.
+
+        The explanation goes where the answer would have been, because that is
+        where the eye is waiting. The bottom line repeats it in one breath.
+        """
         self.drawing = False
         self.show_idle()
-        self._announce(message)
+        self.unanswered = (note, message)
+        self.query_one(CommandLine).say(message)
+        self._render_body()
 
     def _announce(self, message: str) -> None:
         """Say it where the reader is looking, and at the bottom as well.
@@ -303,11 +319,16 @@ class HeidrApp(App):
         self._show_transcript()
         self.show_idle()
         if drawn.rite.silent:
-            self._announce(text("status.silent"))
+            self._silence(text("answer.silence_drawn"))
         elif not drawn.lines:
-            # A reading that yields nothing is not an error, but the screen
-            # would otherwise look the same as one that simply finished.
-            self._announce(text("status.no_answer"))
+            # A reading that meant its silence still has to say so, or the
+            # screen looks like a rite that simply stopped.
+            self._silence(text("answer.silence_read"))
+
+    def _silence(self, message: str) -> None:
+        self.unanswered = (text("note.silence"), message)
+        self.query_one(CommandLine).say(message)
+        self._render_body()
 
     def do_stop(self) -> None:
         if self.drawing:
@@ -521,6 +542,9 @@ class HeidrApp(App):
             reading = self.stages[-1] if len(self.stages) == SLOTS else ""
             answer = panel.wrap("\n".join(self.said), width)
             parts.append(panel.section("answer", reading, answer, dim))
+        elif self.unanswered[1]:
+            note, said = self.unanswered
+            parts.append(panel.section("answer", note, panel.wrap(said, width), dim))
         return panel.joined(parts)
 
     def _panel_styles(self) -> tuple[str, str]:
