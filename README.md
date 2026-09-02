@@ -26,8 +26,12 @@ pseudo random generator. With ten question rites, fourteen worlds and six
 readings there are 840 distinct rites.
 
 The commitment is written to the ledger before the draw, each entry chains to
-the previous one, and a question that was really drawn on cannot be asked again
-until the next day.
+the previous one, and a question that was really answered cannot be asked again
+until the next day. A question that was not answered costs nothing.
+
+A module with no answer today — an unreachable feed, a reply that will not
+parse, a model that says nothing — does not end the rite: the slot draws another
+module and says in the panel which gave way to which.
 
 ## Modules
 

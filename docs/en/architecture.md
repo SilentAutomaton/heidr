@@ -144,6 +144,43 @@ because `os.urandom` and the clock are always in it.
 The radio fails loudly rather than quietly. A capture that returns no samples
 does not become a hash of nothing: it raises, and the draw is recorded as void.
 
+## A module that cannot answer
+
+A rite talks to feeds, daemons and hardware, and any of them can be silent
+today. Until recently the first silence ended everything: an unreachable feed, a
+field missing from a reply, a dongle held by another program, and the whole rite
+stopped with thirteen other worlds standing idle beside it.
+
+Now the slot draws again. The lottery had already chosen honestly; a module that
+cannot answer is a source gone quiet, not an answer somebody disliked, so
+putting another in its place is not a second roll of the dice.
+
+| What happened | What the rite does |
+|---|---|
+| `Unavailable` | Draws another module for the slot |
+| Anything else raised — a parse error, a missing field | The same |
+| Material with neither text nor numbers | The same: the source said nothing |
+| A reading that yields no lines | The same, unless silence is what it is for |
+| `Cancelled` | Stops. This is the reader's own decision, not a failure |
+
+`rite.attempts` sets how many modules a slot may try, three by default; one
+restores the old behaviour where the first silence ends the rite. When the
+attempts run out, or no module is left, the rite gives up and names the last
+refusal it was given.
+
+A reading is the one slot that can fail in the middle of a sentence. If it broke
+before saying anything, another reading is drawn. If it broke after saying
+something, what it said is kept and the rite ends there — running it again would
+say the first line twice.
+
+Silence needs declaring rather than guessing, so a module says so:
+`@reading("mute", silent=True)`. Only such a module is allowed to answer with
+nothing.
+
+Everything that gave way is on screen while it happens, and in the entry
+afterwards as an `Instead` header. A substitution nobody can see would be a lie
+by omission.
+
 ## Ledger
 
 Draws are stored as one plain text file each, in the manner of `dreamdir`: a
@@ -159,14 +196,18 @@ An entry ends in one of three states, and the difference matters:
 
 | Status | Meaning | Can the question be asked again? |
 |---|---|---|
-| `complete` | The rite ran | Not for a day |
-| `broken` | The world answered, the reading failed | Not for a day |
+| `complete` | The rite ran and something was said | Not for a day |
+| `broken` | The world answered, nothing read it | Yes, at once |
 | `void` | Nothing was found at all | Yes, at once |
 
-`void` exists because the rule is about not re-rolling an unwelcome answer, not
-about spending a question on a timeout. An unreachable feed or a dongle held by
-another program releases the question; once material exists, it is spent
-whatever happens next.
+The rule is about not re-rolling an unwelcome answer, not about spending a
+question on a timeout, so a question is spent by an **answer arriving** and by
+nothing else. `void` and `broken` differ in what the journal records — whether
+it came to material at all — and neither of them costs the asker anything.
+
+Silence is the exception that proves it: a rite the lottery silenced, or one
+read by `mute`, is complete and does spend the question. The oracle answered by
+keeping its mouth shut, and the material stands in the entry as the answer.
 
 The hold lasts a day rather than for good. "How will today go" is a different
 question tomorrow, and the entry already carries the date it was promised on, so

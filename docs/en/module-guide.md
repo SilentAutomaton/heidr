@@ -55,6 +55,13 @@ That is the whole module. Notes:
 - `needs` uses the known capability names: `net`, `sdr`, `stt`, `llm`, `audio`.
   The lottery skips a module whose needs are not met.
 - `available()` is a cheap probe. It must never raise and never block for long.
+- Raising is allowed and expected. A feed that will not answer, a reply that
+  will not parse, a device somebody else is holding: raise, and the rite draws
+  another module for the slot rather than ending. Returning material with no
+  text and no numbers means the same thing and is treated the same way.
+- A reading whose whole point is to say nothing declares it:
+  `@reading("mute", silent=True)`. Without that, a reading that yields no lines
+  is taken for one that had no answer, and gives way to another.
 - `visual="tremor"` is a preference, not a requirement. If the visual is missing
   or the terminal cannot draw it, an idle animation runs instead.
 - `ctx.emit` is how anything reaches the screen. Never print.
