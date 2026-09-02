@@ -60,7 +60,7 @@ class Ledger:
         wanted = fingerprint(question)
         edge = datetime.now(timezone.utc) - within if within else None
         for entry in self.entries():
-            if entry.get("Question") != wanted or entry.get("Status") == VOID:
+            if entry.get("Question") != wanted or entry.get("Status") in (VOID, BROKEN):
                 continue
             if edge is None or _when(entry) is None or _when(entry) > edge:
                 return entry
@@ -95,18 +95,22 @@ class Ledger:
         self._write(entry)
         return entry
 
-    def complete(self, entry: Entry, rite: str, question: str, body: str) -> Entry:
+    def complete(
+        self, entry: Entry, rite: str, question: str, body: str, instead: tuple[str, ...] = ()
+    ) -> Entry:
         entry.headers["Status"] = COMPLETE
         entry.headers["Rite"] = rite
+        _wrote_instead(entry, instead)
         entry.body = f"{question}\n\n{body}".strip()
         self._write(entry)
         return entry
 
-    def abandon(self, entry: Entry, released: bool = False) -> Entry:
-        # Released means nothing was found, so the question is free again.
-        # Broken means the world answered and only the reading failed, and the
-        # question stays spent.
+    def abandon(self, entry: Entry, released: bool = False, instead: tuple[str, ...] = ()) -> Entry:
+        # Released means nothing was found at all; broken means the world
+        # answered and the reading did not. Neither spends the question: it is
+        # spent by an answer arriving, and no answer arrived here.
         entry.headers["Status"] = VOID if released else BROKEN
+        _wrote_instead(entry, instead)
         self._write(entry)
         return entry
 
@@ -150,6 +154,16 @@ def _when(entry: Entry) -> datetime | None:
         return datetime.fromisoformat(entry.get("Date"))
     except ValueError:
         return None
+
+
+def _wrote_instead(entry: Entry, instead: tuple[str, ...]) -> None:
+    """Which modules gave way, in the order they did.
+
+    The seal covers the previous entry, the question and the date, so a header
+    added here cannot break the chain.
+    """
+    if instead:
+        entry.headers["Instead"] = ", ".join(instead)
 
 
 def seal(previous: str, question_hash: str, moment: str) -> str:

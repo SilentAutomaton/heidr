@@ -84,6 +84,7 @@ class HeidrApp(App):
         self.found = ("", "")
         self.said: list[str] = []
         self.notice = ""
+        self.notes: list[str] = []
         self.entry_id = ""
         self.stages: list[str] = []
         self.pinned = ""
@@ -230,6 +231,7 @@ class HeidrApp(App):
         self.found = ("", "")
         self.said = []
         self.notice = ""
+        self.notes = []
         self.entry_id = ""
         self._show_transcript()
         self.show_visual("waterfall")
@@ -253,6 +255,10 @@ class HeidrApp(App):
             self._finish(text("error.repeat_question", entry=repeated.entry.identifier))
         except rite.NothingAvailable:
             self._finish(text("error.no_modules"))
+        except session.NothingAnswered as empty:
+            # Every module of one slot was asked. The last refusal is the
+            # nearest thing to an explanation there is.
+            self._finish(text("error.slot_exhausted", slot=empty.slot, reason=empty.reason))
         except Cancelled:
             self._finish(text("status.cancelled"))
         except Unavailable as refused:
@@ -317,6 +323,7 @@ class HeidrApp(App):
         self.bus.subscribe("progress", lambda done: self._on_thread(self._progress, done))
         self.bus.subscribe("token", lambda line: self._on_thread(self._token, line))
         self.bus.subscribe("found", lambda material: self._on_thread(self._found, material))
+        self.bus.subscribe("instead", lambda names: self._on_thread(self._instead, names))
 
     def _on_thread(self, handler, payload) -> None:
         if threading.current_thread() is threading.main_thread():
@@ -380,6 +387,11 @@ class HeidrApp(App):
             if found is not None:
                 return found
         return None
+
+    def _instead(self, names) -> None:
+        failed, following = names
+        self.notes.append(text("note.instead", failed=failed, following=following))
+        self._show_transcript()
 
     def _found(self, material) -> None:
         self.found = (material.text, material.source)
@@ -492,6 +504,8 @@ class HeidrApp(App):
         dim, accent = self._panel_styles()
         active = len(self.stages) - 1 if self.drawing else -1
         parts = [Text(stages.bar(self.stages, active, self.terminal.glyphs), dim)]
+        for said in self.notes:
+            parts.append(panel.note(said, dim))
         if self.notice:
             parts.append(panel.notice(self.notice, accent))
 

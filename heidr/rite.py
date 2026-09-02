@@ -54,6 +54,20 @@ def draw(ctx: Context, seed: int, recent: tuple[str, ...] = ()) -> Rite:
     )
 
 
+def instead(ctx: Context, slot: str, avoid: set[str], seed: int, recent: tuple[str, ...] = ()):
+    """Another module for this slot, from the same lottery minus the failures.
+
+    A module that cannot answer is a source gone quiet, not an answer somebody
+    disliked, so drawing again in its place is not a second roll. What was tried
+    is written into the entry, and the rite says who really spoke.
+    """
+    left = [module for module in registry.usable(slot, ctx) if module.name not in avoid]
+    if not left:
+        return None
+    penalty = max(1, int(ctx.config.get("rite.recent_penalty", 4)))
+    return pick(left, recent, penalty, random.Random(seed + len(avoid)))
+
+
 def named(ctx: Context, slot: str, name: str) -> Module:
     """One module by name, or a refusal that says what the names are."""
     found = registry.MODULES[slot].get(name)

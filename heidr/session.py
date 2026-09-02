@@ -1,15 +1,30 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import timedelta
 
 from heidr import entropy, rite
 from heidr.contracts import Cancelled, Context, Key, Material
 from heidr.ledger import Entry, Ledger
 
+ATTEMPTS = 3
+
 
 class AlreadyAsked(Exception):
     def __init__(self, entry: Entry):
         super().__init__(entry.identifier)
         self.entry = entry
+
+
+class NothingAnswered(Exception):
+    """Every module of one slot was asked, and none of them had an answer.
+
+    The last refusal is carried along: when the whole slot is exhausted, the
+    reason the last one gave is the nearest thing to an explanation there is.
+    """
+
+    def __init__(self, slot: str, reason: str = ""):
+        super().__init__(f"{slot}: {reason}" if reason else slot)
+        self.slot = slot
+        self.reason = reason
 
 
 @dataclass
@@ -19,6 +34,7 @@ class Draw:
     key: Key
     material: Material
     lines: list[str] = field(default_factory=list)
+    instead: tuple[str, ...] = ()
 
     def body(self) -> str:
         return body(self.material, self.lines)
@@ -42,32 +58,93 @@ def perform(ctx: Context, ledger: Ledger, question: str, spec: str = "") -> Draw
     # rolled again once it is known.
     entry = ledger.commit(question)
     material = None
+    gave_way: list[str] = []
     try:
         seed = entropy.world_seed(entropy.collect(ctx))
         recent = ledger.recent_modules()
         drawn = rite.chosen(ctx, spec, seed, recent) if spec else rite.draw(ctx, seed, recent)
-        _still_wanted(ctx)
-        ctx.emit("stage", drawn.question.name)
-        key = drawn.question.run(_ready(ctx, drawn.question), question)
+        lots = Lots(ctx, seed, recent, max(1, int(ctx.config.get("rite.attempts", ATTEMPTS))))
 
         _still_wanted(ctx)
-        ctx.emit("stage", drawn.world.name)
-        material = drawn.world.run(_ready(ctx, drawn.world), key)
+        module, key = lots.attempt("question", drawn.question, question, _is_key, gave_way)
+        drawn = replace(drawn, question=module)
+
+        _still_wanted(ctx)
+        module, material = lots.attempt("world", drawn.world, key, _is_material, gave_way)
+        drawn = replace(drawn, world=module)
         # The material is on screen as soon as it exists, not when the whole
         # rite is over: the reading can take a minute, and the reader has
         # something to look at meanwhile.
         ctx.emit("found", material)
 
         _still_wanted(ctx)
-        lines = _read(ctx, drawn, question, material)
+        drawn, lines = _read(lots, drawn, question, material, gave_way)
     except Exception:
-        # Nothing was found, so the question is released. Once material exists
-        # the question is spent, whatever happens next.
-        ledger.abandon(entry, released=material is None)
+        # The question is only spent when an answer really arrived, so a rite
+        # that broke leaves it free whether or not material was found.
+        ledger.abandon(entry, released=material is None, instead=tuple(gave_way))
         raise
 
-    ledger.complete(entry, str(drawn), question, body(material, lines))
-    return Draw(entry, drawn, key, material, lines)
+    ledger.complete(entry, str(drawn), question, body(material, lines), tuple(gave_way))
+    return Draw(entry, drawn, key, material, lines, tuple(gave_way))
+
+
+@dataclass(frozen=True)
+class Lots:
+    """The lottery, kept open for the length of one rite.
+
+    A module that cannot answer is a source gone quiet, not an answer somebody
+    disliked, so drawing again in its place is not a second roll.
+    """
+
+    ctx: Context
+    seed: int
+    recent: tuple[str, ...]
+    attempts: int
+
+    def attempt(self, slot, first, argument, enough, gave_way):
+        """Run one slot, and draw another module for it when it cannot answer.
+
+        A refusal, a feed that will not parse, a source that returns nothing:
+        from here they are one thing, a module with no answer today.
+        """
+        module = first
+        avoid: set[str] = set()
+        reason = ""
+        for _ in range(self.attempts):
+            self.ctx.emit("stage", module.name)
+            try:
+                value = module.run(_ready(self.ctx, module), argument)
+            except Cancelled:
+                raise
+            except Exception as refusal:
+                value, reason = None, str(refusal) or refusal.__class__.__name__
+            else:
+                if enough(value):
+                    return module, value
+                reason = f"{module.name} found nothing."
+
+            module = self.next_one(slot, module, avoid, gave_way)
+            if module is None:
+                break
+        raise NothingAnswered(slot, reason)
+
+    def next_one(self, slot, module, avoid, gave_way):
+        avoid.add(module.name)
+        gave_way.append(module.name)
+        following = rite.instead(self.ctx, slot, avoid, self.seed, self.recent)
+        if following is not None:
+            self.ctx.emit("instead", (module.name, following.name))
+        return following
+
+
+def _is_key(key: Key) -> bool:
+    return isinstance(key, Key)
+
+
+def _is_material(material: Material) -> bool:
+    # A source that answered with neither text nor numbers said nothing at all.
+    return isinstance(material, Material) and bool(material.text.strip() or material.numbers)
 
 
 def _still_wanted(ctx: Context) -> None:
@@ -75,16 +152,42 @@ def _still_wanted(ctx: Context) -> None:
         raise Cancelled
 
 
-def _read(ctx: Context, drawn: rite.Rite, question: str, material: Material) -> list[str]:
+def _read(lots: Lots, drawn: rite.Rite, question: str, material: Material, gave_way):
+    """The reading, which is the one slot that can fail halfway through a sentence."""
     if drawn.silent:
-        return []
+        return drawn, []
 
+    module = drawn.reading
+    avoid: set[str] = set()
+    reason = ""
+    for _ in range(lots.attempts):
+        lots.ctx.emit("stage", module.name)
+        lines, broke = _speak(lots.ctx, module, question, material)
+        if isinstance(broke, Cancelled):
+            raise broke
+        if broke is not None:
+            reason = str(broke) or broke.__class__.__name__
+        # Whatever was already said is kept: running the reading again would
+        # say it twice. Silence counts as an answer from a module that declares
+        # silence to be the whole point of it.
+        if lines or module.silent:
+            return replace(drawn, reading=module), lines
+
+        module = lots.next_one("reading", module, avoid, gave_way)
+        if module is None:
+            break
+    raise NothingAnswered("reading", reason)
+
+
+def _speak(ctx, module, question, material):
     lines: list[str] = []
-    ctx.emit("stage", drawn.reading.name)
-    for line in drawn.reading.run(_ready(ctx, drawn.reading), question, material):
-        lines.append(line)
-        ctx.emit("token", line)
-    return lines
+    try:
+        for line in module.run(_ready(ctx, module), question, material):
+            lines.append(line)
+            ctx.emit("token", line)
+    except Exception as failure:
+        return lines, failure
+    return lines, None
 
 
 def _ready(ctx: Context, module) -> Context:

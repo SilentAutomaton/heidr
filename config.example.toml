@@ -48,6 +48,7 @@ path = "~/.local/share/heidr"   # typed commands and questions, kept apart
 [rite]
 silence_chance = 0.125  # how often the oracle refuses to answer
 recent_penalty = 4      # weight divisor for modules drawn in the last three rites
+attempts = 3            # how many modules a slot may try before the rite gives up; 1 disables
 
 [ledger]
 path = "~/.local/share/heidr/ledger"

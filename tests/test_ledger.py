@@ -62,12 +62,22 @@ def test_a_released_draw_frees_the_question(tmp_path):
     assert ledger.last().get("Status") == "void"
 
 
-def test_a_broken_draw_still_spends_the_question(tmp_path):
+def test_a_broken_draw_leaves_the_question_free(tmp_path):
+    """No answer arrived, so nothing was spent, whatever was found on the way."""
     ledger = Ledger(tmp_path)
     ledger.abandon(ledger.commit("interrupted"), released=False)
 
-    assert ledger.asked_before("interrupted") is not None
+    assert ledger.asked_before("interrupted") is None
     assert ledger.last().get("Status") == "broken"
+
+
+def test_what_gave_way_is_written_down(tmp_path):
+    ledger = Ledger(tmp_path)
+    entry = ledger.commit("what now")
+    ledger.complete(entry, "a//b//c", "what now", "an answer", ("quake", "sky"))
+
+    assert ledger.last().get("Instead") == "quake, sky"
+    assert ledger.chain_ok()
 
 
 def test_recent_modules_come_from_the_last_rites(tmp_path):

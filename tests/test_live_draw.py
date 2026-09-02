@@ -410,3 +410,28 @@ async def test_the_material_shows_before_the_reading_finishes(default_config, of
             await pilot.pause()
 
         assert "at last" in str(pilot.app.query_one("#body").content)
+
+
+# What gave way is said out loud
+
+
+@pytest.mark.asyncio
+async def test_a_module_giving_way_is_written_into_the_panel(default_config, offline, temporary_slot):
+    registry.question("q")(lambda ctx, text: Key(seed=1, anchors=()))
+    registry.world("empty")(lambda ctx, key: (_ for _ in ()).throw(Unavailable("the feed is quiet")))
+    registry.world("full")(lambda ctx, key: Material("found at last", source="fake"))
+    registry.reading("r")(lambda ctx, text, material: iter(["said"]))
+    default_config.set("rite.silence_chance", 0.0)
+
+    async with make_app(default_config).run_test() as pilot:
+        await pilot.press("colon", *"draw q//empty//r", "enter")
+        await pilot.press(*QUESTION, "enter")
+        while pilot.app.drawing:
+            await pilot.pause()
+
+        shown = str(pilot.app.query_one("#body").content)
+        assert "empty could not answer" in shown
+        assert "found at last" in shown
+        # An ordinary outcome, not a fault: no accent, no exclamation.
+        assert pilot.app.notice == ""
+        assert pilot.app.bus.dropped == {}

@@ -20,6 +20,9 @@ class Module:
     origin: str
     needs: tuple[str, ...] = ()
     visual: str = ""
+    # A reading that says nothing on purpose. Without this the rite cannot tell
+    # a deliberate silence from a module that simply had no answer.
+    silent: bool = False
     defaults: dict[str, Any] = field(default_factory=dict)
 
     def available(self, ctx: Context) -> bool:
@@ -51,7 +54,7 @@ MODULES: dict[str, dict[str, Module]] = {slot: {} for slot in SLOTS}
 ANIMATIONS: dict[str, list[Animation]] = {}
 
 
-def _register(slot: str, name: str, needs, visual: str, defaults):
+def _register(slot: str, name: str, needs, visual: str, defaults, silent: bool = False):
     unknown = set(needs) - set(CAPABILITIES)
     if unknown:
         raise ValueError(f"{name} declares unknown capabilities: {sorted(unknown)}")
@@ -64,6 +67,7 @@ def _register(slot: str, name: str, needs, visual: str, defaults):
             origin=run.__module__,
             needs=tuple(needs),
             visual=visual,
+            silent=silent,
             defaults=dict(defaults or {}),
         )
         return run
@@ -79,8 +83,8 @@ def world(name: str, *, needs=(), visual: str = "", defaults=None):
     return _register("world", name, needs, visual, defaults)
 
 
-def reading(name: str, *, needs=(), visual: str = "", defaults=None):
-    return _register("reading", name, needs, visual, defaults)
+def reading(name: str, *, needs=(), visual: str = "", defaults=None, silent: bool = False):
+    return _register("reading", name, needs, visual, defaults, silent)
 
 
 def animation(name: str, *, glyphs: str = "ascii", fps: int = 8, event: str = ""):

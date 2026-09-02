@@ -10,6 +10,7 @@ MARGIN = 4
 INDENT = "  "
 MATERIAL_LINES = 10
 MARKER = "!"
+QUIET_MARKER = "·"
 
 
 def room(width: int) -> int:
@@ -55,6 +56,11 @@ def notice(message: str, accent: str) -> Text:
     out.append(f"{MARKER}  ", accent)
     out.append(message, accent)
     return out
+
+
+def note(message: str, dim: str) -> Text:
+    """Something that happened on the way, which is not a fault to answer for."""
+    return Text(f"{QUIET_MARKER}  {message}", dim)
 
 
 def joined(parts: list[Text], gap: str = "\n\n") -> Text:
