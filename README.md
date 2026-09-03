@@ -1,6 +1,13 @@
-# HEID//R
+<p align="center">
+  <img src="docs/brand/heidr.png" alt="HEID//R — For the Rationally Desperate" width="720">
+</p>
 
-**For the Rationally Desperate.**
+<p align="center">
+  <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-f0a63a" alt="Licence: GPL-3.0-or-later">
+  <img src="https://img.shields.io/badge/python-3.11%2B-f0a63a" alt="Python 3.11 or newer">
+  <img src="https://img.shields.io/badge/tests-673%20passing-f0a63a" alt="673 tests passing">
+  <img src="https://img.shields.io/badge/modules-30-f0a63a" alt="30 modules">
+</p>
 
 A modal terminal program that answers a question with something it finds rather
 than with something it writes. The material comes from radio noise, from an
@@ -12,7 +19,7 @@ Named after Heiðr, the völva of the *Völuspá*, who was burned three times an
 born three times, and who travelled between farms telling people what was
 coming. The name is the theme; the machinery underneath is ordinary software.
 
-> Documentation: [English](docs/en/) · [Русский](docs/ru/)
+> Documentation: [English](docs/en/README.md) · [Русский](docs/ru/README.md)
 
 ## A run has three slots
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="HEID//R — For the Rationally Desperate">
+  <rect width="1280" height="640" fill="#0e1216"/>
+  <g font-family="IBM Plex Sans Condensed" font-weight="700" font-size="190" letter-spacing="-4">
+    <text x="640" y="330" text-anchor="middle" fill="#e4e9ef">HEID<tspan fill="#f0a63a">//</tspan>R</text>
+  </g>
+  <text x="640" y="392" text-anchor="middle" font-family="IBM Plex Mono" font-size="26" letter-spacing="3.7" fill="#7c8895">FOR THE RATIONALLY DESPERATE</text>
+  <text x="640" y="470" text-anchor="middle" font-family="IBM Plex Mono" font-size="24" fill="#a3aeba">A modal terminal oracle. The answer is found, not written.</text>
+</svg>
