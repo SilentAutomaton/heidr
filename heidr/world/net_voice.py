@@ -75,7 +75,7 @@ def stations(ctx) -> list[dict]:
     if int(settings.get("bitrate_min", 0)):
         query["bitrate_min"] = int(settings["bitrate_min"])
 
-    listed = net.fetch_json(f"{DIRECTORY}?{urlencode(query)}", agent=stream.AGENT)
+    listed = net.fetch_json(f"{DIRECTORY}?{urlencode(query)}", headers=stream.NAMED)
     return [station for station in listed if _url(station)]
 
 

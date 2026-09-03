@@ -145,7 +145,7 @@ def _stops_for(ctx, key: Key) -> list[stream.Stop]:
     ctx.emit("stage", f"band {band} MHz")
     hertz = _somewhere_in(band, rng)
 
-    listed = receivers(net.fetch_text(LIST, agent=stream.AGENT))
+    listed = receivers(net.fetch_text(LIST, headers=stream.NAMED))
     free = [entry for entry in listed if listening(entry, hertz)]
     if not free:
         raise Unavailable(

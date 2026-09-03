@@ -59,8 +59,9 @@ not redistributing it, and nothing was copied out of it.
 | [dump1090](https://github.com/antirez/dump1090) | ISC | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [chafa](https://github.com/hpjansson/chafa) | GPL-3.0 | image output in the terminal |
-| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later, or GPL-2.0-or-later depending on the build | `world/net_voice` |
+| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later, or GPL-2.0-or-later depending on the build | `world/net_voice`, `world/twitch_voice` |
 | [kiwirecorder.py](https://github.com/jks-prv/kiwiclient) | **none stated** | `world/kiwi_voice` |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Unlicense | `world/twitch_voice` |
 
 ## Python dependencies
 

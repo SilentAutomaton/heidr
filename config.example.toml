@@ -95,6 +95,13 @@ dwell_s = 6
 pool = 12               # receivers lined up, so a busy one costs nothing
 binary = ""             # empty finds kiwirecorder.py on the path
 
+[modules.twitch_voice]
+# Needs ffmpeg, yt-dlp, and your own HEIDR_TWITCH_ID and HEIDR_TWITCH_SECRET.
+stops = 2
+dwell_s = 5
+pool = 20
+language = "en"         # as Twitch spells it; empty accepts any
+
 [modules.sky]
 # Your position. Without it the sky module stays out of the lottery.
 latitude = 0.0

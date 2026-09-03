@@ -4,7 +4,7 @@ import pytest
 from heidr import audio, net, registry, stream
 from heidr.contracts import Cancelled, Key, Unavailable
 from heidr.stt.base import Partial
-from heidr.world import kiwi_voice, net_voice
+from heidr.world import kiwi_voice, net_voice, twitch_voice
 
 STATIONS = [
     {"name": "Raadio 2", "country": "Estonia", "bitrate": 128, "url": "http://a/1", "url_resolved": "http://a/1.mp3"},
@@ -242,7 +242,7 @@ def test_the_filters_reach_the_directory(stub_context, monkeypatch):
     scoped.settings["language"] = "english"
     asked = []
 
-    monkeypatch.setattr(net_voice.net, "fetch_json", lambda url, agent="": asked.append(url) or [])
+    monkeypatch.setattr(net_voice.net, "fetch_json", lambda url, headers=None: asked.append(url) or [])
 
     net_voice.stations(scoped)
 
@@ -375,7 +375,7 @@ def test_a_receiver_url_without_a_port_gets_the_usual_one():
 def test_no_free_receiver_says_whose_radios_these_are(stub_context, monkeypatch):
     ctx = listening(stub_context)
     _found, scoped = ready(ctx, "kiwi_voice")
-    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": "")
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, headers=None: "")
 
     with pytest.raises(Unavailable) as refused:
         kiwi_voice._stops_for(scoped, Key(seed=1))
@@ -386,7 +386,7 @@ def test_no_free_receiver_says_whose_radios_these_are(stub_context, monkeypatch)
 def test_every_stop_is_on_a_different_receiver(stub_context, monkeypatch):
     ctx = listening(stub_context)
     _found, scoped = ready(ctx, "kiwi_voice")
-    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": KIWI_LIST)
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, headers=None: KIWI_LIST)
 
     stops = kiwi_voice._stops_for(scoped, Key(seed=4))
 
@@ -398,7 +398,7 @@ def test_kiwi_voice_reports_the_receivers_it_reached(stub_context, monkeypatch):
     found, scoped = ready(ctx, "kiwi_voice")
     scoped.stt = ctx.stt
     scoped.settings["stops"] = 1
-    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": KIWI_LIST)
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, headers=None: KIWI_LIST)
     monkeypatch.setattr(kiwi_voice, "capture", lambda stop, rate, seconds, binary: iter([tone()]))
     monkeypatch.setattr(audio, "Output", lambda levels, rate: FakeOutput([]))
 
@@ -419,3 +419,137 @@ def test_kiwi_voice_needs_the_recorder_on_the_path(stub_context, monkeypatch):
     monkeypatch.setattr(stream.shutil, "which", lambda name: f"/usr/bin/{name}")
     assert module.available(online) is True
     assert module.available(stub_context) is False
+
+
+# twitch_voice
+
+
+CHANNELS = {
+    "data": [
+        {"user_name": "Somebody", "user_login": "somebody", "viewer_count": 412},
+        {"user_name": "Another", "user_login": "another", "viewer_count": 37},
+        {"user_name": "", "user_login": "", "viewer_count": 0},
+    ]
+}
+
+
+@pytest.fixture
+def keyed(monkeypatch):
+    monkeypatch.setenv(twitch_voice.ID_ENV, "an-id")
+    monkeypatch.setenv(twitch_voice.SECRET_ENV, "a-secret")
+
+
+def test_the_credentials_reach_both_twitch_endpoints(stub_context, keyed, monkeypatch):
+    _found, scoped = ready(stub_context.with_capabilities("net", "stt"), "twitch_voice")
+    asked = {}
+
+    monkeypatch.setattr(
+        twitch_voice.net, "post_json", lambda url, payload: {"access_token": "bearer-value"}
+    )
+
+    def fetch(url, headers=None):
+        asked["url"], asked["headers"] = url, headers
+        return CHANNELS
+
+    monkeypatch.setattr(twitch_voice.net, "fetch_json", fetch)
+
+    twitch_voice.live(scoped, twitch_voice.token())
+
+    assert asked["headers"] == {"Client-Id": "an-id", "Authorization": "Bearer bearer-value"}
+    assert "type=live" in asked["url"] and "language=en" in asked["url"]
+
+
+def test_a_refused_token_names_the_variables_to_check(keyed, monkeypatch):
+    monkeypatch.setattr(twitch_voice.net, "post_json", lambda url, payload: {})
+
+    with pytest.raises(Unavailable) as refused:
+        twitch_voice.token()
+
+    assert twitch_voice.ID_ENV in str(refused.value)
+    assert twitch_voice.SECRET_ENV in str(refused.value)
+
+
+def test_a_channel_becomes_a_stop_named_by_its_broadcaster():
+    stop = twitch_voice.described(CHANNELS["data"][0])
+
+    assert stop.label == "Somebody"
+    assert stop.url == "somebody"
+    assert stop.number == 412
+
+
+def test_a_channel_with_no_name_is_dropped(stub_context, keyed, monkeypatch):
+    _found, scoped = ready(stub_context.with_capabilities("net", "stt"), "twitch_voice")
+    monkeypatch.setattr(twitch_voice, "token", lambda: "bearer-value")
+    monkeypatch.setattr(twitch_voice, "live", lambda ctx, bearer: list(CHANNELS["data"]))
+
+    stops = twitch_voice._stops_for(scoped, Key(seed=1))
+
+    assert [stop.url for stop in stops] == ["another", "somebody"]
+
+
+def test_nobody_broadcasting_says_which_setting_to_change(stub_context, keyed, monkeypatch):
+    _found, scoped = ready(stub_context.with_capabilities("net", "stt"), "twitch_voice")
+    monkeypatch.setattr(twitch_voice, "token", lambda: "bearer-value")
+    monkeypatch.setattr(twitch_voice, "live", lambda ctx, bearer: [])
+
+    with pytest.raises(Unavailable) as refused:
+        twitch_voice._stops_for(scoped, Key(seed=1))
+
+    assert "language" in str(refused.value)
+
+
+def test_a_channel_is_resolved_only_when_it_is_reached(stub_context, keyed, monkeypatch):
+    ctx = listening(stub_context, ["said on a stream"])
+    found, scoped = ready(ctx, "twitch_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["stops"] = 1
+    resolved = []
+
+    monkeypatch.setattr(twitch_voice, "token", lambda: "bearer-value")
+    monkeypatch.setattr(twitch_voice, "live", lambda ctx, bearer: list(CHANNELS["data"][:2]))
+    monkeypatch.setattr(
+        twitch_voice, "resolve", lambda channel: resolved.append(channel) or "http://hls/live.m3u8"
+    )
+    monkeypatch.setattr(stream, "capture", lambda stop, rate, seconds: iter([tone()]))
+    monkeypatch.setattr(audio, "Output", lambda levels, rate: FakeOutput([]))
+
+    material = found.run(scoped, Key(seed=1))
+
+    assert material.text == "said on a stream"
+    assert material.source == "twitch"
+    # One stop wanted, so only one channel was ever asked about.
+    assert len(resolved) == 1
+
+
+def test_a_channel_that_went_dark_is_passed_over(monkeypatch):
+    monkeypatch.setattr(twitch_voice, "resolve", lambda channel: "")
+
+    assert list(twitch_voice._hear(stream.Stop("gone", "gone"), 16000, 5)) == []
+
+
+def test_the_resolver_takes_the_last_url_it_printed(monkeypatch):
+    class Finished:
+        stdout = "\nhttp://first/only-video\nhttp://second/audio.m3u8\n"
+
+    monkeypatch.setattr(twitch_voice.subprocess, "run", lambda *args, **kwargs: Finished())
+
+    assert twitch_voice.resolve("somebody") == "http://second/audio.m3u8"
+
+
+def test_twitch_voice_stays_out_of_the_lottery_without_credentials(stub_context, monkeypatch):
+    module = registry.MODULES["world"]["twitch_voice"]
+    online = stub_context.with_capabilities("net", "stt")
+    monkeypatch.setattr(stream.shutil, "which", lambda name: f"/usr/bin/{name}")
+
+    monkeypatch.delenv(twitch_voice.ID_ENV, raising=False)
+    monkeypatch.delenv(twitch_voice.SECRET_ENV, raising=False)
+    assert module.available(online) is False
+
+    monkeypatch.setenv(twitch_voice.ID_ENV, "an-id")
+    assert module.available(online) is False
+
+    monkeypatch.setenv(twitch_voice.SECRET_ENV, "a-secret")
+    assert module.available(online) is True
+
+    monkeypatch.setattr(stream.shutil, "which", lambda name: None)
+    assert module.available(online) is False

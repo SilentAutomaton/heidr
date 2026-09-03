@@ -12,6 +12,9 @@ from heidr.stt.base import RATE as SPEECH_RATE
 
 BLOCK = 4096
 AGENT = "heidr/0.1"
+# Public directories ask callers to name themselves rather than arrive as the
+# default library string, and it costs nothing to oblige.
+NAMED = {"User-Agent": AGENT}
 # ffmpeg reads this one in microseconds. It is the bound that kills a socket a
 # server opened and then stopped feeding, which a plain connect timeout misses.
 READ_TIMEOUT_US = 5_000_000
