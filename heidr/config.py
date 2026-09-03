@@ -39,7 +39,7 @@ DEFAULTS: dict[str, Any] = {
         "threads": 0,
         "binary": "",
     },
-    "rite": {"silence_chance": 0.05, "recent_penalty": 4, "attempts": 3},
+    "rite": {"silence_chance": 0.05, "recent_penalty": 4, "attempts": 3, "min_stage_s": 3.0},
     "ledger": {"path": "~/.local/share/heidr/ledger", "repeat_after_h": 24},
     "history": {"path": "~/.local/share/heidr"},
     "modules": {},

@@ -31,6 +31,9 @@ def default_config(tmp_path):
     settings = config.Config(config.merge(config.DEFAULTS, {}), tmp_path / "config.toml")
     settings.set("ledger.path", str(tmp_path / "ledger"))
     settings.set("history.path", str(tmp_path / "history"))
+    # The stage floor is a thing to watch, not a thing to test, and it would
+    # add minutes to a suite that performs a rite in every other test.
+    settings.set("rite.min_stage_s", 0)
     return settings
 
 

@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass, field, replace
 from datetime import timedelta
 
@@ -6,6 +7,8 @@ from heidr.contracts import Cancelled, Context, Key, Material
 from heidr.ledger import Entry, Ledger
 
 ATTEMPTS = 3
+FLOOR_S = 3.0
+SLICE_S = 0.05
 
 
 class AlreadyAsked(Exception):
@@ -114,7 +117,7 @@ class Lots:
         for _ in range(self.attempts):
             self.ctx.emit("stage", module.name)
             try:
-                value = module.run(_ready(self.ctx, module), argument)
+                value = _paced(self.ctx, lambda: module.run(_ready(self.ctx, module), argument))
             except Cancelled:
                 raise
             except Exception as refusal:
@@ -136,6 +139,29 @@ class Lots:
         if following is not None:
             self.ctx.emit("instead", (module.name, following.name))
         return following
+
+
+def _paced(ctx: Context, work):
+    """Run one module, then hold its slot until the floor is reached.
+
+    A module that answers in a tenth of a second draws its animation for a tenth
+    of a second, which reads as a flicker rather than as a stage of the rite. A
+    module that refused is held too: the note saying who gave way to whom is on
+    screen for that moment and nothing else.
+    """
+    started = time.monotonic()
+    try:
+        return work()
+    finally:
+        _linger(ctx, started)
+
+
+def _linger(ctx: Context, started: float) -> None:
+    # Sliced rather than one sleep, so a reader who has changed their mind is
+    # not held for the rest of the floor.
+    floor = float(ctx.config.get("rite.min_stage_s", FLOOR_S))
+    while time.monotonic() - started < floor and not ctx.cancelled():
+        time.sleep(SLICE_S)
 
 
 def _sentence(failure: Exception) -> str:
@@ -172,7 +198,7 @@ def _read(lots: Lots, drawn: rite.Rite, question: str, material: Material, gave_
     reason = ""
     for _ in range(lots.attempts):
         lots.ctx.emit("stage", module.name)
-        lines, broke = _speak(lots.ctx, module, question, material)
+        lines, broke = _paced(lots.ctx, lambda: _speak(lots.ctx, module, question, material))
         if isinstance(broke, Cancelled):
             raise broke
         if broke is not None:

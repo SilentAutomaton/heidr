@@ -85,6 +85,14 @@ The gears are worth one line of explanation, because they are not a progress
 bar: nothing in the mechanism knows how far along the answer is. It says only
 that work is happening, which is the honest amount to say.
 
+### Every stage lasts three seconds at least
+
+An animation nobody sees was not worth drawing. Some modules finish in
+milliseconds, so a module that has answered holds its slot until three seconds
+have passed since it started; a slower module is not delayed at all. The rule
+lives in the run rather than in any animation, and it is described in
+[the architecture](architecture.md#nothing-goes-too-fast-either).
+
 ### Silence is allowed to be funny
 
 `hush` is not one picture but a set, and the lot decides which is shown. The

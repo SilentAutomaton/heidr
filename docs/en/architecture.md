@@ -146,6 +146,23 @@ because `os.urandom` and the clock are always in it.
 The radio fails loudly. A capture that returns no samples never becomes a hash
 of nothing: it raises, and the run is recorded as void.
 
+## Nothing goes too fast either
+
+The opposite problem is smaller but it is real. A module that reads a local file
+or does arithmetic on the question is finished in a few milliseconds. Its
+animation appears and disappears inside one frame, and the reader sees the stage
+bar jump rather than a rite passing through three stages.
+
+So every module has a floor as well as a budget. When it finishes, the run waits
+until three seconds have passed **since that module started** — not three
+seconds added on top. A module that took five seconds waits for nothing, and the
+floor is invisible to it.
+
+`rite.min_stage_s` is the number, and zero turns the floor off. The wait is
+sliced, so `Escape` still ends a run at once, and a module that refused is held
+for the same three seconds, because the line naming who gave way to whom needs
+to be read as well.
+
 ## A module that cannot answer
 
 Every source can be unavailable today. Until recently the first failure ended

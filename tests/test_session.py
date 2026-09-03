@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from datetime import datetime, timedelta, timezone
@@ -332,3 +334,46 @@ def test_a_rite_nobody_could_read_frees_the_question(two_readings, offline, ledg
 
     assert ledger.last().get("Status") == "broken"
     assert ledger.asked_before(QUESTION) is None
+
+
+# The stage floor
+
+
+def test_a_module_that_answers_at_once_still_holds_its_slot(offline):
+    offline.config.set("rite.min_stage_s", 0.3)
+    started = time.monotonic()
+
+    session._paced(offline, lambda: "at once")
+
+    assert time.monotonic() - started >= 0.3
+
+
+def test_a_slow_module_is_not_held_any_longer(offline):
+    offline.config.set("rite.min_stage_s", 0.2)
+    started = time.monotonic()
+
+    session._paced(offline, lambda: time.sleep(0.3))
+
+    # The floor is measured from the start of the module, so the wait is not
+    # added to what the module already spent.
+    assert time.monotonic() - started < 0.5
+
+
+def test_a_module_that_refused_is_held_too(offline):
+    offline.config.set("rite.min_stage_s", 0.3)
+    started = time.monotonic()
+
+    with pytest.raises(ValueError):
+        session._paced(offline, lambda: (_ for _ in ()).throw(ValueError("no")))
+
+    assert time.monotonic() - started >= 0.3
+
+
+def test_a_reader_who_changed_their_mind_is_not_held(offline):
+    offline.config.set("rite.min_stage_s", 30)
+    offline.cancelled = lambda: True
+    started = time.monotonic()
+
+    session._paced(offline, lambda: "at once")
+
+    assert time.monotonic() - started < 1
