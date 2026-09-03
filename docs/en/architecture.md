@@ -125,6 +125,33 @@ The two are not alternatives, and either can be picked. A voice module that
 lands on an empty band has not fallen back on the entropy module; it has found
 an empty band, which is a different fact about the evening.
 
+## A voice does not have to arrive by aerial
+
+Half the program used to be invisible to anybody without a dongle. So the same
+idea — visit several transmitters, keep a few seconds of each, hand the audio to
+the recogniser — was given three sources that need no hardware at all.
+`net_voice` walks random internet radio stations, `kiwi_voice` borrows a public
+KiwiSDR one slot at a time, and `twitch_voice` listens to a live channel.
+
+`heidr/stream.py` is to those three what `heidr/radio.py` is to the aerial ones,
+and it is deliberately shaped the same way. A `Stop` names one place to listen;
+`gather` walks the stops with one buffer feeding the speaker, the waterfall and
+the recogniser on the same turn of the loop; and the transcription and anchor
+matching are the radio's own functions, not copies of them.
+
+Two things differ, and both come from the network rather than from the design.
+
+A listed station is not always a working station, so the caller offers more
+stops than it wants and the ones that give nothing are passed over. On the
+aerial an empty frequency is an answer; here a dead URL is not, it is a bad
+address.
+
+And a station sends a burst of buffered audio the moment a listener connects, so
+the first seconds arrive faster than real time. They are neither dropped nor
+slowed: the sound card blocks until it has room and the loop takes its pace from
+the speaker. With no sound card the visit is simply quicker, which costs nothing
+because nobody is listening to it.
+
 ## Nothing waits forever
 
 A run talks to a radio, to public endpoints and to a daemon, and any of them can
