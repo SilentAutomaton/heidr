@@ -4,7 +4,7 @@ import pytest
 from heidr import audio, net, registry, stream
 from heidr.contracts import Cancelled, Key, Unavailable
 from heidr.stt.base import Partial
-from heidr.world import net_voice
+from heidr.world import kiwi_voice, net_voice
 
 STATIONS = [
     {"name": "Raadio 2", "country": "Estonia", "bitrate": 128, "url": "http://a/1", "url_resolved": "http://a/1.mp3"},
@@ -305,3 +305,117 @@ def test_net_voice_needs_a_network_a_recogniser_and_ffmpeg(stub_context, monkeyp
 
     monkeypatch.setattr(stream.shutil, "which", lambda name: f"/usr/bin/{name}")
     assert module.available(stub_context.with_capabilities("net", "stt")) is True
+
+
+# kiwi_voice
+
+
+KIWI_LIST = """\
+// KiwiSDR.com receiver list for dyatlov map maker
+var kiwisdr_com =
+[
+\t{
+\t\t"status":"active", "offline":"no", "url":"http://one.example:8073",
+\t\t"loc":"Tarlee", "bands":"1800000-30000000", "users":"3", "users_max":"8",
+\t},
+\t{
+\t\t"status":"active", "offline":"no", "url":"http://full.example:8074",
+\t\t"loc":"Boras", "bands":"0-30000000", "users":"8", "users_max":"8",
+\t},
+\t{
+\t\t"status":"active", "offline":"no", "url":"http://vhf.example:8073",
+\t\t"loc":"Nowhere", "bands":"144000000-146000000", "users":"0", "users_max":"4",
+\t},
+\t{
+\t\t"status":"inactive", "offline":"yes", "url":"http://gone.example:8073",
+\t\t"loc":"Gone", "bands":"0-30000000", "users":"0", "users_max":"8",
+\t},
+]
+"""
+
+
+def test_the_receiver_list_is_javascript_not_json():
+    listed = kiwi_voice.receivers(KIWI_LIST)
+
+    assert len(listed) == 4
+    assert listed[0]["loc"] == "Tarlee"
+
+
+def test_a_list_that_is_not_a_list_at_all_is_no_receivers():
+    assert kiwi_voice.receivers("nothing here") == []
+    assert kiwi_voice.receivers("var x = [ broken ]") == []
+
+
+def test_only_a_free_receiver_that_reaches_the_band_is_used():
+    listed = kiwi_voice.receivers(KIWI_LIST)
+    free = [entry for entry in listed if kiwi_voice.listening(entry, 9_500_000)]
+
+    assert [entry["loc"] for entry in free] == ["Tarlee"]
+
+
+def test_a_receiver_with_no_free_slot_is_left_alone():
+    full = {"status": "active", "offline": "no", "url": "http://a", "bands": "0-30000000",
+            "users": "8", "users_max": "8"}
+
+    assert kiwi_voice.listening(full, 9_500_000) is False
+
+
+def test_the_recorder_is_told_the_frequency_in_kilohertz():
+    stop = kiwi_voice.described({"url": "http://one.example:8073", "loc": "Tarlee"}, 9_500_000)
+
+    assert stop.number == 9500
+    assert stop.label == "9.500 MHz via Tarlee"
+    assert kiwi_voice._address(stop.url) == ("one.example", 8073)
+
+
+def test_a_receiver_url_without_a_port_gets_the_usual_one():
+    assert kiwi_voice._address("one.example") == ("one.example", 8073)
+
+
+def test_no_free_receiver_says_whose_radios_these_are(stub_context, monkeypatch):
+    ctx = listening(stub_context)
+    _found, scoped = ready(ctx, "kiwi_voice")
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": "")
+
+    with pytest.raises(Unavailable) as refused:
+        kiwi_voice._stops_for(scoped, Key(seed=1))
+
+    assert "other people's" in str(refused.value)
+
+
+def test_every_stop_is_on_a_different_receiver(stub_context, monkeypatch):
+    ctx = listening(stub_context)
+    _found, scoped = ready(ctx, "kiwi_voice")
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": KIWI_LIST)
+
+    stops = kiwi_voice._stops_for(scoped, Key(seed=4))
+
+    assert len({stop.url for stop in stops}) == len(stops)
+
+
+def test_kiwi_voice_reports_the_receivers_it_reached(stub_context, monkeypatch):
+    ctx = listening(stub_context, ["heard on shortwave"])
+    found, scoped = ready(ctx, "kiwi_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["stops"] = 1
+    monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, agent="": KIWI_LIST)
+    monkeypatch.setattr(kiwi_voice, "capture", lambda stop, rate, seconds, binary: iter([tone()]))
+    monkeypatch.setattr(audio, "Output", lambda levels, rate: FakeOutput([]))
+
+    material = found.run(scoped, Key(seed=2))
+
+    assert material.text == "heard on shortwave"
+    assert material.source == "kiwisdr"
+    assert len(material.extra["receivers"]) == 1
+
+
+def test_kiwi_voice_needs_the_recorder_on_the_path(stub_context, monkeypatch):
+    module = registry.MODULES["world"]["kiwi_voice"]
+    online = stub_context.with_capabilities("net", "stt")
+
+    monkeypatch.setattr(stream.shutil, "which", lambda name: None)
+    assert module.available(online) is False
+
+    monkeypatch.setattr(stream.shutil, "which", lambda name: f"/usr/bin/{name}")
+    assert module.available(online) is True
+    assert module.available(stub_context) is False

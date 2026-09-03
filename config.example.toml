@@ -88,6 +88,13 @@ bitrate_min = 64
 tag = ""                # "news" or "talk" finds speech rather than music
 language = ""
 
+[modules.kiwi_voice]
+# Public KiwiSDR receivers. Needs kiwirecorder.py from the kiwiclient project.
+stops = 3
+dwell_s = 6
+pool = 12               # receivers lined up, so a busy one costs nothing
+binary = ""             # empty finds kiwirecorder.py on the path
+
 [modules.sky]
 # Your position. Without it the sky module stays out of the lottery.
 latitude = 0.0

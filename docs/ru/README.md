@@ -37,7 +37,7 @@
 
 ## Модули
 
-Их тридцать один, по документу на каждый, в каталоге [modules/](modules/). Таблицы со
+Их тридцать два, по документу на каждый, в каталоге [modules/](modules/). Таблицы со
 списком и требованиями лежат в [README проекта](../../README.md#modules).
 
 **Модули вопроса** превращают вопрос в ключ:
@@ -67,7 +67,8 @@
 [fm_voice](modules/fm_voice.md) ·
 [sw_voice](modules/sw_voice.md) ·
 [mw_voice](modules/mw_voice.md) ·
-[net_voice](modules/net_voice.md)
+[net_voice](modules/net_voice.md) ·
+[kiwi_voice](modules/kiwi_voice.md)
 
 **Толкования** превращают материал в ответ:
 [cutup](modules/cutup.md) ·

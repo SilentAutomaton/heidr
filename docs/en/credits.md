@@ -46,7 +46,9 @@ in public and reimplemented here.
 
 ## External programs called as subprocesses
 
-These are executed, not linked. Their licences do not reach this code.
+These are executed, not linked. Their licences do not reach this code, which is
+also why one of them may sit here with no licence at all: running a program is
+not redistributing it, and nothing was copied out of it.
 
 | Program | Licence | Used by |
 |---|---|---|
@@ -58,6 +60,7 @@ These are executed, not linked. Their licences do not reach this code.
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [chafa](https://github.com/hpjansson/chafa) | GPL-3.0 | image output in the terminal |
 | [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later, or GPL-2.0-or-later depending on the build | `world/net_voice` |
+| [kiwirecorder.py](https://github.com/jks-prv/kiwiclient) | **none stated** | `world/kiwi_voice` |
 
 ## Python dependencies
 

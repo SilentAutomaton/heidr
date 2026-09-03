@@ -39,6 +39,11 @@ def _bounded(work, url: str, budget: float):
         pool.shutdown(wait=False, cancel_futures=True)
 
 
+def fetch_text(url: str, budget: float = BUDGET, timeout: float = TIMEOUT, agent: str = "") -> str:
+    """The same bounded wait, for a source that is not JSON."""
+    return _bounded(lambda: _read(url, timeout, agent), url, budget)
+
+
 def post_json(url: str, payload: dict, budget: float = BUDGET, timeout: float = TIMEOUT):
     """The same bounded wait, for a request that carries something."""
     return _bounded(lambda: _post(url, payload, timeout), url, budget)
@@ -51,6 +56,13 @@ def _get(url: str, timeout: float, agent: str = ""):
     reply = requests.get(url, timeout=timeout, headers=headers)
     reply.raise_for_status()
     return reply.json()
+
+
+def _read(url: str, timeout: float, agent: str = "") -> str:
+    headers = {"User-Agent": agent} if agent else None
+    reply = requests.get(url, timeout=timeout, headers=headers)
+    reply.raise_for_status()
+    return reply.text
 
 
 def _post(url: str, payload: dict, timeout: float):
