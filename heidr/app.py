@@ -57,7 +57,7 @@ MIN_COLUMNS = 40
 MIN_ROWS = 12
 # Drawn by lot, like everything else here. The fallback is fixed so that a
 # missing animation cannot send the chooser round in circles.
-IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon")
+IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon", "runes", "rings", "rule30")
 IDLE = "plasma"
 # The status line and the command line, which never change height, and the
 # blank row above and below the panel. The stylesheets must agree, and a test

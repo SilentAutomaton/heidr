@@ -109,6 +109,9 @@ at rather than only the named ones.
 |---|---|---|
 | `plasma` | `blind`, idle | Four sine waves radiating from four points |
 | `life` | idle | Conway's rules, seeded from the measured entropy |
+| `rule30` | idle | Wolfram's rule, one new line a frame, scrolling up |
+| `rings` | idle | Ripples spreading from four drops on still water |
+| `runes` | idle | The Elder Futhark, rising and fading |
 | `rain` | idle | Falling columns of glyphs |
 | `starfield` | `planetary`, idle | Stars with parallax |
 | `moon` | `moment`, `calendar`, idle | The phase of the moon, growing with the terminal |

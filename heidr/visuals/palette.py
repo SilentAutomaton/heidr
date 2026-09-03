@@ -24,7 +24,7 @@ TINTS: dict[str, tuple[tuple[str, int], ...]] = {
     "moon": (("#c2ccd8", 252), ("#d8cdb4", 187)),
     "runes": (("#c8a45c", 179), ("#8fae86", 108)),
     "rings": (("#5fb0c8", 74), ("#9fb3c4", 110)),
-    "ants": (("#7f9bd0", 110), ("#c07a55", 173)),
+    "rule30": (("#7f9bd0", 110), ("#c07a55", 173)),
     # Instruments
     "waterfall": (("#4fc0c8", 73),),
     "scope": (("#4fc97a", 77), ("#dba55a", 179)),
