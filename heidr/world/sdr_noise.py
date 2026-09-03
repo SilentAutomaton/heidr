@@ -19,7 +19,7 @@ def condition(raw: bytes) -> bytes:
     return entropy.whiten(*entropy.von_neumann(raw))
 
 
-@world("sdr_noise", needs=("sdr",), visual="waterfall", defaults={"frequency": EMPTY, "seconds": 3.0})
+@world("sdr_noise", needs=("sdr",), visual="bits", defaults={"frequency": EMPTY, "seconds": 3.0})
 def run(ctx, key: Key) -> Material:
     raw = entropy.radio_noise(float(ctx.settings["seconds"]), str(ctx.settings["frequency"]))
     clean = condition(raw)

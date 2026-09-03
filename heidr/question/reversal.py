@@ -13,7 +13,7 @@ def available(ctx) -> bool:
     return ctx.llm is not None
 
 
-@question("reversal", visual="cog", needs=("llm",))
+@question("reversal", visual="mirror", needs=("llm",))
 def run(ctx, text: str) -> Key:
     # The model rewrites the question, but it never chooses the answer. What it
     # produces is a key, and where that key leads is still the world's business.

@@ -59,7 +59,7 @@ def fragment(material: Material, limit: int) -> str:
     return f"source: {material.source}\nnumbers: {material.numbers}\n\n{body}"
 
 
-@reading("pythia", visual="cog", needs=("llm",))
+@reading("pythia", visual="vapour", needs=("llm",))
 def run(ctx, question: str, material: Material):
     voice = voice_for(material)
     limit = int(ctx.config.get("llm.fragment_chars", FRAGMENT_CHARS))

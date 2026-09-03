@@ -37,7 +37,7 @@ def fold(vector: list[float]) -> int:
     return int.from_bytes(hashlib.sha256(packed).digest(), "big")
 
 
-@question("embed", visual="cog", needs=("llm",), defaults={"model": MODEL, "timeout": 20})
+@question("embed", visual="lattice", needs=("llm",), defaults={"model": MODEL, "timeout": 20})
 def run(ctx, text: str) -> Key:
     base_url = ctx.config.get("llm.base_url", "http://localhost:11434")
     if not urlparse(base_url).hostname:

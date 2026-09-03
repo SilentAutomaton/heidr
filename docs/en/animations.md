@@ -116,21 +116,26 @@ at rather than only the named ones.
 | `starfield` | `planetary`, idle | Stars with parallax |
 | `moon` | `moment`, `calendar`, idle | The phase of the moon, growing with the terminal |
 | `seeress` | the question field | Heiðr, breathing, blinking, staff in hand |
-| `waterfall` | `fm_voice`, `mw_voice`, `sw_voice`, `sdr_noise` | The spectrum, scrolling |
+| `waterfall` | `fm_voice`, `mw_voice`, `sw_voice` | The spectrum, scrolling |
 | `globe` | `net_voice` | A wire globe turning, a mark where each station is |
 | `relay` | `kiwi_voice` | Somebody else's mast on the horizon, and the waves it hears |
 | `scanlines` | `twitch_voice` | A glass screen with the picture not quite locked |
 | `scope` | `ism`, `rtl_peak` | The live waveform |
 | `radar` | `sky`, `adsb_local` | A sweep with a mark on it |
 | `seismo` | `quake` | A seismograph trace |
-| `hexlib` | `babel`, `mojibake` | A wall of hexagons with letters falling through it |
+| `hexlib` | `babel` | A wall of hexagons with letters falling through it |
+| `codepage` | `mojibake` | A page re-read through one wrong encoding after another |
+| `bits` | `sdr_noise` | Bits raining, pairs cancelling, the survivors becoming a digest |
 | `sieve` | `skeleton` | Words shaken until their vowels fall out |
 | `zipf` | `rarest` | A frequency histogram collapsing to the one bar nobody says |
 | `initials` | `acrostic` | First letters lifting out of a stack of words |
 | `abacus` | `gematria` | Letters dropping onto beads, and a total growing under them |
 | `chain` | `chain` | Blocks, with a hash running along them |
 | `dish` | `apt`, `hline` | A dish, and a noise floor rising under it |
-| `cog` | `pythia`, `embed`, `reversal` | A train of meshed gears, turning |
+| `cog` | anything that names no visual | A train of meshed gears, turning |
+| `mirror` | `reversal` | A question going in one side of an axis and its opposite leaving the other |
+| `lattice` | `embed` | A cloud of points settling onto one direction |
+| `vapour` | `pythia` | Fumes rising from a tripod |
 | `hush` | `mute` | The reading that returns nothing |
 | `hexagram` | `iching` | Six lines building from the bottom up |
 | `cards` | `tarot` | A card turning over |
