@@ -62,9 +62,9 @@ None. Standard library only.
 ## Sources
 
 The method is classical and belongs to nobody.
-[ichingshifa](https://github.com/kentang2017/ichingshifa) by kentang2017 was read
-as a check that the three-change counting produces the distribution above; no
-code was copied, and that repository states no licence.
+[ichingshifa](https://github.com/kentang2017/ichingshifa) by Ken Tang, MIT, was
+read as a check that the three-change counting produces the distribution above.
+No code was copied.
 
 **The classical judgement texts are not shipped.** Every well-known English
 rendering — Wilhelm, Blofeld, Lynn — is a translation under copyright. The

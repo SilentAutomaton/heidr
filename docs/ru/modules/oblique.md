@@ -37,4 +37,4 @@
 укажите путь к ней в настройке `deck`.
 
 Приём с плоским офлайновым корпусом и строками-комментариями взят у
-[fortune-mod](https://github.com/shlomif/fortune-mod), лицензия ISC.
+[fortune-mod](https://github.com/shlomif/fortune-mod), лицензия BSD-4-Clause.

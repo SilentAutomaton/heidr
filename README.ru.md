@@ -236,7 +236,7 @@ cp keymap.example.toml ~/.config/heidr/keymap.toml
 Перенесённый код: [rtl-entropy](https://github.com/pwarren/rtl-entropy) (GPL-3.0),
 [drawille](https://github.com/asciimoo/drawille) (GPL-3.0),
 [no-more-secrets](https://github.com/bartobri/no-more-secrets) (GPL-3.0),
-[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) (ISC),
+[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) (BSD-3-Clause),
 [dreamdir](https://github.com/sobjornstad/dreamdir) (MIT).
 
 ## Тесты

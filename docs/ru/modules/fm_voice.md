@@ -72,5 +72,5 @@
 ## Источники
 
 Четыре режима развёртки и мысль сделать задержку главной настройкой взяты у
-[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) Дага Хейбера,
-лицензия ISC.
+[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) Дугласа Хабера,
+лицензия BSD-3-Clause.

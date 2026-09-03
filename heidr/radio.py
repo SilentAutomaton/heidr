@@ -49,7 +49,7 @@ def plan(
 ) -> list[float]:
     """Which frequencies to visit, in which order.
 
-    Four sweep modes, after gqrx-ghostbox by Doug Haber (ISC).
+    Four sweep modes, after gqrx-ghostbox by Douglas Haber (BSD-3-Clause).
     https://github.com/DougHaber/gqrx-ghostbox
 
     Without `among` the band is divided evenly and the sweep walks the grid,

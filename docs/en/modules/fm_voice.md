@@ -72,5 +72,5 @@ Capabilities: [`sdr`](../install.md), [`stt`](../stt.md).
 ## Sources
 
 The four sweep modes, and the idea of making dwell time the setting that matters,
-come from [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) by Doug
-Haber, ISC licensed.
+come from [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) by
+Douglas Haber, BSD-3-Clause.

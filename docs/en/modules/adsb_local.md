@@ -49,5 +49,5 @@ Capabilities: [`sdr`](../install.md).
 
 ## Sources
 
-Nothing borrowed. [dump1090](https://github.com/antirez/dump1090), ISC licensed,
+Nothing borrowed. [dump1090](https://github.com/antirez/dump1090), BSD-3-Clause,
 runs as a separate program.

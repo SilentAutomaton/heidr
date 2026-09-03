@@ -92,5 +92,5 @@ Capabilities: [`sdr`](../install.md), [`stt`](../stt.md).
 ## Sources
 
 Sweep modes from [gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) by
-Doug Haber, ISC licensed. The direct sampling flags are documented in `rtl_fm`
+Douglas Haber, BSD-3-Clause. The direct sampling flags are documented in `rtl_fm`
 and `rtl_power`'s own help.

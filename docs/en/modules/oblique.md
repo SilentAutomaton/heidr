@@ -37,4 +37,4 @@ deck is under copyright and is not shipped here.** The cards in
 use another.
 
 The convention of a flat offline corpus with comment lines comes from
-[fortune-mod](https://github.com/shlomif/fortune-mod), ISC.
+[fortune-mod](https://github.com/shlomif/fortune-mod), BSD-4-Clause.

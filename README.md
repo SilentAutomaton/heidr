@@ -221,7 +221,7 @@ its own sources; the full table lives in [the credits](docs/en/credits.md).
 Code adapted: [rtl-entropy](https://github.com/pwarren/rtl-entropy) (GPL-3.0),
 [drawille](https://github.com/asciimoo/drawille) (GPL-3.0),
 [no-more-secrets](https://github.com/bartobri/no-more-secrets) (GPL-3.0),
-[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) (ISC),
+[gqrx-ghostbox](https://github.com/DougHaber/gqrx-ghostbox) (BSD-3-Clause),
 [dreamdir](https://github.com/sobjornstad/dreamdir) (MIT).
 
 ## Tests
