@@ -52,6 +52,34 @@ neither exists, in `.:-=+*#%@`.
 Nothing has to be chosen or configured. The difference between three waterfalls
 is one line naming a character ramp; everything else is shared.
 
+## Colour
+
+Every animation used to be drawn in one colour, so the plasma field, the gears
+and the falling glyphs were the same orange as the sign above them. Now each
+one has a colour of its own, and several are offered per animation with one
+drawn when it starts: the gears are teal today and brass tomorrow.
+
+The table is `heidr/visuals/palette.py`, and it has rules worth keeping.
+
+The animation is a **background**. The panel and the wordmark stand on top of
+it, so every colour is held below the panel text in lightness and kept at
+moderate saturation. A pure primary vibrates on a dark ground and reads as a
+screensaver rather than as an instrument. A large red field reads as an error.
+Neither is in the table, and a test enforces both.
+
+The colour suits the subject rather than decorating it. Radar green is the only
+colour a radar screen has ever been. The library is parchment. The seal is
+cinnabar and the stone under it is jade. Silence is the grey the slogan is set
+in. Where an animation imitates a real instrument, the instrument decides.
+
+Colour steps down with the terminal exactly as the accent does: the hex value
+where there are sixteen million colours, the nearest xterm index where there are
+256, and **nothing at all below that**. The bare console theme is white on black
+with reversed video, and tinting it would only spoil the one thing it does well.
+
+Two animations are excluded and keep the accent. `seeress` is the sign of the
+program and `reveal` is the answer, and the orange belongs to those.
+
 ## Which module brings which
 
 A module names its animation in the same `visual` field it has always had, and
@@ -193,10 +221,11 @@ before it is really chosen.
 
 ## The sign and the slogan
 
-The wordmark is white and its slashes are orange, and that is the only colour in
-the program. The exact orange steps down with the terminal: `#e08b1e` where
-there are sixteen million colours, xterm index 214 where there are 256, and
-plain yellow below that.
+The wordmark is white and its slashes are orange, and nothing else in the
+program takes that orange except the answer. The exact value steps down with the
+terminal: `#e08b1e` where there are sixteen million colours, xterm index 214
+where there are 256, and plain yellow below that. The animation behind the sign
+has [a colour of its own](#colour); the sign does not share it.
 
 A slogan is drawn under it, one of a dozen. One entry in that pool is not a
 slogan but an effect: the letters change three times a second while the shape of

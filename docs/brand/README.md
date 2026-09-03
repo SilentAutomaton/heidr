@@ -1,8 +1,11 @@
 # The wordmark
 
 White `HEID`, orange slashes, white `R`, and the slogan spaced out underneath.
-The slashes are the only colour the project uses, in the interface as well as
-here.
+
+The orange is reserved. In the interface it marks the sign and the answer and
+nothing else; the animation behind them has a colour of its own, from the table
+in `heidr/visuals/palette.py`. Reserved is not the same as only: those colours
+are chosen to sit behind the orange rather than to compete with it.
 
 | File | Size | Where it is used |
 |---|---|---|

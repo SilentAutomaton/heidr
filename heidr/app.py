@@ -33,6 +33,7 @@ from heidr.ui import browser
 from heidr.ui import mark, panel, prompt, stages
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
+from heidr.visuals import palette
 from heidr.visuals.canvas import Canvas
 
 def _section(key: str) -> str:
@@ -687,11 +688,21 @@ class HeidrApp(App):
                 self.show_visual(IDLE)
             return
 
+        self._tint(canvas, name)
         canvas.show(chosen.make(), chosen.fps)
         if chosen.event:
             self._visual_off = self.bus.subscribe(
                 chosen.event, lambda payload: self._forward(canvas, payload)
             )
+
+    def _tint(self, canvas: Canvas, name: str) -> None:
+        colour = palette.tint(name, self.terminal.colours, random)
+        if colour:
+            canvas.styles.color = colour
+        else:
+            # Back to whatever the stylesheet says, which in a bare console is
+            # white and is meant to stay white.
+            canvas.styles.clear_rule("color")
 
     def _forward(self, widget, payload) -> None:
         # Captures run in worker threads, and a widget may only be touched from
