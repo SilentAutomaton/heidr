@@ -40,7 +40,7 @@ def recorder(ctx) -> str:
 @world(
     "kiwi_voice",
     needs=("net", "stt"),
-    visual="waterfall",
+    visual="relay",
     defaults={
         "band": list(BANDS),
         "stops": 3,

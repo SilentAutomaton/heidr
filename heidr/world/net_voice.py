@@ -19,7 +19,7 @@ def available(ctx) -> bool:
 @world(
     "net_voice",
     needs=("net", "stt"),
-    visual="waterfall",
+    visual="globe",
     defaults={
         "stops": 4,
         "dwell_s": 5,

@@ -117,6 +117,9 @@ at rather than only the named ones.
 | `moon` | `moment`, `calendar`, idle | The phase of the moon, growing with the terminal |
 | `seeress` | the question field | Heiðr, breathing, blinking, staff in hand |
 | `waterfall` | `fm_voice`, `mw_voice`, `sw_voice`, `sdr_noise` | The spectrum, scrolling |
+| `globe` | `net_voice` | A wire globe turning, a mark where each station is |
+| `relay` | `kiwi_voice` | Somebody else's mast on the horizon, and the waves it hears |
+| `scanlines` | `twitch_voice` | A glass screen with the picture not quite locked |
 | `scope` | `ism`, `rtl_peak` | The live waveform |
 | `radar` | `sky`, `adsb_local` | A sweep with a mark on it |
 | `seismo` | `quake` | A seismograph trace |

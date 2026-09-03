@@ -29,7 +29,7 @@ def available(ctx) -> bool:
 @world(
     "twitch_voice",
     needs=("net", "stt"),
-    visual="waterfall",
+    visual="scanlines",
     defaults={
         "stops": 2,
         "dwell_s": 5,

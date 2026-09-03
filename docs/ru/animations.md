@@ -117,6 +117,9 @@ def paint(frame: Frame) -> list[str]:
 | `moon` | `moment`, `calendar`, простой | Фаза луны, растущая вместе с терминалом |
 | `seeress` | поле вопроса | Хейд: дышит, моргает, с посохом в руке |
 | `waterfall` | `fm_voice`, `mw_voice`, `sw_voice`, `sdr_noise` | Бегущий спектр |
+| `globe` | `net_voice` | Проволочный глобус, и на нём отметки станций |
+| `relay` | `kiwi_voice` | Чужая мачта на горизонте и волны, которые она слышит |
+| `scanlines` | `twitch_voice` | Стеклянный экран, на котором картинка не встала |
 | `scope` | `ism`, `rtl_peak` | Осциллограмма живого звука |
 | `radar` | `sky`, `adsb_local` | Развёртка с отметкой |
 | `seismo` | `quake` | Лента сейсмографа |
