@@ -3,7 +3,7 @@ from heidr.question.words import digest_seed, rarity, words
 from heidr.registry import question
 
 
-@question("rarest", visual="hexlib")
+@question("rarest", visual="zipf")
 def run(ctx, text: str) -> Key:
     # One anchor, not two: the least ordinary word in the question is the one
     # worth looking for in what the world says back.

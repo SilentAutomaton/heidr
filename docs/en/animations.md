@@ -123,7 +123,11 @@ at rather than only the named ones.
 | `scope` | `ism`, `rtl_peak` | The live waveform |
 | `radar` | `sky`, `adsb_local` | A sweep with a mark on it |
 | `seismo` | `quake` | A seismograph trace |
-| `hexlib` | `babel`, `mojibake`, `gematria`, `acrostic`, `rarest`, `skeleton` | A wall of hexagons with letters falling through it |
+| `hexlib` | `babel`, `mojibake` | A wall of hexagons with letters falling through it |
+| `sieve` | `skeleton` | Words shaken until their vowels fall out |
+| `zipf` | `rarest` | A frequency histogram collapsing to the one bar nobody says |
+| `initials` | `acrostic` | First letters lifting out of a stack of words |
+| `abacus` | `gematria` | Letters dropping onto beads, and a total growing under them |
 | `chain` | `chain` | Blocks, with a hash running along them |
 | `dish` | `apt`, `hline` | A dish, and a noise floor rising under it |
 | `cog` | `pythia`, `embed`, `reversal` | A train of meshed gears, turning |
