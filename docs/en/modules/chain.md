@@ -1,4 +1,4 @@
-# chain — world module
+# chain — source
 
 ## What it does
 

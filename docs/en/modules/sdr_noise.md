@@ -1,4 +1,4 @@
-# sdr_noise — world module
+# sdr_noise — source
 
 ## What it does
 

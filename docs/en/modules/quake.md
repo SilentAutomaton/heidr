@@ -1,4 +1,4 @@
-# quake — world module
+# quake — source
 
 ## What it does
 

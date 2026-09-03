@@ -1,4 +1,4 @@
-# ism — world module
+# ism — source
 
 ## What it does
 

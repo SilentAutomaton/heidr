@@ -1,9 +1,9 @@
-# babel — world module
+# babel — source
 
 ## What it does
 
-Opens a page of the Library of Babel. Given an anchor word, it does the more
-second use: it returns the address where that word has always been.
+Opens a page of the Library of Babel. Given an anchor word it also works the
+other way round, returning the address where that word has always been.
 
 ## Where the data comes from
 

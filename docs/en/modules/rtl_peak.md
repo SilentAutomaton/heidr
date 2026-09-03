@@ -1,4 +1,4 @@
-# rtl_peak — world module
+# rtl_peak — source
 
 ## What it does
 

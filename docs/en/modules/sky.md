@@ -1,4 +1,4 @@
-# sky — world module
+# sky — source
 
 ## What it does
 

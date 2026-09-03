@@ -1,4 +1,4 @@
-# mojibake — world module
+# mojibake — source
 
 ## What it does
 
