@@ -80,6 +80,24 @@ with reversed video, and tinting it would only spoil the one thing it does well.
 Two animations are excluded and keep the accent. `seeress` is the sign of the
 program and `reveal` is the answer, and the orange belongs to those.
 
+### Coloured by level
+
+Three animations draw something measured, and those are coloured by how much of
+it there is rather than flatly: the waterfall runs from a cold floor to a hot
+carrier, the oscilloscope from a dim trace to a bright one, the seismograph from
+quiet slate to violent clay. That is what the instruments they imitate do, and
+it is the reason a spectrum display is legible at a glance.
+
+The canvas returns a `rich.text.Text` for those and a plain string for
+everything else. The colour is chosen by the character's place in the ramp, and
+neighbouring characters that land on the same colour share one span, so a row
+costs a few dozen spans rather than one per cell. It is built as a `Text` and
+never as markup, because a painter is free to draw a square bracket and markup
+would read it as a tag.
+
+Where the terminal has only 256 colours the stops are used as they are: an
+xterm index cannot be mixed with another one.
+
 ## Which module brings which
 
 A module names its animation in the same `visual` field it has always had, and

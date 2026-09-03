@@ -57,6 +57,16 @@ TINTS: dict[str, tuple[tuple[str, int], ...]] = {
 }
 
 
+# The three animations that draw something measured, coloured by how much of it
+# there is. Cold floor to hot carrier is what a spectrum display has looked like
+# since they were made of paper; quiet slate to violent clay is a seismograph.
+GRADIENTS: dict[str, tuple[tuple[str, int], ...]] = {
+    "waterfall": (("#2b6f9c", 24), ("#4fc0c8", 73), ("#e0b45c", 179)),
+    "scope": (("#2f7f5f", 29), ("#4fc97a", 77)),
+    "seismo": (("#93a4b4", 145), ("#c9695f", 167)),
+}
+
+
 def tint(name: str, colours: int, rng: random.Random) -> str:
     """One colour for this animation, or nothing at all.
 
@@ -74,3 +84,41 @@ def tint(name: str, colours: int, rng: random.Random) -> str:
 def step_down(colour: tuple[str, int], colours: int) -> str:
     exact, index = colour
     return exact if colours >= 16777216 else f"color({index})"
+
+
+def gradient(name: str, colours: int, steps: int) -> tuple[str, ...]:
+    """One colour per level of the character ramp, or nothing.
+
+    An xterm index cannot be mixed with another one, so where the terminal has
+    only 256 colours the stops are used as they are and each level takes the
+    nearest of them. Where it has all of them, the stops are blended.
+    """
+    stops = GRADIENTS.get(name)
+    if not stops or colours < 256 or steps <= 0:
+        return ()
+    if colours < 16777216:
+        return tuple(
+            f"color({stops[min(len(stops) - 1, index * len(stops) // steps)][1]})"
+            for index in range(steps)
+        )
+    return tuple(blend(stops, index / max(steps - 1, 1)) for index in range(steps))
+
+
+def blend(stops: tuple[tuple[str, int], ...], position: float) -> str:
+    if len(stops) == 1:
+        return stops[0][0]
+    reach = position * (len(stops) - 1)
+    first = min(int(reach), len(stops) - 2)
+    return _mix(stops[first][0], stops[first + 1][0], reach - first)
+
+
+def _mix(start: str, end: str, share: float) -> str:
+    channels = (
+        round(_channel(start, at) + (_channel(end, at) - _channel(start, at)) * share)
+        for at in (1, 3, 5)
+    )
+    return "#" + "".join(f"{value:02x}" for value in channels)
+
+
+def _channel(colour: str, at: int) -> int:
+    return int(colour[at : at + 2], 16)

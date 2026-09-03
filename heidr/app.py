@@ -688,8 +688,13 @@ class HeidrApp(App):
                 self.show_visual(IDLE)
             return
 
+        painter = chosen.make()
         self._tint(canvas, name)
-        canvas.show(chosen.make(), chosen.fps)
+        canvas.show(
+            painter,
+            chosen.fps,
+            palette.gradient(name, self.terminal.colours, len(painter.ramp)),
+        )
         if chosen.event:
             self._visual_off = self.bus.subscribe(
                 chosen.event, lambda payload: self._forward(canvas, payload)

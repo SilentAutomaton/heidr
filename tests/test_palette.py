@@ -4,8 +4,9 @@ import pytest
 
 from heidr import registry
 from heidr.capabilities import Terminal
-from heidr.visuals import palette
+from heidr.visuals import canvas, palette
 from heidr.visuals.canvas import Canvas
+from heidr.visuals.paint import ASCII
 
 from tests.test_app import make_app
 
@@ -89,3 +90,57 @@ async def test_a_bare_console_canvas_is_never_tinted(default_config):
         pilot.app.show_visual("cog")
 
         assert not tinted(pilot.app)
+
+
+# The gradient
+
+
+def test_only_the_measured_animations_have_a_gradient():
+    assert set(palette.GRADIENTS) == {"waterfall", "scope", "seismo"}
+    for name in palette.GRADIENTS:
+        assert palette.gradient(name, TRUECOLOR, 8)
+    assert palette.gradient("cog", TRUECOLOR, 8) == ()
+
+
+def test_a_gradient_runs_from_the_first_stop_to_the_last():
+    shades = palette.gradient("waterfall", TRUECOLOR, 8)
+
+    assert len(shades) == 8
+    assert shades[0] == palette.GRADIENTS["waterfall"][0][0]
+    assert shades[-1] == palette.GRADIENTS["waterfall"][-1][0]
+
+
+def test_a_gradient_steps_down_to_indices_that_cannot_be_mixed():
+    shades = palette.gradient("waterfall", INDEXED, 8)
+
+    assert all(shade.startswith("color(") for shade in shades)
+    assert set(shades) == {f"color({index})" for _hex, index in palette.GRADIENTS["waterfall"]}
+
+
+def test_a_bare_console_has_no_gradient_either():
+    assert palette.gradient("waterfall", CONSOLE, 8) == ()
+
+
+def test_a_row_becomes_runs_rather_than_cells():
+    shades = ("#000000", "#444444", "#888888", "#ffffff")
+
+    text = canvas.shaded(["  ..==##"], ASCII, shades)
+
+    assert text.plain == "  ..==##"
+    assert len(text.spans) == 3
+    assert text.spans[0].style == shades[0]
+    assert text.spans[-1].style == shades[2]
+
+
+def test_a_glyph_outside_the_ramp_is_drawn_at_full_strength():
+    shades = ("#000000", "#ffffff")
+
+    assert canvas.shaded(["A"], ASCII, shades).spans[0].style == shades[-1]
+
+
+def test_an_animation_with_no_gradient_still_returns_plain_text():
+    painter = registry.pick_animation("cog", "ascii").make()
+    board = canvas.Canvas("ascii")
+    board.painter = painter
+
+    assert board.tint == ()
