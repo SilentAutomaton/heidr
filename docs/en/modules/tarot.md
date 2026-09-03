@@ -1,5 +1,7 @@
 # tarot — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/tarot.md)
+
 ## What it does
 
 Draws a spread from a seventy-eight card deck and prints each card in a plain

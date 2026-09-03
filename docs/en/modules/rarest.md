@@ -1,5 +1,7 @@
 # rarest — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/rarest.md)
+
 ## What it does
 
 Finds the least ordinary word in the question and makes it the only anchor.

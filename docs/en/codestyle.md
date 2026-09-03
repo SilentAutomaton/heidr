@@ -1,5 +1,7 @@
 # Code style
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/codestyle.md)
+
 One rule above the others: **the code must read cleanly with every comment
 deleted.** Comments explain why, never what. Write them in plain technical
 English.

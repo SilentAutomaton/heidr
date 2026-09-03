@@ -1,5 +1,7 @@
 # fm_voice — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/fm_voice.md)
+
 ## What it does
 
 Sweeps the FM broadcast band, stopping on each frequency for a few seconds,
@@ -64,6 +66,8 @@ retuning.
 An RTL-SDR dongle plugged in, `rtl_fm` on the system, and a configured speech
 provider. Missing any of the three keeps the module out of the choice. A sound
 card is optional: without one everything works silently.
+
+Capabilities: [`sdr`](../install.md), [`stt`](../stt.md).
 
 ## Sources
 

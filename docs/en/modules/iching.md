@@ -1,5 +1,7 @@
 # iching — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/iching.md)
+
 ## What it does
 
 Casts a hexagram from the material and names it, together with the hexagram it

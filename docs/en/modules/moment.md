@@ -1,5 +1,7 @@
 # moment — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/moment.md)
+
 ## What it does
 
 Does not read the question at all. Takes the current time and the phase of the

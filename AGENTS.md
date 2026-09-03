@@ -7,10 +7,10 @@ Read this before changing anything. It is short on purpose; the detail lives in
 
 | Before you | Read |
 |---|---|
-| write any code | [docs/en/codestyle.md](docs/en/codestyle.md) |
-| add a module | [docs/en/module-guide.md](docs/en/module-guide.md) |
-| write a test | [docs/en/testing.md](docs/en/testing.md) |
-| change the core | [docs/en/architecture.md](docs/en/architecture.md) |
+| write any code | [code style](docs/en/codestyle.md) |
+| add a module | [the module guide](docs/en/module-guide.md) |
+| write a test | [testing](docs/en/testing.md) |
+| change the core | [architecture](docs/en/architecture.md) |
 
 Every document has a Russian mirror in `docs/ru/` with the same file name. When
 you change one, change the other in the same commit.
@@ -19,7 +19,7 @@ The two languages are held to different standards. English documents use plain
 technical English. Russian documents use proper literary Russian — connected
 prose, full sentences, technical terms only where they earn their place. Neither
 is a word-for-word rendering of the other. The rules are in
-[docs/en/codestyle.md](docs/en/codestyle.md#documentation-language).
+[code style](docs/en/codestyle.md#documentation-language).
 
 ## Hard rules
 

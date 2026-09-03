@@ -1,5 +1,7 @@
 # skeleton — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/skeleton.md)
+
 ## What it does
 
 Drops every vowel from the question and keeps the consonant skeleton.

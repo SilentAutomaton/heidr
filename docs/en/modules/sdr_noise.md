@@ -1,5 +1,7 @@
 # sdr_noise — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/sdr_noise.md)
+
 ## What it does
 
 Listens to an empty frequency and hands the run the noise itself, rather than a
@@ -41,6 +43,8 @@ Pick your own frequency: what is empty in one city is occupied in another.
 ## Dependencies
 
 An RTL-SDR dongle plugged in, and `rtl_sdr` on the system.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

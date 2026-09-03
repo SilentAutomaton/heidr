@@ -1,5 +1,7 @@
 # Keys
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/keys.md)
+
 The program is modal in the manner of neovim, and the keys are the ones a vim
 user's hands already know. What follows is the whole map, what it was borrowed
 from, and the five places where the two cannot agree.

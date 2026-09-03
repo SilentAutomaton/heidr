@@ -1,5 +1,7 @@
 # Testing
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/testing.md)
+
 The goal is that every behaviour has exactly one test that fails when the
 behaviour breaks. Coverage is measured but is not the target: a suite that
 mirrors the code line by line only makes the code harder to change.

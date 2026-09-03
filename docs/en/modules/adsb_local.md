@@ -1,5 +1,7 @@
 # adsb_local — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/adsb_local.md)
+
 ## What it does
 
 Takes an aircraft passing overhead right now — but unlike the `sky` module, it
@@ -42,6 +44,8 @@ and then the material comes back empty.
 
 An RTL-SDR dongle plugged in and `dump1090` running. The module checks the port
 and is left out of the choice when nothing answers.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

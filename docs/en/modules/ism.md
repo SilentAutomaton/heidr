@@ -1,5 +1,7 @@
 # ism — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/ism.md)
+
 ## What it does
 
 Listens to the domestic radio hum around the house: the neighbours' weather
@@ -34,6 +36,8 @@ condition the module needs.
 ## Dependencies
 
 An RTL-SDR dongle plugged in, and `rtl_433` on the system.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

@@ -1,5 +1,7 @@
 # acrostic — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/acrostic.md)
+
 ## What it does
 
 Collects the first letter of every word into one new word.

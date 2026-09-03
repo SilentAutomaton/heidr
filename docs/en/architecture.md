@@ -1,5 +1,7 @@
 # Architecture
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/architecture.md)
+
 ## The idea
 
 A fixed pipeline gets boring after three runs: once you can see the mechanism,
@@ -57,7 +59,7 @@ user directory joins the choice without the core being edited.
 
 Every module also declares `available(ctx) -> bool`. A missing dongle, an
 unreachable network or an absent speech binary keeps it out of the choice, and
-`:checkhealth` explains which of the three it was.
+[`:checkhealth`](checkhealth.md) explains which of the three it was.
 
 ## Events, not wiring
 

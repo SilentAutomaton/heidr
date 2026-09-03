@@ -1,5 +1,7 @@
 # Animations
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/animations.md)
+
 ## What one is
 
 An animation is a painter: a function of the frame size and the frame number,

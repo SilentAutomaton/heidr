@@ -1,5 +1,7 @@
 # sw_voice — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/sw_voice.md)
+
 ## What it does
 
 Listens to shortwave broadcasting in AM: draws one of the metre bands, scans it,
@@ -82,8 +84,10 @@ strange, and that is the intent.
 ## Dependencies
 
 A dongle that receives shortwave, an antenna for it, `rtl_fm`, `rtl_power`, and
-a configured speech provider. A larger model earns its keep here in particular:
+a configured [speech provider](../stt.md). A larger model earns its keep here in particular:
 on a noisy fragment `small` invents about half of what it reports.
+
+Capabilities: [`sdr`](../install.md), [`stt`](../stt.md).
 
 ## Sources
 

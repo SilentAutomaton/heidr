@@ -1,5 +1,7 @@
 # chain — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/chain.md)
+
 ## What it does
 
 Reads the newest Bitcoin block: its Merkle root for numbers, and whatever

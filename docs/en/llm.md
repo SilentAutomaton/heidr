@@ -1,5 +1,7 @@
 # Language model providers
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/llm.md)
+
 A reading may want a model to interpret what was found. Which model, and where
 it runs, is one line of configuration.
 
@@ -59,6 +61,8 @@ Before this, no options were sent at all and the server's own defaults decided
 everything, including a context window too small for a page of found material.
 An OpenAI shaped service gets `temperature`, `top_p` and `max_tokens`, which is
 all its API has; the rest are ollama's own.
+
+The reading that uses all of this is [pythia](modules/pythia.md).
 
 `api_key_env` is the **name of an environment variable**, not a key. Keys are
 never read from the config file and never written to it.

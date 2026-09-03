@@ -1,5 +1,7 @@
 # mojibake — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/mojibake.md)
+
 ## What it does
 
 Reads random bytes from the kernel and looks at them through the wrong

@@ -1,5 +1,7 @@
 # reversal — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/reversal.md)
+
 ## What it does
 
 Asks a language model to rewrite the question as its opposite, and takes the key
@@ -32,7 +34,9 @@ With no provider configured the module is left out of the choice.
 
 ## Dependencies
 
-A working language model provider.
+A working [language model](../llm.md) provider.
+
+Capabilities: [`llm`](../llm.md).
 
 ## Sources
 

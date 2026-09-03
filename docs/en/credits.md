@@ -1,5 +1,7 @@
 # Credits
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/credits.md)
+
 `HEID//R` stands on other people's work. This table is the whole list; each
 module's own document repeats the rows that apply to it.
 

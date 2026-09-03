@@ -1,5 +1,7 @@
 # pythia — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/pythia.md)
+
 ## What it does
 
 Hands the finding to a language model and streams back what it says, in a voice
@@ -40,8 +42,10 @@ None of its own. It uses the `[llm]` section. See [llm.md](../llm.md).
 
 ## Dependencies
 
-A working language model provider: ollama, an OpenAI-compatible endpoint, or
+A working [language model](../llm.md) provider: ollama, an OpenAI-compatible endpoint, or
 Anthropic.
+
+Capabilities: [`llm`](../llm.md).
 
 ## Sources
 

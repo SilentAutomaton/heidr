@@ -1,5 +1,7 @@
 # rtl_peak — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/rtl_peak.md)
+
 ## What it does
 
 Sweeps a band quickly, finds the strongest signal in it, and reports its
@@ -35,6 +37,8 @@ loudest right now and leaves the reading to say what that means.
 ## Dependencies
 
 An RTL-SDR dongle plugged in, and `rtl_power` on the system.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

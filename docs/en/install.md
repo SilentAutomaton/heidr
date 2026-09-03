@@ -1,5 +1,7 @@
 # Installing
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/install.md)
+
 Python 3.11 or newer. Everything past that is optional and the program says so
 at startup: `heidr --self-check` lists what works on this machine and what is
 missing.
@@ -85,6 +87,7 @@ time, and a missing one only removes the sources that need it.
 heidr --self-check
 ```
 
+How to read the report is in [checking what works](checkhealth.md).
 One line per capability, and for each missing one, the thing to install. A
 machine with nothing but Python still runs the program: `gematria//babel//iching`
 needs no network, no radio and no model.

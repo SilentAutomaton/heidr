@@ -1,5 +1,7 @@
 # Audio
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/audio.md)
+
 ## One way out
 
 There is exactly one audio path through the program. Every sound — radio,
@@ -16,7 +18,8 @@ rtl_fm ──s16le──> to_float ──> Gain ──> limiter ──> sounddev
                       └──> ring buffer ──> speech provider
 ```
 
-Samples are read once and fan out three ways. The waterfall's spectrum comes from
+Samples are read once and fan out three ways, which is what
+[fm_voice](modules/fm_voice.md) and its neighbours use. The waterfall's spectrum comes from
 the same buffer as the sound, so the picture on screen and the sound in the
 headphones are literally the same piece of radio.
 

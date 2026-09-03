@@ -1,5 +1,7 @@
 # mute — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/mute.md)
+
 ## What it does
 
 Nothing. It yields no lines at all.

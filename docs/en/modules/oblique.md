@@ -1,5 +1,7 @@
 # oblique — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/oblique.md)
+
 ## What it does
 
 Draws exactly one terse instruction from a deck and says nothing else.

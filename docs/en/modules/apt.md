@@ -1,5 +1,7 @@
 # apt — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/apt.md)
+
 ## What it does
 
 Records a NOAA weather satellite pass and decodes it into a picture of the
@@ -50,6 +52,8 @@ module says so plainly, and the question comes back unspent.
 A dongle, a circularly polarised antenna for 137 MHz, `rtl_fm`, and
 [noaa-apt](https://github.com/martinber/noaa-apt) (GPL-3.0) installed. Without
 it the module is left out of the choice.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

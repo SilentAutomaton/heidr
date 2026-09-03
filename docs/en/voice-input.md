@@ -1,5 +1,7 @@
 # Voice input
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/voice-input.md)
+
 ## What it is
 
 A way to speak the question instead of typing it. Press `Ctrl-V` in insert mode,

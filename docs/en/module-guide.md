@@ -1,5 +1,7 @@
 # Adding a module
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/module-guide.md)
+
 A module is one file, one decorator, one `run` function, plus documentation and
 usually no test of its own. There are four kinds.
 
@@ -83,7 +85,7 @@ def run(ctx, key):
     dwell = ctx.settings["dwell_s"]
 ```
 
-They appear in the settings editor automatically, one row each, with their
+They appear in [the settings editor](settings-editor.md) automatically, one row each, with their
 effective values. Do not touch `config.py` — the only reason to open it is to add
 a row to `CHOICES` when an option has a fixed set of values and should be
 switched with `Enter` rather than typed.

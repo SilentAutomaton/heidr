@@ -1,5 +1,7 @@
 # embed — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/embed.md)
+
 ## What it does
 
 Turns the question into a vector with an embedding model and folds that vector
@@ -45,6 +47,8 @@ is only the honest "this question leads where it leads".
 ## Dependencies
 
 A running ollama with an embedding model pulled.
+
+Capabilities: [`llm`](../llm.md).
 
 ## Sources
 

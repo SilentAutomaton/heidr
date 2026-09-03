@@ -1,5 +1,7 @@
 # planetary — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/planetary.md)
+
 ## What it does
 
 Works out which planet rules the current hour and takes the key from it.

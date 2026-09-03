@@ -1,5 +1,7 @@
 # calendar — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/calendar.md)
+
 ## What it does
 
 Converts today's date into one of three unfamiliar calendars and takes the key

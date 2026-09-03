@@ -1,5 +1,7 @@
 # hline — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/hline.md)
+
 ## What it does
 
 Listens to the neutral hydrogen line at 1420.405751 MHz and reports how fast
@@ -50,6 +52,8 @@ galaxy rather than in an arbitrary direction.
 ## Dependencies
 
 A dongle, `rtl_power`, and an amplifier and antenna for 1420 MHz.
+
+Capabilities: [`sdr`](../install.md).
 
 ## Sources
 

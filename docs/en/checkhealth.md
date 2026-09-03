@@ -1,5 +1,7 @@
 # `:checkhealth`
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/checkhealth.md)
+
 A command named and built after the neovim one: a single screen showing what
 works, what does not, and what to do about it.
 

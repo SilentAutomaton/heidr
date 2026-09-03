@@ -1,5 +1,7 @@
 # Input history
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/history.md)
+
 Two files under `~/.local/share/heidr`: `commands` and `questions`. They are
 looked through apart, because a command and a question are not the same kind of
 thing and mixing them makes both harder to find.

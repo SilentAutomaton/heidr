@@ -1,5 +1,7 @@
 # cutup — reading
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/cutup.md)
+
 ## What it does
 
 Cuts the material into pieces and puts them back in another order. No language

@@ -1,5 +1,7 @@
 # Settings editor and module list
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/settings-editor.md)
+
 Two pages opened from inside the interface, so editing the configuration does not
 mean leaving the program.
 

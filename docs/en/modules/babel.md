@@ -1,5 +1,7 @@
 # babel — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/babel.md)
+
 ## What it does
 
 Opens a page of the Library of Babel. Given an anchor word it also works the

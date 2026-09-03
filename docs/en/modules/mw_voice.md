@@ -1,5 +1,7 @@
 # mw_voice — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/mw_voice.md)
+
 ## What it does
 
 Listens to medium wave — the AM band broadcasting started on, and which is still
@@ -49,7 +51,9 @@ not merge into one.
 ## Dependencies
 
 A dongle with direct sampling, an antenna for medium wave, `rtl_fm`,
-`rtl_power`, and a configured speech provider.
+`rtl_power`, and a configured [speech provider](../stt.md).
+
+Capabilities: [`sdr`](../install.md), [`stt`](../stt.md).
 
 ## Sources
 

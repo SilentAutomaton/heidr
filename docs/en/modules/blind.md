@@ -1,5 +1,7 @@
 # blind — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/blind.md)
+
 ## What it does
 
 Throws the question away and keeps only its length.

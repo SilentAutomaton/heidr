@@ -1,5 +1,7 @@
 # quake — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/quake.md)
+
 ## What it does
 
 Takes the last hour of earthquakes and hands one of them to the run.

@@ -1,5 +1,7 @@
 # sky — source
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/sky.md)
+
 ## What it does
 
 Finds an aircraft that is over your head right now and hands you its callsign,

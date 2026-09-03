@@ -1,5 +1,7 @@
 # gematria — question module
 
+[HEID//R](../../../README.md) · [Documentation](../README.md) · [Modules](../README.md#modules) · [Русский](../../ru/modules/gematria.md)
+
 ## What it does
 
 Turns the question into a number by adding up the values of its letters, and

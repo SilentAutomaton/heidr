@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-f0a63a" alt="Licence: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-f0a63a" alt="Python 3.11 or newer">
-  <img src="https://img.shields.io/badge/tests-673%20passing-f0a63a" alt="673 tests passing">
+  <img src="https://img.shields.io/badge/tests-675%20passing-f0a63a" alt="675 tests passing">
   <img src="https://img.shields.io/badge/modules-30-f0a63a" alt="30 modules">
 </p>
 
@@ -108,7 +108,7 @@ outside world.
 ## Install
 
 Python 3.11 or newer, and a terminal from this century. What each system needs,
-and what does not work where, is in [docs/en/install.md](docs/en/install.md).
+and what does not work where, is in [the install notes](docs/en/install.md).
 
 ### Linux
 
@@ -186,7 +186,7 @@ For vim hands: `i a A I o O` all open the question field, `gg` and `G` jump
 to the ends, `Ctrl-D` and `Ctrl-U` move half a screen, `{` and `}` walk the
 groups of settings, `/` searches with `n` and `N`, `y` copies, `u` takes a
 setting back, `ZZ` saves and leaves. The whole map, and the five places where
-this and vim cannot agree, is in [docs/en/keys.md](docs/en/keys.md).
+this and vim cannot agree, is in [the key reference](docs/en/keys.md).
 
 Modal, in the manner of neovim. `:ask` puts a question, `Ctrl-V` in insert mode
 dictates it instead. Up and down, or `Ctrl-P` and `Ctrl-N`, bring back what was
@@ -201,17 +201,17 @@ slot at a time. A named chain is marked `(chosen)` in the ledger, and it is
 exempt from the one answer a day rule: putting the same question to several
 chains is an experiment, and the mark keeps the two apart.
 
-Every stage brings its own animation, and adding one is a single file too:
-see [docs/en/animations.md](docs/en/animations.md).
+Every stage brings its own animation, and adding one is a single file too: see
+[the animation guide](docs/en/animations.md).
 
-Adding a module is one file: see [docs/en/module-guide.md](docs/en/module-guide.md).
+Adding a module is one file: see [the module guide](docs/en/module-guide.md).
 Dropping that file into `~/.config/heidr/modules/` is enough, and the core is
 never edited.
 
 ## Credits
 
 `HEID//R` borrows code and ideas from other people's work. Each module documents
-its own sources; the full table lives in [docs/en/credits.md](docs/en/credits.md).
+its own sources; the full table lives in [the credits](docs/en/credits.md).
 
 Code adapted: [rtl-entropy](https://github.com/pwarren/rtl-entropy) (GPL-3.0),
 [drawille](https://github.com/asciimoo/drawille) (GPL-3.0),

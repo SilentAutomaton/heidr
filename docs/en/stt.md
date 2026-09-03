@@ -1,5 +1,7 @@
 # Speech providers
 
+[HEID//R](../../README.md) · [Documentation](README.md) · [Русский](../ru/stt.md)
+
 Speech recognition is used for exactly two things: dictating a question instead
 of typing it, and turning captured radio into text. The microphone is used for
 the first and nothing else.
@@ -49,7 +51,9 @@ the key.
 For dictation almost anything works: you speak close to the microphone, clearly,
 in a quiet room.
 
-Radio is the opposite case, and the model size shows. On a short noisy fragment
+Radio is the opposite case, and the model size shows. The modules that listen
+are [fm_voice](modules/fm_voice.md), [sw_voice](modules/sw_voice.md) and
+[mw_voice](modules/mw_voice.md). On a short noisy fragment
 `small` reports about half real words and half its own invention — plausible
 Russian that was never broadcast. `medium` is noticeably better,
 `large-v3-turbo` better still and roughly the same speed as `medium` thanks to
