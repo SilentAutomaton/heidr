@@ -8,13 +8,13 @@ from heidr.contracts import Unavailable
 
 
 def test_a_reply_comes_back_decoded(monkeypatch):
-    monkeypatch.setattr(net, "_get", lambda url, timeout: {"ok": True})
+    monkeypatch.setattr(net, "_get", lambda url, timeout, agent="": {"ok": True})
 
     assert net.fetch_json("https://example.org/feed") == {"ok": True}
 
 
 def test_a_slow_source_is_abandoned_within_the_budget(monkeypatch):
-    def slow(url, timeout):
+    def slow(url, timeout, agent=""):
         time.sleep(5)
         return {"too": "late"}
 
@@ -30,7 +30,7 @@ def test_a_slow_source_is_abandoned_within_the_budget(monkeypatch):
 
 
 def test_a_refused_connection_says_what_to_check(monkeypatch):
-    def broken(url, timeout):
+    def broken(url, timeout, agent=""):
         raise requests.ConnectionError("no route")
 
     monkeypatch.setattr(net, "_get", broken)

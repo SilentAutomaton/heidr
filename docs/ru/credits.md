@@ -38,6 +38,8 @@
 | [Kerykeion](https://github.com/g-battaglia/kerykeion) | Giacomo Battaglia | не проверена | Отдельное форматирование найденного в блок под языковую модель, помимо человекочитаемого вида |
 | [Stellium](https://github.com/katelouie/stellium) | katelouie | не проверена | Планетарные часы: семь управителей от восхода до восхода, дневные и ночные считаются отдельно |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic, Bo Tso | GPL | Перевод в дискордианский календарь |
+| [pyradios](https://github.com/andreztz/pyradios) | André P. Santos | MIT | Разрешение хоста Radio Browser через `all.api.radio-browser.info` и обычай называть себя в User-Agent, как просит сама служба |
+| [pyradio](https://github.com/coderholic/pyradio) | Ben Dowling | MIT | Просить у каталога станций больше записей, чем нужно, и молча пропускать те, что не отвечают |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | Северная звезда: смысл находится в том, что люди сказали случайно, а не порождается |
 | [Урок про плазму](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Четыре синусоиды, расходящиеся из четырёх точек, — это и есть плазма |
 | [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | Регистр падающих столбцов глифов |
@@ -60,6 +62,7 @@ GPL.
 | [dump1090](https://github.com/antirez/dump1090) | ISC | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [chafa](https://github.com/hpjansson/chafa) | GPL-3.0 | вывод изображений в терминал |
+| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later либо GPL-2.0-or-later, смотря как собран | `world/net_voice` |
 
 ## Зависимости Python
 
@@ -73,7 +76,14 @@ GPL.
 
 Публичные сетевые источники источников: лента землетрясений USGS,
 blockchain.info, api.adsb.lol, маяк NIST, журналы Certificate Transparency,
-libraryofbabel.info. Документ каждого модуля называет точный адрес и его условия.
+libraryofbabel.info, каталог станций
+[Radio Browser](https://api.radio-browser.info/). Документ каждого модуля
+называет точный адрес и его условия.
+
+Каталог Radio Browser не требует ключа, а собранные им данные — названия, метки,
+ссылки на потоки, языки, страны — его сопровождающий передал в общественное
+достояние. Сами потоки остаются собственностью тех, кто вещает. Ничего из этого
+не сохраняется: звук расшифровывается в памяти и пропадает.
 
 ## Имя
 

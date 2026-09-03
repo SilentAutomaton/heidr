@@ -8,6 +8,7 @@ OK, WARN, FAIL = "ok", "warn", "fail"
 MARKS = {OK: "+", WARN: "~", FAIL: "-"}
 
 RADIO_TOOLS = ("rtl_sdr", "rtl_fm", "rtl_power", "rtl_433", "dump1090")
+STREAM_TOOLS = ("ffmpeg",)
 
 
 @dataclass(frozen=True)
@@ -21,7 +22,16 @@ class Check:
 
 
 def report(ctx, terminal, ledger: Ledger | None = None) -> list[Check]:
-    checks = [_terminal(terminal), _network(ctx), _radio(ctx), _tools(), _audio(), _llm(ctx), _speech(ctx)]
+    checks = [
+        _terminal(terminal),
+        _network(ctx),
+        _radio(ctx),
+        _tools(),
+        _stream_tools(),
+        _audio(),
+        _llm(ctx),
+        _speech(ctx),
+    ]
     if ledger is not None:
         checks.append(_ledger(ledger))
     checks.extend(_modules(ctx))
@@ -60,6 +70,18 @@ def _tools() -> Check:
         "radio tools",
         WARN,
         f"missing: {', '.join(missing)}. The modules that call them stay out of the lottery.",
+    )
+
+
+def _stream_tools() -> Check:
+    missing = [tool for tool in STREAM_TOOLS if shutil.which(tool) is None]
+    if not missing:
+        return Check("stream tools", OK, "all present")
+    return Check(
+        "stream tools",
+        WARN,
+        f"missing: {', '.join(missing)}. The sources that listen over the network "
+        "stay out of the lottery.",
     )
 
 

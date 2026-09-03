@@ -6,7 +6,7 @@ screenshot test breaks on every unrelated change and teaches nothing.
 
 import pytest
 
-from heidr import entropy
+from heidr import entropy, registry
 from heidr.capabilities import Terminal
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
@@ -366,7 +366,9 @@ async def test_a_browser_survives_a_resize_and_rewindows(default_config):
         # The window shrinks with the terminal, and the footer says how far it
         # now reaches.
         assert tall.splitlines()[-1] != short.splitlines()[-1]
-        assert short.splitlines()[-1].strip().endswith("of 30")
+        # Counted rather than written down, so a new module does not fail this.
+        modules = sum(len(registry.MODULES[slot]) for slot in registry.SLOTS)
+        assert short.splitlines()[-1].strip().endswith(f"of {modules}")
 
 
 @pytest.mark.asyncio

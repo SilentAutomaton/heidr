@@ -35,6 +35,8 @@ in public and reimplemented here.
 | [Kerykeion](https://github.com/g-battaglia/kerykeion) | Giacomo Battaglia | not verified | Formatting found data into a block prepared for a language model, separate from the human readable form |
 | [Stellium](https://github.com/katelouie/stellium) | katelouie | not verified | Planetary hours: seven rulers cycling from sunrise to sunrise, day and night hours counted apart |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic, Bo Tso | GPL | Discordian calendar conversion |
+| [pyradios](https://github.com/andreztz/pyradios) | André P. Santos | MIT | Resolving the Radio Browser host through `all.api.radio-browser.info`, and naming the caller in the User-Agent as the service asks |
+| [pyradio](https://github.com/coderholic/pyradio) | Ben Dowling | MIT | Asking a station directory for more entries than are needed, and passing over the ones that will not answer |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | The north star: meaning is found in what people said by accident, never generated |
 | [Plasma tutorial](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Four sine waves radiating from four points, which is what a plasma field is |
 | [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | The register of falling glyph columns |
@@ -55,6 +57,7 @@ These are executed, not linked. Their licences do not reach this code.
 | [dump1090](https://github.com/antirez/dump1090) | ISC | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [chafa](https://github.com/hpjansson/chafa) | GPL-3.0 | image output in the terminal |
+| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later, or GPL-2.0-or-later depending on the build | `world/net_voice` |
 
 ## Python dependencies
 
@@ -68,8 +71,14 @@ These are executed, not linked. Their licences do not reach this code.
 
 Public endpoints the sources use: USGS earthquake feed,
 blockchain.info, api.adsb.lol, NIST Randomness Beacon, Certificate Transparency
-logs, libraryofbabel.info. Each module's document names the exact endpoint and
-its terms.
+logs, libraryofbabel.info, the
+[Radio Browser](https://api.radio-browser.info/) station directory. Each
+module's document names the exact endpoint and its terms.
+
+The Radio Browser directory needs no key, and its maintainer places the
+collected data — names, tags, stream links, languages, countries — in the public
+domain. The station streams themselves belong to whoever broadcasts them. None
+of it is stored: audio is transcribed in memory and dropped.
 
 ## Name
 

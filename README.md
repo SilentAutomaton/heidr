@@ -82,6 +82,7 @@ choice, and `:checkhealth` says what is missing.
 | [fm_voice](docs/en/modules/fm_voice.md) | `sdr` `stt` | Real FM stations, recorded and transcribed |
 | [sw_voice](docs/en/modules/sw_voice.md) | `sdr` `stt` | Shortwave in AM, where the recogniser starts inventing |
 | [mw_voice](docs/en/modules/mw_voice.md) | `sdr` `stt` | Medium wave, where at night the station is far away |
+| [net_voice](docs/en/modules/net_voice.md) | `net` `stt` | Random internet radio stations, with no dongle at all |
 
 ### Readings: what the material becomes
 
@@ -98,9 +99,9 @@ choice, and `:checkhealth` says what is missing.
 
 | Capability | Needs | Without it |
 |---|---|---|
-| `net` | A working network | Three sources are left out |
+| `net` | A working network; `ffmpeg` for one of them | Four sources are left out |
 | `sdr` | An RTL-SDR dongle, and `rtl_sdr`, `rtl_fm`, `rtl_power`; `rtl_433` and `dump1090` for two of them; `noaa-apt` for one | Nine sources are left out |
-| `stt` | [vosk](https://github.com/alphacep/vosk-api) or a built [whisper.cpp](https://github.com/ggml-org/whisper.cpp) with a model | No voice input and no radio transcription |
+| `stt` | [vosk](https://github.com/alphacep/vosk-api) or a built [whisper.cpp](https://github.com/ggml-org/whisper.cpp) with a model | No voice input, and nothing heard is transcribed |
 | `llm` | A reachable ollama, llama.cpp server, or an API key | Three modules are left out |
 | `audio` | `sounddevice` and an output device | The program runs silently |
 

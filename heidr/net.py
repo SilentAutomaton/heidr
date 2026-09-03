@@ -8,7 +8,7 @@ BUDGET = 12.0
 TIMEOUT = 5.0
 
 
-def fetch_json(url: str, budget: float = BUDGET, timeout: float = TIMEOUT):
+def fetch_json(url: str, budget: float = BUDGET, timeout: float = TIMEOUT, agent: str = ""):
     """Fetch and decode JSON, or give up within the budget.
 
     A timeout passed to requests bounds one socket operation, not the whole
@@ -16,7 +16,7 @@ def fetch_json(url: str, budget: float = BUDGET, timeout: float = TIMEOUT):
     exceeding it. So the request is run in a thread and abandoned when the
     budget is spent.
     """
-    return _bounded(lambda: _get(url, timeout), url, budget)
+    return _bounded(lambda: _get(url, timeout, agent), url, budget)
 
 
 def _bounded(work, url: str, budget: float):
@@ -44,8 +44,11 @@ def post_json(url: str, payload: dict, budget: float = BUDGET, timeout: float = 
     return _bounded(lambda: _post(url, payload, timeout), url, budget)
 
 
-def _get(url: str, timeout: float):
-    reply = requests.get(url, timeout=timeout)
+def _get(url: str, timeout: float, agent: str = ""):
+    # Some public directories ask callers to name themselves rather than arrive
+    # as the default library string, and it costs nothing to oblige.
+    headers = {"User-Agent": agent} if agent else None
+    reply = requests.get(url, timeout=timeout, headers=headers)
     reply.raise_for_status()
     return reply.json()
 
