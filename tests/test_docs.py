@@ -40,7 +40,7 @@ def test_every_relative_link_points_at_something():
 
     root = Path(__file__).resolve().parent.parent
     pages = list((root / "docs").rglob("*.md"))
-    pages += [root / name for name in ("README.md", "AGENTS.md", "CONTRIBUTING.md")]
+    pages += [root / n for n in ("README.md", "README.ru.md", "AGENTS.md", "CONTRIBUTING.md")]
 
     broken = []
     for page in pages:

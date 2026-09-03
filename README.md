@@ -9,6 +9,8 @@
   <img src="https://img.shields.io/badge/modules-30-f0a63a" alt="30 modules">
 </p>
 
+<p align="center"><a href="README.ru.md">По-русски</a></p>
+
 A modal terminal program that answers a question with something it finds rather
 than with something it writes. The material comes from radio noise, from an
 aircraft passing overhead, from the last earthquake, from a page of the Library
