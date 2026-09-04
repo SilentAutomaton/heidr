@@ -77,18 +77,39 @@ The English files in `docs/en/` are written in plain technical English: short
 sentences, direct word order, no idioms, no synonyms for variety. They will be
 read by people whose first language is not English and translated by machine.
 
-The Russian files in `docs/ru/` are written in proper literary Russian. They are
-connected prose, not a word-for-word rendering of the English and not a pile of
-clipped fragments: full sentences, real transitions between paragraphs, a term
-introduced only when it is needed and explained the first time it appears. A
-table belongs where the data is tabular: module lists, licences,
-signatures — but an explanation is never replaced by one.
+The Russian files in `docs/ru/` are written, not translated. Open the English
+document, read it, close it, and write the Russian from what you now know. A
+paragraph that can be mapped back onto an English sentence word by word has been
+translated, and it reads that way.
+
+Three registers, by what the document is for.
+
+| What the document is | How it reads | Where |
+|---|---|---|
+| The idea, the mythology, what a module means | Like telling a story. Short declarative sentences, a turn in the middle, a concrete image at the end | `credits.md`, "What it does" and "Where the data comes from" in every module document |
+| Installing, keys, settings, health | Like instructions for an ordinary person. The command first, the explanation after; say plainly what is optional and what happens without it | `install.md`, `keys.md`, `settings-editor.md`, `checkhealth.md`, `history.md`, `voice-input.md` |
+| How it works | Like a note to a programmer who has to understand the module quickly. The fact first, the reason after. Short paragraphs. Code inline where the code is shorter than the prose | `architecture.md`, `module-guide.md`, `testing.md`, `animations.md`, `audio.md`, `llm.md`, `stt.md`, "How it is processed" in every module document |
+
+One concept, one word, across all of them. The words that were settled after
+four of them turned up for one field:
+
+| Not | But | Note |
+|---|---|---|
+| обряд | прогон | `Rite` stays `Rite` in code |
+| жеребьёвка, жребий | выбор | |
+| семя, затравка, число ключа | `key.seed`, «начальное число» in prose | |
+| художник | отрисовщик | `Painter` |
+| знак (meaning the wordmark) | логотип | «знак» already means a character elsewhere |
+| Оракул as the subject of a sentence | программа, ответ, толкование | The English never says "oracle"; the word is for the program's own genre, not for technical prose |
+
+Names of things in the code — `Key`, `Material`, `Rite`, `Painter`, `Frame` —
+are not translated. The reader searches the source by them.
 
 The test is simple: read a paragraph aloud. If it sounds like the translated
 manual for a household appliance, rewrite it.
 
-Files in `docs/en/` and `docs/ru/` mirror each other by name and by meaning.
-Change one, change the other in the same commit.
+Files in `docs/en/` and `docs/ru/` mirror each other by name and by meaning, not
+by sentence. Change one, change the other in the same commit.
 
 ## Comments
 
