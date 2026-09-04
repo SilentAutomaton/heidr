@@ -10,7 +10,7 @@ usually no test of its own. There are four kinds.
 | Question | `heidr/question/` | `run(ctx, question) -> Key` |
 | Source | `heidr/world/` | `run(ctx, key) -> Material` |
 | Reading | `heidr/reading/` | `run(ctx, question, material) -> Iterator[str]` |
-| Visual | `heidr/visuals/` | a widget subscribing to an event |
+| Animation | `heidr/visuals/art/` | a painter, which may subscribe to an event |
 
 You can also drop the same file into `~/.config/heidr/modules/` and it joins the
 choice without touching the repository.
@@ -25,8 +25,7 @@ import requests
 from heidr.contracts import Key, Material
 from heidr.registry import world
 
-FEED =
-"https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
+FEED = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
 
 
 def available(ctx) -> bool:
@@ -65,7 +64,7 @@ That is the whole module. Notes:
 - A reading whose whole point is to say nothing declares it:
   `@reading("mute", silent=True)`. Without that, a reading that yields no lines
   is taken for one that had no answer, and gives way to another.
-- `visual="tremor"` is a preference, not a requirement. If the visual is missing
+- `visual="tremor"` is a preference, not a requirement. If the animation is missing
   or the terminal cannot draw it, an idle animation runs instead.
 - `ctx.emit` is how anything reaches the screen. Never print.
 - `ctx.settings` holds this module's `[modules.quake]` section, already merged
@@ -79,8 +78,7 @@ That is the whole module. Notes:
 Declare defaults on the decorator and read them from `ctx.settings`:
 
 ```python
-@world("fm_voice", needs=("sdr", "stt"), defaults={"dwell_s": 4, "sweep":
-"random"})
+@world("fm_voice", needs=("sdr", "stt"), defaults={"dwell_s": 4, "sweep": "random"})
 def run(ctx, key):
     dwell = ctx.settings["dwell_s"]
 ```
@@ -104,14 +102,14 @@ def run(ctx, question: str, material: Material):
 If a reading calls a language model, get it from `ctx.llm` and pass the tokens
 straight through. **The model interprets the material; it never selects it.**
 
-## A visual
+## An animation
 
-A visual subscribes to an event and declares the poorest terminal it can live
-on:
+An animation is a painter. It declares the poorest terminal it can live on, and
+it may name an event to be fed from:
 
 ```python
-@visual("waterfall", event="spectrum", glyphs="blocks")
-class Waterfall(Widget): ...
+@animation("waterfall", glyphs="blocks", event="spectrum")
+class BlockWaterfall(Painter): ...
 ```
 
 `glyphs` is one of `braille`, `blocks`, `box`, `ascii`. Register the same name
