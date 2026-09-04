@@ -13,7 +13,7 @@ picked at random for each slot before every run.
 question ──> [slot A: question] ──> Key ──> [slot B: source] ──> Material ──> [slot C: reading] ──> answer
 ```
 
-Ten question modules, twelve sources and eight readings make 960 distinct
+Ten question modules, seventeen sources and six readings make 1020 distinct
 chains. The schema never settles long enough to be learnt. The code calls a
 chain a `Rite` and the interface calls it a "rite"; this document calls it a
 run, because that is what it is.
@@ -45,8 +45,9 @@ screen token by token with no extra streaming machinery.
 
 ## Registry
 
-`heidr/registry.py` holds four dictionaries: question, world, reading, visual. A
-module registers itself with one decorator:
+`heidr/registry.py` holds one dictionary per slot — question, world,
+reading — and one more for the animations. A module registers itself with one
+decorator:
 
 ```python
 @world("fm_voice", needs=("sdr", "stt"), visual="waterfall")
@@ -54,7 +55,7 @@ def run(ctx, key): ...
 ```
 
 Discovery walks `heidr/question`, `heidr/world`, `heidr/reading`,
-`heidr/visuals` and then `~/.config/heidr/modules/*.py`. A file dropped in the
+`heidr/visuals/art` and then `~/.config/heidr/modules/*.py`. A file dropped in the
 user directory joins the choice without the core being edited.
 
 Every module also declares `available(ctx) -> bool`. A missing dongle, an
@@ -194,7 +195,7 @@ to be read as well.
 
 Every source can be unavailable today. Until recently the first failure ended
 the whole run: an unreachable feed, a field missing from a reply, a dongle held
-by another program. Thirteen other sources stood idle while that happened.
+by another program. Sixteen other sources stood idle while that happened.
 
 Now the slot picks again. The choice was made at random in the first place, and
 a module that cannot answer is unavailable rather than unwanted, so replacing it
