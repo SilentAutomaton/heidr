@@ -18,6 +18,11 @@ from heidr.registry import world
 # JavaScript: one array of receivers, each with its host, bands and free slots.
 LIST = "http://rx.linkfanel.net/kiwisdr_com.js"
 RECORDER = "kiwirecorder.py"
+# kiwirecorder counts --tlimit from the moment it starts, and a public receiver
+# spends about three seconds on the redirect and the handshake before a sample
+# arrives. Without this allowance a six second dwell yields three seconds of
+# audio, which is not enough for the recogniser to settle.
+SETUP_S = 3.0
 DEFAULT_PORT = 8073
 # The international shortwave broadcast bands, the same ones sw_voice sweeps.
 BANDS = (
@@ -91,7 +96,7 @@ def capture(stop: stream.Stop, rate: int, seconds: float, binary: str) -> Iterat
         "-r",
         str(rate),
         "--tlimit",
-        str(seconds),
+        str(seconds + SETUP_S),
         "--nc",
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)

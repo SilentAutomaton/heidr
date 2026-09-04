@@ -42,10 +42,16 @@ frequency twice.
 ### Listening
 
 `kiwirecorder.py` connects, tunes, demodulates and writes sixteen kilohertz mono
-audio for as long as it is told to. Each block goes three ways on the same turn
-of the loop — the speaker, the spectrum for the waterfall, and the buffer for
-the recogniser — so the picture, the sound and the text are the same moment of
-radio.
+audio for as long as it is told to.
+
+It counts that time from the moment it starts, and a public receiver spends
+about three seconds on the redirect and the handshake before the first sample
+arrives. So the dwell is asked for with that allowance added, or a six second
+dwell would return three seconds of audio.
+
+Each block goes three ways on the same turn of the loop — the speaker, the
+spectrum for the waterfall, and the buffer for the recogniser — so the picture,
+the sound and the text are the same moment of radio.
 
 A receiver that refuses, or that somebody claimed between reading the list and
 connecting, simply gives nothing and the next one is tried. That is why more
