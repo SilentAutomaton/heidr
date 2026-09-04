@@ -387,6 +387,7 @@ class HeidrApp(App):
         self.bus.subscribe("token", lambda line: self._on_thread(self._token, line))
         self.bus.subscribe("found", lambda material: self._on_thread(self._found, material))
         self.bus.subscribe("instead", lambda names: self._on_thread(self._instead, names))
+        self.bus.subscribe("working", lambda label: self._on_thread(self._working, label))
 
     def _on_thread(self, handler, payload) -> None:
         if threading.current_thread() is threading.main_thread():
@@ -411,6 +412,17 @@ class HeidrApp(App):
     def _progress(self, done) -> None:
         self.progress = tuple(done)
 
+    def _working(self, label: str) -> None:
+        """A step that says nothing until it is finished.
+
+        Recognising speech takes minutes on a long capture, and the animation
+        that was running is a picture of data which has stopped arriving, so it
+        freezes. The gears mean work is happening and nothing knows how far
+        along it is — which is the honest amount to say here too.
+        """
+        self.query_one(StatusLine).rite = str(label)
+        self.show_visual("cog")
+
     def _title(self) -> str:
         """What the window is called, which is all you see when it is hidden."""
         if not self.drawing:
@@ -424,6 +436,7 @@ class HeidrApp(App):
 
     def _show_title(self) -> None:
         self.spin += 1
+        self._show_spinner()
         wanted = self._title()
         if wanted == self.shown_title:
             return
@@ -440,6 +453,14 @@ class HeidrApp(App):
         self.shown_title = ""
         self.drawing = False
         self._show_title()
+
+    def _show_spinner(self) -> None:
+        """The same turning mark as the window title, where it can be seen."""
+        line = self._status()
+        if line is None:
+            return
+        frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
+        line.spinner = frames[self.spin % len(frames)] if self.drawing else ""
 
     def _module_named(self, name: str):
         # Stages announce themselves with extra words sometimes, so match the

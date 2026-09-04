@@ -154,6 +154,22 @@ have passed since it started; a slower module is not delayed at all. The rule
 lives in the run rather than in any animation, and it is described in
 [the architecture](architecture.md#nothing-goes-too-fast-either).
 
+### While a slow step says nothing
+
+Recognising speech is the longest silence in the program. A large model on a
+thirty second window takes over a minute, and a capture of three stops is two of
+those — during which the source has finished, no event arrives, and the
+animation that was running is a picture of data that stopped coming.
+
+Three things say that it is still alive. The status line names the step and how
+much audio is being listened back to. The animation swaps to the gears, which
+mean work is happening and nothing knows how far along it is. And the spinner
+that used to turn only in the window title now turns in the status line as well,
+where somebody looking at the terminal can see it.
+
+The spinner is on for the whole of a draw, not only for the recogniser, so any
+step that goes quiet — a slow feed, a model thinking — shows the same sign.
+
 ### Silence is allowed to be funny
 
 `hush` is not one picture but a set, and the lot decides which is shown. The

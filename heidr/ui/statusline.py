@@ -5,6 +5,9 @@ SEPARATOR = "  "
 
 
 class StatusLine(Static):
+    # Empty between draws. During one it turns, which is the only thing on
+    # screen that says a step nobody can measure is still running.
+    spinner = reactive("")
     mode = reactive("NORMAL")
     path = reactive("")
     rite = reactive("")
@@ -18,7 +21,7 @@ class StatusLine(Static):
     def _fit(self, width: int) -> str:
         # Fields drop from the right as the terminal narrows; the mode is last
         # to go, because without it a modal interface is unreadable.
-        fields = [self.mode, self.path, self.rite, self._volume_field(), self.provider]
+        fields = [self.spinner, self.mode, self.path, self.rite, self._volume_field(), self.provider]
         while fields:
             line = SEPARATOR.join(field for field in fields if field)
             if len(line) <= width:

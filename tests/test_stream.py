@@ -710,3 +710,57 @@ def test_a_receiver_whose_owner_asked_programs_away_is_left_alone():
     assert kiwi_voice.listening({**entry, "ext_api": "4"}, 9_500_000) is True
     # An entry that says nothing about it is not read as a refusal.
     assert kiwi_voice.listening({k: v for k, v in entry.items() if k != "ext_api"}, 9_500_000)
+
+
+# Saying that a slow step is still running
+
+
+def test_the_recogniser_says_it_has_started(stub_context, events):
+    """A capture is transcribed after the sweep, in silence, for minutes."""
+    ctx = listening(stub_context)
+    ctx.stt = FakeSpeech(["a phrase"])
+
+    radio.transcribe(ctx, [tone(16000), tone(16000)])
+
+    working = [payload for name, payload in events if name == "working"]
+    assert working == ["listening back to 2s"]
+
+
+def test_it_says_so_even_when_nothing_was_heard(stub_context, events):
+    ctx = listening(stub_context)
+    ctx.stt = FakeSpeech([])
+
+    radio.transcribe(ctx, [])
+
+    assert [name for name, _ in events].count("working") == 1
+
+
+def test_every_module_that_listens_says_when_it_is_recognising(stub_context, events, monkeypatch):
+    """The aerial sources and the network ones alike.
+
+    Both routes end at `radio.transcribe`, so one emit covers all six. This
+    checks that they really do, rather than trusting that they still will.
+    """
+    ctx = listening(stub_context, ["said"]).with_capabilities("sdr")
+
+    for name in ("fm_voice", "sw_voice", "mw_voice", "net_voice", "kiwi_voice", "twitch_voice"):
+        found, scoped = ready(ctx, name)
+        scoped.stt = ctx.stt
+        scoped.settings["stops"] = 1
+        scoped.settings["tuned"] = False
+        events.clear()
+
+        monkeypatch.setattr(radio, "capture", lambda *args, **kwargs: iter([tone()]))
+        monkeypatch.setattr(radio, "scan", lambda *args, **kwargs: "")
+        monkeypatch.setattr(stream, "capture", lambda stop, rate, seconds: iter([tone()]))
+        monkeypatch.setattr(kiwi_voice, "listen", lambda stop, rate, seconds, mode: iter([tone()]))
+        monkeypatch.setattr(kiwi_voice, "_stops_for", lambda ctx, key: [stream.Stop("a", "http://a", 9600)])
+        monkeypatch.setattr(net_voice, "stations", lambda ctx: list(STATIONS[:1]))
+        monkeypatch.setattr(twitch_voice, "token", lambda: "bearer")
+        monkeypatch.setattr(twitch_voice, "live", lambda ctx, bearer: list(CHANNELS["data"][:1]))
+        monkeypatch.setattr(twitch_voice, "resolve", lambda channel: "http://hls/live.m3u8")
+        monkeypatch.setattr(audio, "Output", lambda levels, rate: FakeOutput([]))
+
+        found.run(scoped, Key(seed=1))
+
+        assert any(event == "working" for event, _ in events), f"{name} said nothing"

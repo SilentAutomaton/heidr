@@ -332,6 +332,11 @@ def downsample(block: np.ndarray, factor: int) -> np.ndarray:
 
 
 def transcribe(ctx, blocks: list[np.ndarray]) -> list[str]:
+    # Nothing reaches the screen while a recogniser works, and a large model on
+    # a long capture takes minutes. Saying so is the whole difference between
+    # waiting and wondering whether it died.
+    heard = sum(block.size for block in blocks) / SPEECH_RATE
+    ctx.emit("working", f"listening back to {heard:.0f}s")
     said = []
     for partial in ctx.stt.transcribe(blocks):
         if partial.final and partial.text:

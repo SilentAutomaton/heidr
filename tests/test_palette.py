@@ -179,3 +179,40 @@ async def test_the_same_frame_is_recorded_the_same_way_twice(default_config):
 
     for name in ("plasma", "rings", "hexlib"):
         assert await shot(name, 9) == await shot(name, 9)
+
+
+# The spinner on screen
+
+
+@pytest.mark.asyncio
+async def test_the_spinner_turns_on_screen_while_a_draw_runs(default_config):
+    """The window title is not visible when you are looking at the terminal."""
+    async with make_app(default_config).run_test() as pilot:
+        app = pilot.app
+        line = app.query_one("StatusLine")
+
+        app._show_spinner()
+        assert line.spinner == ""
+
+        app.drawing = True
+        seen = set()
+        for _ in range(6):
+            app._show_title()
+            seen.add(line.spinner)
+        assert len(seen) > 1 and "" not in seen
+
+        app.drawing = False
+        app._show_spinner()
+        assert line.spinner == ""
+
+
+@pytest.mark.asyncio
+async def test_a_silent_step_names_itself_and_turns_the_gears(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        app = pilot.app
+        app.show_visual("waterfall")
+
+        app._working("listening back to 45s")
+
+        assert app.query_one("StatusLine").rite == "listening back to 45s"
+        assert tinted(app)
