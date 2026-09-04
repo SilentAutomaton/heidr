@@ -130,7 +130,7 @@ choice, and `:checkhealth` says what is missing.
 
 | Capability | Needs | Without it |
 |---|---|---|
-| `net` | A working network; `ffmpeg` for two sources, `kiwirecorder.py` and `yt-dlp` for one each | Six sources are left out |
+| `net` | A working network; `ffmpeg` for two sources and `yt-dlp` for one | Six sources are left out |
 | `sdr` | An RTL-SDR dongle, and `rtl_sdr`, `rtl_fm`, `rtl_power`; `rtl_433` and `dump1090` for two of them; `noaa-apt` for one | Nine sources are left out |
 | `stt` | [vosk](https://github.com/alphacep/vosk-api) or a built [whisper.cpp](https://github.com/ggml-org/whisper.cpp) with a model | No voice input, and nothing heard is transcribed |
 | `llm` | A reachable ollama, llama.cpp server, or an API key | Three modules are left out |

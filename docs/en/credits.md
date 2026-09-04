@@ -41,6 +41,7 @@ knowing.
 | [Kerykeion](https://github.com/g-battaglia/kerykeion) | Giacomo Battaglia | AGPL-3.0 | Formatting found data into a block prepared for a language model, separate from the human readable form |
 | [Stellium](https://github.com/katelouie/stellium) | Kate Louie | AGPL-3.0-or-later | Planetary hours: seven rulers cycling from sunrise to sunrise, day and night hours counted apart |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic (Jeremy Johnson) | public domain | Discordian calendar conversion |
+| KiwiSDR's own wire protocol | jks-prv | — | The commands a receiver expects and the shape of an audio frame, read off the wire and off the firmware's routing table. `kiwiclient`, the usual client, carries no licence at all, so nothing was taken from it; asking for `compression=0` means its ADPCM decoder is not needed either |
 | [pyradios](https://github.com/andreztz/pyradios) | André P. Santos | MIT | Resolving the Radio Browser host through `all.api.radio-browser.info`, and naming the caller in the User-Agent as the service asks |
 | [pyradio](https://github.com/coderholic/pyradio) | Ben Dowling | MIT | Asking a station directory for more entries than are needed, and passing over the ones that will not answer |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | The north star: meaning is found in what people said by accident, never generated |
@@ -54,9 +55,7 @@ knowing.
 
 ## External programs called as subprocesses
 
-These are executed, not linked. Their licences do not reach this code, which is
-also why one of them may sit here with no licence at all: running a program is
-not redistributing it, and nothing was copied out of it.
+These are executed, not linked. Their licences do not reach this code.
 
 | Program | Licence | Used by |
 |---|---|---|
@@ -67,7 +66,6 @@ not redistributing it, and nothing was copied out of it.
 | [dump1090](https://github.com/antirez/dump1090) | BSD-3-Clause | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later, or GPL-2.0-or-later depending on the build | `world/net_voice`, `world/twitch_voice`, `tools/make_demo.py` |
-| [kiwirecorder.py](https://github.com/jks-prv/kiwiclient) | **none stated** | `world/kiwi_voice` |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Unlicense | `world/twitch_voice` |
 | [resvg](https://github.com/linebender/resvg) | Apache-2.0 | `tools/make_demo.py` |
 

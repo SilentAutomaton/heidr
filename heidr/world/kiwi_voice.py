@@ -1,15 +1,8 @@
 import json
 import random
 import re
-import shutil
-import subprocess
-import time
-from typing import Iterator
-from urllib.parse import urlsplit
 
-import numpy as np
-
-from heidr import audio, net, radio, stream
+from heidr import kiwi, net, radio, stream
 from heidr.contracts import Key, Material, Unavailable
 from heidr.registry import world
 
@@ -17,13 +10,6 @@ from heidr.registry import world
 # program. This mirror is regenerated from it about once an hour and is plain
 # JavaScript: one array of receivers, each with its host, bands and free slots.
 LIST = "http://rx.linkfanel.net/kiwisdr_com.js"
-RECORDER = "kiwirecorder.py"
-# kiwirecorder counts --tlimit from the moment it starts, and a public receiver
-# spends about three seconds on the redirect and the handshake before a sample
-# arrives. Without this allowance a six second dwell yields three seconds of
-# audio, which is not enough for the recogniser to settle.
-SETUP_S = 3.0
-DEFAULT_PORT = 8073
 # The international shortwave broadcast bands, the same ones sw_voice sweeps.
 BANDS = (
     "5.85-6.20",
@@ -35,11 +21,7 @@ BANDS = (
 
 
 def available(ctx) -> bool:
-    return stream.available(ctx, recorder(ctx))
-
-
-def recorder(ctx) -> str:
-    return str(ctx.settings.get("binary") or RECORDER)
+    return stream.available(ctx)
 
 
 @world(
@@ -54,14 +36,13 @@ def recorder(ctx) -> str:
         "rate": 16000,
         "bins": 64,
         "pool": 12,
-        "binary": "",
     },
 )
 def run(ctx, key: Key) -> Material:
     stops = _stops_for(ctx, key)
-    binary = recorder(ctx)
+    mode = str(ctx.settings["mode"])
     said, reached = stream.gather(
-        ctx, key, stops, reader=lambda stop, rate, seconds: capture(stop, rate, seconds, binary)
+        ctx, key, stops, reader=lambda stop, rate, seconds: listen(stop, rate, seconds, mode)
     )
 
     return Material(
@@ -76,40 +57,15 @@ def run(ctx, key: Key) -> Material:
     )
 
 
-def capture(stop: stream.Stop, rate: int, seconds: float, binary: str) -> Iterator[np.ndarray]:
-    """Read demodulated audio from one public receiver.
+def listen(stop: stream.Stop, rate: int, seconds: float, mode: str):
+    """Audio from one public receiver, over its own socket.
 
-    kiwirecorder is run, never linked and never copied: it carries no licence at
-    all, so its terms reach nothing here.
+    The receiver speaks WebSocket and nothing else — there is no HTTP endpoint
+    for the sound — so `heidr/kiwi.py` talks to it directly rather than through
+    a separate program.
     """
-    host, port = _address(stop.url)
-    command = [
-        binary,
-        "-s",
-        host,
-        "-p",
-        str(port),
-        "-f",
-        str(stop.number),
-        "-m",
-        "am",
-        "-r",
-        str(rate),
-        "--tlimit",
-        str(seconds + SETUP_S),
-        "--nc",
-    ]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    deadline = time.monotonic() + seconds + stream.CONNECT_S
-    try:
-        while time.monotonic() < deadline:
-            raw = process.stdout.read(stream.BLOCK * 2)
-            if not raw:
-                break
-            yield audio.to_float(raw)
-    finally:
-        process.terminate()
-        process.wait(timeout=5)
+    host, port = kiwi.address(stop.url)
+    return kiwi.capture(host, port, float(stop.number), mode, rate, seconds, stream.AGENT)
 
 
 def receivers(text: str) -> list[dict]:
@@ -134,6 +90,11 @@ def listening(entry: dict, hertz: float) -> bool:
     if entry.get("status") != "active" or entry.get("offline") == "yes":
         return False
     if not entry.get("url"):
+        return False
+    # `ext_api` is the owner's cap on how many of the receiver's channels
+    # non-browser clients may take. Zero means they asked programs not to
+    # connect at all, and that is an answer, not an obstacle.
+    if str(entry.get("ext_api", "")).strip() == "0":
         return False
     # Eight slots is the usual whole allowance of a public receiver, and other
     # people are on it. One that is full is left alone rather than knocked at.
@@ -179,11 +140,6 @@ def _somewhere_in(band: str, rng: random.Random) -> float:
     # On the 5 kHz channel grid the broadcasters actually use.
     steps = max(1, int((high - low) // 5000))
     return low + rng.randrange(steps + 1) * 5000
-
-
-def _address(url: str) -> tuple[str, int]:
-    split = urlsplit(url if "//" in url else f"http://{url}")
-    return split.hostname or url, split.port or DEFAULT_PORT
 
 
 def _number(value, fallback: int = 10**9) -> float:

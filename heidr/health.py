@@ -8,7 +8,7 @@ OK, WARN, FAIL = "ok", "warn", "fail"
 MARKS = {OK: "+", WARN: "~", FAIL: "-"}
 
 RADIO_TOOLS = ("rtl_sdr", "rtl_fm", "rtl_power", "rtl_433", "dump1090")
-STREAM_TOOLS = ("ffmpeg", "yt-dlp", "kiwirecorder.py")
+STREAM_TOOLS = ("ffmpeg", "yt-dlp")
 
 
 @dataclass(frozen=True)

@@ -89,11 +89,11 @@ tag = ""                # "news" or "talk" finds speech rather than music
 language = ""
 
 [modules.kiwi_voice]
-# Public KiwiSDR receivers. Needs kiwirecorder.py from the kiwiclient project.
+# Public KiwiSDR receivers. Needs nothing installed: the receiver is reached
+# over its own socket.
 stops = 3
 dwell_s = 6
 pool = 12               # receivers lined up, so a busy one costs nothing
-binary = ""             # empty finds kiwirecorder.py on the path
 
 [modules.twitch_voice]
 # Needs ffmpeg, yt-dlp, and your own HEIDR_TWITCH_ID and HEIDR_TWITCH_SECRET.

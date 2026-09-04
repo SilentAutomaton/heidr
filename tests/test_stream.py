@@ -8,6 +8,7 @@ import pytest
 from heidr import audio, net, radio, registry, stream
 from heidr.contracts import Cancelled, Key, Unavailable
 from heidr.stt.base import Partial
+from heidr import kiwi
 from heidr.world import kiwi_voice, net_voice, twitch_voice
 
 STATIONS = [
@@ -364,16 +365,17 @@ def test_a_receiver_with_no_free_slot_is_left_alone():
     assert kiwi_voice.listening(full, 9_500_000) is False
 
 
-def test_the_recorder_is_told_the_frequency_in_kilohertz():
+def test_the_receiver_is_told_the_frequency_in_kilohertz():
     stop = kiwi_voice.described({"url": "http://one.example:8073", "loc": "Tarlee"}, 9_500_000)
 
     assert stop.number == 9500
     assert stop.label == "9.500 MHz via Tarlee"
-    assert kiwi_voice._address(stop.url) == ("one.example", 8073)
+    assert kiwi.address(stop.url) == ("one.example", 8073)
 
 
 def test_a_receiver_url_without_a_port_gets_the_usual_one():
-    assert kiwi_voice._address("one.example") == ("one.example", 8073)
+    assert kiwi.address("one.example") == ("one.example", kiwi.PORT)
+    assert kiwi.address("http://one.example/") == ("one.example", kiwi.PORT)
 
 
 def test_no_free_receiver_says_whose_radios_these_are(stub_context, monkeypatch):
@@ -403,7 +405,7 @@ def test_kiwi_voice_reports_the_receivers_it_reached(stub_context, monkeypatch):
     scoped.stt = ctx.stt
     scoped.settings["stops"] = 1
     monkeypatch.setattr(kiwi_voice.net, "fetch_text", lambda url, headers=None: KIWI_LIST)
-    monkeypatch.setattr(kiwi_voice, "capture", lambda stop, rate, seconds, binary: iter([tone()]))
+    monkeypatch.setattr(kiwi_voice, "listen", lambda stop, rate, seconds, mode: iter([tone()]))
     monkeypatch.setattr(audio, "Output", lambda levels, rate: FakeOutput([]))
 
     material = found.run(scoped, Key(seed=2))
@@ -413,16 +415,14 @@ def test_kiwi_voice_reports_the_receivers_it_reached(stub_context, monkeypatch):
     assert len(material.extra["receivers"]) == 1
 
 
-def test_kiwi_voice_needs_the_recorder_on_the_path(stub_context, monkeypatch):
+def test_kiwi_voice_needs_nothing_installed(stub_context, monkeypatch):
+    """The receiver is reached over a socket, so there is no program to find."""
     module = registry.MODULES["world"]["kiwi_voice"]
-    online = stub_context.with_capabilities("net", "stt")
 
     monkeypatch.setattr(stream.shutil, "which", lambda name: None)
-    assert module.available(online) is False
-
-    monkeypatch.setattr(stream.shutil, "which", lambda name: f"/usr/bin/{name}")
-    assert module.available(online) is True
-    assert module.available(stub_context) is False
+    assert module.available(stub_context.with_capabilities("net", "stt")) is True
+    assert module.available(stub_context.with_capabilities("net")) is False
+    assert module.available(stub_context.with_capabilities("stt")) is False
 
 
 # twitch_voice
@@ -606,3 +606,107 @@ def test_nothing_at_all_is_not_an_error():
         assert list(radio.blocks_from(process, 8192, time.monotonic() + 2.0)) == []
     finally:
         process.wait(timeout=5)
+
+
+# The KiwiSDR client
+
+
+class Closeable:
+    def close(self):
+        pass
+
+
+def test_a_frame_is_read_by_its_length_byte():
+    link = kiwi.Link(None, rest=bytes([0x82, 4]) + b"SND\x00")
+
+    assert link.frame() == b"SND\x00"
+
+
+def test_a_long_frame_carries_its_length_in_two_more_bytes():
+    body = b"x" * 300
+    link = kiwi.Link(None, rest=bytes([0x82, 126]) + len(body).to_bytes(2, "big") + body)
+
+    assert link.frame() == body
+
+
+def test_what_is_sent_is_masked():
+    """A client must mask; a server must not. Getting it backwards is silent."""
+    sent = []
+    link = kiwi.Link(type("Fake", (), {"sendall": lambda self, data: sent.append(data)})())
+
+    link.send("SET compression=0")
+
+    frame = sent[0]
+    assert frame[0] == 0x81 and frame[1] & 0x80, "the mask bit has to be set"
+    mask, body = frame[2:6], frame[6:]
+    assert bytes(b ^ mask[i % 4] for i, b in enumerate(body)) == b"SET compression=0"
+
+
+def test_samples_are_big_endian():
+    """Everything else in the program is little-endian; the receiver is not."""
+    assert kiwi.samples(b"\x40\x00")[0] == pytest.approx(0.5)
+    assert kiwi.samples(b"\xc0\x00")[0] == pytest.approx(-0.5)
+
+
+def test_an_odd_byte_is_not_a_sample():
+    assert kiwi.samples(b"\x40\x00\x11").size == 1
+
+
+def test_twelve_kilohertz_becomes_sixteen():
+    block = np.linspace(-1, 1, 512, dtype=np.float32)
+
+    stretched = kiwi.resample(block, 16000)
+
+    assert stretched.size == 512 * 16000 // 12000
+    assert stretched[0] == pytest.approx(block[0])
+
+
+def test_a_rate_that_needs_no_resampling_is_left_alone():
+    block = np.zeros(8, dtype=np.float32)
+
+    assert kiwi.resample(block, kiwi.NATIVE_RATE) is block
+
+
+def test_the_proxy_service_redirects_and_the_client_follows(monkeypatch):
+    seen = []
+
+    def shake(host, port, path, timeout):
+        seen.append((host, port, path))
+        if len(seen) < 3:
+            head = (
+                b"HTTP/1.0 307 Temporary Redirect\r\n"
+                b"Location: http://hop%d.example/kiwi/1/snd" % len(seen)
+            )
+            return Closeable(), head, b""
+        return Closeable(), b"HTTP/1.1 101 Switching Protocols\r\n", b"left over"
+
+    monkeypatch.setattr(kiwi, "_shake", shake)
+
+    link = kiwi.open_link("start.example", 8073)
+
+    assert [host for host, _port, _path in seen] == ["start.example", "hop1.example", "hop2.example"]
+    # Whatever arrived with the handshake is the start of the first frame.
+    assert link.rest == b"left over"
+
+
+def test_a_redirect_that_never_lands_gives_up(monkeypatch):
+    def shake(host, port, path, timeout):
+        head = b"HTTP/1.0 307 Temporary Redirect\r\nLocation: http://round.example/and/again"
+        return Closeable(), head, b""
+
+    monkeypatch.setattr(kiwi, "_shake", shake)
+
+    with pytest.raises(ConnectionError):
+        kiwi.open_link("round.example", 8073)
+
+
+def test_a_receiver_whose_owner_asked_programs_away_is_left_alone():
+    entry = {
+        "status": "active", "offline": "no", "url": "http://a", "bands": "0-30000000",
+        "users": "0", "users_max": "8", "ext_api": "0",
+    }
+
+    assert kiwi_voice.listening(entry, 9_500_000) is False
+    assert kiwi_voice.listening({**entry, "ext_api": "4"}, 9_500_000) is True
+    # An entry that says nothing about it is not read as a refusal.
+    assert kiwi_voice.listening({k: v for k, v in entry.items() if k != "ext_api"}, 9_500_000)

@@ -43,6 +43,7 @@
 | [Kerykeion](https://github.com/g-battaglia/kerykeion) | Giacomo Battaglia | AGPL-3.0 | Отдельное форматирование найденного в блок под языковую модель, помимо человекочитаемого вида |
 | [Stellium](https://github.com/katelouie/stellium) | Kate Louie | AGPL-3.0-or-later | Планетарные часы: семь управителей от восхода до восхода, дневные и ночные считаются отдельно |
 | [ddate](https://github.com/bo0ts/ddate) | Druel the Chaotic (Jeremy Johnson) | общественное достояние | Перевод в дискордианский календарь |
+| Собственный протокол KiwiSDR | jks-prv | — | Команды, которых ждёт приёмник, и вид звукового кадра — считаны с провода и с таблицы маршрутов самой прошивки. У `kiwiclient`, обычного клиента к ней, лицензии нет вовсе, поэтому оттуда не взято ничего; а `compression=0` избавляет и от его декодера ADPCM |
 | [pyradios](https://github.com/andreztz/pyradios) | André P. Santos | MIT | Разрешение хоста Radio Browser через `all.api.radio-browser.info` и обычай называть себя в User-Agent, как просит сама служба |
 | [pyradio](https://github.com/coderholic/pyradio) | Ben Dowling | MIT | Просить у каталога станций больше записей, чем нужно, и молча пропускать те, что не отвечают |
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | Северная звезда: смысл находится в том, что люди сказали случайно, а не порождается |
@@ -58,9 +59,7 @@
 
 Эти программы запускаются как отдельные процессы, а не подключаются к нашему
 коду. Поэтому их лицензии на него не распространяются, даже когда речь идёт о
-GPL. По той же причине в таблице может стоять программа вовсе без лицензии:
-запустить программу — не значит распространить её, и ни строки из неё не
-скопировано.
+GPL.
 
 | Программа | Лицензия | Кто использует |
 |---|---|---|
@@ -71,7 +70,6 @@ GPL. По той же причине в таблице может стоять �
 | [dump1090](https://github.com/antirez/dump1090) | BSD-3-Clause | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
 | [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later либо GPL-2.0-or-later, смотря как собран | `world/net_voice`, `world/twitch_voice`, `tools/make_demo.py` |
-| [kiwirecorder.py](https://github.com/jks-prv/kiwiclient) | **не указана** | `world/kiwi_voice` |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Unlicense | `world/twitch_voice` |
 | [resvg](https://github.com/linebender/resvg) | Apache-2.0 | `tools/make_demo.py` |
 
