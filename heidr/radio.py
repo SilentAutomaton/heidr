@@ -1,5 +1,7 @@
 import math
+import os
 import random
+import select
 import shutil
 import statistics
 import subprocess
@@ -145,6 +147,38 @@ def scan(band: str, step: str, seconds: int, direct: bool = False, gain: str = "
     return finished.stdout
 
 
+def read_bounded(process, size: int, deadline: float) -> bytes:
+    """Whatever the pipe holds, and never a wait past the deadline.
+
+    `read` returns only once it has a whole block or the pipe closes, so a
+    source that sends a little and then goes quiet without closing blocks for
+    ever and the deadline is never looked at again. `select` puts the deadline
+    on the wait itself.
+    """
+    left = deadline - time.monotonic()
+    if left <= 0:
+        return b""
+    ready, _, _ = select.select([process.stdout], [], [], left)
+    return os.read(process.stdout.fileno(), size) if ready else b""
+
+
+def blocks_from(process, size: int, deadline: float) -> Iterator[np.ndarray]:
+    """Whole samples out of a pipe, bounded by the deadline."""
+    remainder = b""
+    while True:
+        raw = read_bounded(process, size, deadline)
+        if not raw:
+            return
+        raw = remainder + raw
+        # A bounded read returns what is there, which can split a sample down
+        # the middle; the buffer is read as pairs of bytes and an odd one would
+        # raise. The stray byte waits for the rest of its sample.
+        whole = len(raw) - len(raw) % 2
+        remainder = raw[whole:]
+        if whole:
+            yield audio.to_float(raw[:whole])
+
+
 def capture(
     frequency: float,
     mode: str,
@@ -175,14 +209,11 @@ def capture(
         command += ["-E", direct]
     command += ["-"]
 
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    deadline = time.monotonic() + seconds
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=0
+    )
     try:
-        while time.monotonic() < deadline:
-            raw = process.stdout.read(BLOCK * 2)
-            if not raw:
-                break
-            yield audio.to_float(raw)
+        yield from blocks_from(process, BLOCK * 2, time.monotonic() + seconds)
     finally:
         process.terminate()
         process.wait(timeout=5)

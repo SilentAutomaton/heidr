@@ -1,7 +1,11 @@
+import subprocess
+import sys
+import time
+
 import numpy as np
 import pytest
 
-from heidr import audio, net, registry, stream
+from heidr import audio, net, radio, registry, stream
 from heidr.contracts import Cancelled, Key, Unavailable
 from heidr.stt.base import Partial
 from heidr.world import kiwi_voice, net_voice, twitch_voice
@@ -553,3 +557,52 @@ def test_twitch_voice_stays_out_of_the_lottery_without_credentials(stub_context,
 
     monkeypatch.setattr(stream.shutil, "which", lambda name: None)
     assert module.available(online) is False
+
+
+# A source that goes quiet
+
+
+# One partial block, then silence, and the pipe never closes. This is what a
+# public receiver does when it stops answering, and it used to hang the run for
+# as long as anybody was willing to wait.
+QUIET = "import sys, time; sys.stdout.buffer.write(b'\\0' * 4096); sys.stdout.flush(); time.sleep(600)"
+
+
+def quiet_process():
+    return subprocess.Popen([sys.executable, "-c", QUIET], stdout=subprocess.PIPE, bufsize=0)
+
+
+def test_a_source_that_goes_quiet_does_not_hold_the_run():
+    process = quiet_process()
+    started = time.monotonic()
+    try:
+        blocks = list(radio.blocks_from(process, 8192, started + 1.0))
+    finally:
+        process.terminate()
+        process.wait(timeout=5)
+
+    # The half block it did send is kept; the wait for the rest is not endless.
+    assert sum(block.size for block in blocks) == 2048
+    assert time.monotonic() - started < 5
+
+
+def test_a_sample_split_across_two_reads_is_put_back_together():
+    """A bounded read returns what is there, which can be an odd number of bytes."""
+    odd = "import sys, time; w = sys.stdout.buffer.write; w(b'\\1' * 3); sys.stdout.flush(); time.sleep(0.2); w(b'\\1' * 3); sys.stdout.flush()"
+    process = subprocess.Popen([sys.executable, "-c", odd], stdout=subprocess.PIPE, bufsize=0)
+    try:
+        blocks = list(radio.blocks_from(process, 8192, time.monotonic() + 3.0))
+    finally:
+        process.terminate()
+        process.wait(timeout=5)
+
+    # Six bytes in, three whole samples out, and nothing raised on the odd one.
+    assert sum(block.size for block in blocks) == 3
+
+
+def test_nothing_at_all_is_not_an_error():
+    process = subprocess.Popen([sys.executable, "-c", "pass"], stdout=subprocess.PIPE, bufsize=0)
+    try:
+        assert list(radio.blocks_from(process, 8192, time.monotonic() + 2.0)) == []
+    finally:
+        process.wait(timeout=5)

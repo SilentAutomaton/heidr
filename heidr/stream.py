@@ -74,15 +74,14 @@ def command(stop: Stop, rate: int, seconds: float, agent: str = AGENT) -> list[s
 
 def capture(stop: Stop, rate: int, seconds: float) -> Iterator[np.ndarray]:
     process = subprocess.Popen(
-        command(stop, rate, seconds), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+        command(stop, rate, seconds),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        bufsize=0,
     )
     deadline = time.monotonic() + seconds + CONNECT_S
     try:
-        while time.monotonic() < deadline:
-            raw = process.stdout.read(BLOCK * 2)
-            if not raw:
-                break
-            yield audio.to_float(raw)
+        yield from radio.blocks_from(process, BLOCK * 2, deadline)
     finally:
         process.terminate()
         process.wait(timeout=5)
