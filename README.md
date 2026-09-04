@@ -5,11 +5,18 @@
 <p align="center">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-f0a63a" alt="Licence: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-f0a63a" alt="Python 3.11 or newer">
-  <img src="https://img.shields.io/badge/tests-675%20passing-f0a63a" alt="675 tests passing">
-  <img src="https://img.shields.io/badge/modules-30-f0a63a" alt="30 modules">
+  <img src="https://img.shields.io/badge/tests-824%20passing-f0a63a" alt="824 tests passing">
+  <img src="https://img.shields.io/badge/modules-33-f0a63a" alt="33 modules">
 </p>
 
 <p align="center"><a href="README.ru.md">По-русски</a></p>
+
+<p align="center">
+  <picture>
+    <source srcset="docs/demo/menu.webp" type="image/webp">
+    <img src="docs/demo/menu.gif" alt="The menu, with a plasma field behind it" width="800">
+  </picture>
+</p>
 
 A modal terminal program that answers a question with something it finds rather
 than with something it writes. The material comes from radio noise, from an
@@ -32,8 +39,8 @@ question ──> [question module] ──> Key ──> [source] ──> Material
 One module is chosen at random for each slot before every run, so the chain
 differs each time. The choice is seeded from measurements rather than from a
 pseudo random generator: radio noise, a public randomness beacon, the Merkle
-root of a recent block. Ten question modules, fourteen sources and six readings
-make 840 distinct chains. The interface calls a chain a "rite", and so does the
+root of a recent block. Ten question modules, seventeen sources and six readings
+make 1020 distinct chains. The interface calls a chain a "rite", and so does the
 code (`Rite`).
 
 The ledger records the question before anything is fetched, and each entry is
@@ -43,6 +50,28 @@ again until the next day; a question that was not answered costs nothing.
 A module can have no answer today. The feed may be unreachable, the reply may
 not parse, the model may return an empty string. None of that ends the run: the
 slot picks another module and the panel says which one gave way to which.
+
+### Two runs, end to end
+
+<p align="center">
+  <img src="docs/demo/draw-radio.webp" alt="A run: gematria, an internet radio station, a cut-up" width="800">
+</p>
+
+`gematria//net_voice//cutup`. The question becomes a number, the number picks
+stations out of a directory of fifty thousand, a few seconds of each are
+transcribed, and Burroughs' scissors do the rest. No model is involved at any
+point.
+
+<p align="center">
+  <img src="docs/demo/draw-pythia.webp" alt="A run: blind, a Bitcoin block, a model reading it" width="800">
+</p>
+
+`blind//chain//pythia`. Only the length of the question is used, the material is
+the Merkle root of a recent block and the messages people wrote into it, and a
+local model reads that back.
+
+`tools/make_demo.py` records both, and
+[the animations document](docs/en/animations.md#recording-them) says how.
 
 ## Modules
 

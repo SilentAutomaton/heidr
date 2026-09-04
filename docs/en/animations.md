@@ -168,6 +168,52 @@ ASCII for poor terminals.
 Nothing else takes this tone. The joke belongs to the empty answer alone, and a
 real answer is shown plainly.
 
+## Recording them
+
+`tools/make_demo.py` writes the looping pictures in `docs/demo/`.
+
+```
+python tools/make_demo.py            every demo in the table
+python tools/make_demo.py plasma     one of them
+```
+
+<p align="center">
+  <img src="../demo/plasma.webp" alt="plasma" width="420">
+  <img src="../demo/waterfall.webp" alt="waterfall" width="420">
+</p>
+
+Nothing here records a screen. The interface is run headless, the frame number
+is set by hand rather than left to a timer, and every frame is exported as an
+SVG of the real widget tree — the same export the snapshot tests use. Then
+`resvg` rasterises each frame with a named monospace font and `ffmpeg` encodes
+them.
+
+That is the whole reason for doing it this way rather than with a screen
+recorder or a terminal replayer. A painter is a function of the frame number, so
+frame N is frame N whichever machine draws it, and a loop can be closed by
+choosing a frame count rather than by trimming footage until the join stops
+showing. The one test that guarantees it is already in the suite: an animation
+repainted at the same tick must not change.
+
+Two things have to be pinned or the recording is not reproducible after all.
+Several painters build a random generator on their first frame, so the tool
+hands them a seeded one. And Rich names a font in its export that almost nobody
+has, so the tool names the family instead of leaving it to be guessed.
+
+Two of the recordings are whole rites rather than one animation: `draw-radio`
+and `draw-pythia`. Those are played a step at a time from a table at the top of
+the tool. Every field a scene sets is one a real run sets and every event it
+emits is one a real run emits, so the interface does its own work rather than
+being drawn over; what the table supplies is the material and the answer, which
+are the things a recording cannot go and find again.
+
+The result is a lossless animated WebP, and for the one on the front page a GIF
+as well. WebP is about a third of the size and keeps the glyph edges exactly
+where they were drawn, which is the one thing a lossy encoder ruins. The GIF
+uses a palette weighted toward the pixels that move and an ordered dither that
+stays put between frames; the default dither crawls, and a screen full of
+braille dots boils.
+
 ## Where it is drawn
 
 The animation fills the whole terminal. The text sits on top of it in a panel

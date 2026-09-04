@@ -71,9 +71,10 @@ GPL. По той же причине в таблице может стоять �
 | [rtl_433](https://github.com/merbanan/rtl_433) | GPL-2.0 | `world/ism` |
 | [dump1090](https://github.com/antirez/dump1090) | BSD-3-Clause | `world/adsb_local` |
 | [noaa-apt](https://github.com/martinber/noaa-apt) | GPL-3.0 | `world/apt` |
-| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later либо GPL-2.0-or-later, смотря как собран | `world/net_voice`, `world/twitch_voice` |
+| [ffmpeg](https://ffmpeg.org/) | LGPL-2.1-or-later либо GPL-2.0-or-later, смотря как собран | `world/net_voice`, `world/twitch_voice`, `tools/make_demo.py` |
 | [kiwirecorder.py](https://github.com/jks-prv/kiwiclient) | **не указана** | `world/kiwi_voice` |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Unlicense | `world/twitch_voice` |
+| [resvg](https://github.com/linebender/resvg) | Apache-2.0 | `tools/make_demo.py` |
 
 ## Зависимости Python
 

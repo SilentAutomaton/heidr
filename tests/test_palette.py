@@ -1,4 +1,5 @@
 import random
+import re
 
 import pytest
 
@@ -144,3 +145,37 @@ def test_an_animation_with_no_gradient_still_returns_plain_text():
     board.painter = painter
 
     assert board.tint == ()
+
+
+# The recorder
+
+
+@pytest.mark.asyncio
+async def test_the_same_frame_is_recorded_the_same_way_twice(default_config):
+    """The one property the demo recordings rest on.
+
+    Frames are exported rather than screen-recorded, so a loop closes by
+    choosing a frame count instead of by trimming footage. That only holds if
+    two runs of the same tick produce the same bytes.
+    """
+    async def shot(name: str, tick: int) -> str:
+        app = make_app(default_config)
+        async with app.run_test(size=(60, 16)) as pilot:
+            app.query_one("#body").display = False
+            random.seed(7)
+            app.show_visual(name)
+            board = app.query_one("#visual", Canvas)
+            board.timer.stop()
+            board.timer = None
+            if hasattr(board.painter, "rng"):
+                board.painter.rng = random.Random(7)
+            board.tick = tick
+            board.refresh()
+            await pilot.pause()
+            # The export names its own CSS classes after a number it makes up
+            # each time. That reaches the class names and nothing that is drawn,
+            # so it is taken out before the two are compared.
+            return re.sub(r"terminal-\d+", "terminal", app.export_screenshot(title="HEID//R"))
+
+    for name in ("plasma", "rings", "hexlib"):
+        assert await shot(name, 9) == await shot(name, 9)
