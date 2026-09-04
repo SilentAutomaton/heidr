@@ -23,7 +23,7 @@ For speech, either `pip install -e '.[vosk]'` or a build of
 [stt.md](stt.md), which has the exact build line.
 
 For a language model, ollama or a llama.cpp server on localhost. Neither is
-required: six of the readings need no model at all.
+required: five of the six readings need no model at all, and only `pythia` does.
 
 ## macOS
 

@@ -25,6 +25,9 @@ warning rather than an error: the program works there, only more plainly.
 **Radio.** Whether an RTL-SDR device is present. On its own line, which of
 `rtl_sdr`, `rtl_fm`, `rtl_power`, `rtl_433` and `dump1090` are installed.
 
+**Stream tools.** Whether `ffmpeg`, `yt-dlp` and `kiwirecorder.py` are
+installed. The sources that listen over the network run them.
+
 **Audio.** Whether `sounddevice` is installed and an output device exists.
 
 **Language model and speech.** Whether the provider could be built. If not, the
