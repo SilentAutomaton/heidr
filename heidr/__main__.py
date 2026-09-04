@@ -43,12 +43,14 @@ def self_check(settings) -> int:
 def _undocumented() -> list[str]:
     """Whether the repository documents every module.
 
-    A built binary carries no repository, so there is nothing to check and
-    nothing to complain about. The question belongs to the source tree.
+    An installed copy carries no repository — neither a built binary nor a
+    wheel ships `tools/` — so there is nothing to check and nothing to complain
+    about. The question belongs to the source tree.
     """
-    if getattr(sys, "frozen", False):
+    try:
+        from tools.check_docs import complaints
+    except ImportError:
         return []
-    from tools.check_docs import complaints
 
     return complaints()
 
