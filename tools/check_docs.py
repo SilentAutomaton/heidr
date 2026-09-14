@@ -24,6 +24,12 @@ def module_names() -> list[str]:
 
 
 def complaints() -> list[str]:
+    # A copy that is not the repository has no documentation folder to check, and
+    # reporting every module as undocumented there would be a lie about the
+    # reader's installation rather than a fact about the project.
+    if not (ROOT / "docs").is_dir():
+        return []
+
     found = []
     for name in module_names():
         for language, sections in REQUIRED.items():

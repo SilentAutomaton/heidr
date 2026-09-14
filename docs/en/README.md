@@ -9,6 +9,7 @@ Everything here has a Russian mirror under `docs/ru/` with the same file name.
 | Document | What is in it |
 |---|---|
 | [Installing](install.md) | Linux, macOS, Windows, and the one file build |
+| [Binaries and installers](binaries.md) | The release binaries, the two installer scripts, and `--set` |
 | [Keys](keys.md) | The whole key map, what it borrows from vim, and where the two disagree |
 | [Settings and modules](settings-editor.md) | The two lists inside the program, and `:set` |
 | [Checking what works](checkhealth.md) | What `:checkhealth` reports and how to read it |

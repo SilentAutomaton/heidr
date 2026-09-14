@@ -144,6 +144,21 @@ outside world.
 Python 3.11 or newer, and a terminal from this century. What each system needs,
 and what does not work where, is in [the install notes](docs/en/install.md).
 
+### The short way
+
+A binary that needs no Python, and a script that fetches it together with the
+outside programs — a receiver, a speech recogniser, a language model — asking
+which of them you want:
+
+```
+curl -fLO https://raw.githubusercontent.com/SilentAutomaton/heidr/master/install.sh
+sh install.sh
+```
+
+On Windows the same script is `install.ps1`. Both are described in
+[binaries and installers](docs/en/binaries.md), along with the binaries on their
+own.
+
 ### Linux
 
 ```
@@ -190,10 +205,14 @@ build-env/bin/pip install pyinstaller '.[audio,effects]'
 build-env/bin/pyinstaller heidr.spec
 ```
 
-`dist/heidr` is then a single executable of about 37 MB carrying Python and
+`dist/heidr` is then a single executable of about 45 MB carrying Python and
 every dependency. The external programs stay external: `rtl_fm`, `whisper-cli`
 and the rest are run as subprocesses, so they are found on the path or the
 capability is simply absent, exactly as with an ordinary install.
+
+`tools/build_release.sh` does the same in a container, which is how the released
+binaries are built: on a rolling distribution the result would carry a C library
+too new for anything else to run it.
 
 ## Configure
 

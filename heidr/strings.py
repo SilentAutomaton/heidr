@@ -129,6 +129,15 @@ EN = {
     "status.done": "Done",
     "status.saved": "Saved to {path}.",
     "config.copied": "Copied the example configuration to {path}. Edit it and restart.",
+    "config.unknown_key": (
+        "There is no setting called {name}. The configuration has a fixed set of "
+        "keys, so a name that is not among them would never be read. Run "
+        "--print-config to see the names."
+    ),
+    "config.not_a_pair": (
+        "{pair} is not a setting. --set takes one key and one value joined by "
+        "an equals sign, as in --set stt.provider=whisper_cpp."
+    ),
 }
 
 STRINGS = {"en": EN}

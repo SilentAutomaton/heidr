@@ -80,6 +80,30 @@ Whether that invention is a defect depends on the module. For `fm_voice` it is â
 there is clean speech to be had. For `sw_voice` it is the point: see that
 module's document.
 
+## A vosk model
+
+whisper.cpp is built; vosk is installed and then given a model directory. The
+models are published as zip archives at one address, and `stt.model_path` points
+at the unpacked directory rather than at the archive:
+
+```
+curl -LO https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+unzip vosk-model-small-en-us-0.15.zip -d ~/.local/share/heidr/models
+```
+
+| Model | Size | For |
+|---|---|---|
+| `vosk-model-small-en-us-0.15` | 40 MB | dictating in English |
+| `vosk-model-small-ru-0.22` | 45 MB | dictating in Russian |
+| `vosk-model-en-us-0.22` | 1.8 GB | English on a worse recording |
+
+One model, one language. A small model is enough for dictation, which is what
+vosk is here for; radio is whisper.cpp's work.
+
+The [installer](binaries.md) does all of this for you, including the choice of
+model. It also refuses to pair vosk with the released binary, which carries its
+own Python and cannot load a package `pip` installed.
+
 ## When a provider cannot be used
 
 A missing model, a missing binary or a missing key is checked at probe time, not

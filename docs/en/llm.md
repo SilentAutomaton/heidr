@@ -28,6 +28,34 @@ end.
 Choosing between a llama.cpp server and a hosted service is the same edit:
 change `base_url` and `model`.
 
+## Installing one
+
+Neither is required. Five of the six readings need no model at all, and only
+`pythia` does.
+
+**ollama** installs itself and runs as a daemon on port 11434:
+
+```
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen3.5:9B
+```
+
+On Windows the same thing is `winget install Ollama.Ollama`, or `OllamaSetup.exe`
+from its GitHub release.
+
+**llama.cpp** publishes prebuilt binaries, but on its nightly `bNNNN` tags
+rather than on the release marked latest, which carries no files at all. Take
+`llama-bNNNN-bin-ubuntu-x64.tar.gz` for Linux or `llama-bNNNN-bin-win-cpu-x64.zip`
+for Windows, then start the server with a model of your own:
+
+```
+llama-server -m your-model.gguf --port 8080
+```
+
+The defaults follow: `base_url` is `http://localhost:11434` for ollama and
+`http://localhost:8080` for llama.cpp. The [installer](binaries.md) fetches
+either one and writes the two settings for you.
+
 ## Configuration
 
 ```toml

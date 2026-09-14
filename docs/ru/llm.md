@@ -27,6 +27,35 @@ def stream(self, messages: list[Message]) -> Iterator[str]
 Между сервером llama.cpp и облачным сервисом переключаются одинаково: правят
 `base_url` и `model`.
 
+## Как поставить любой из них
+
+Ни один не обязателен: пять толкований из шести обходятся без модели, она нужна
+только `pythia`.
+
+**ollama** ставит себя сам и поднимается демоном на порту 11434:
+
+```
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen3.5:9B
+```
+
+Под Windows то же самое — `winget install Ollama.Ollama` либо `OllamaSetup.exe`
+из релиза на GitHub.
+
+**llama.cpp** тоже выкладывает готовые сборки, но на ночных тегах вида `bNNNN`,
+а не на релизе, помеченном как последний: у того вложений нет вовсе. Нужен
+`llama-bNNNN-bin-ubuntu-x64.tar.gz` для Linux или
+`llama-bNNNN-bin-win-cpu-x64.zip` для Windows; сервер потом запускают со своей
+моделью:
+
+```
+llama-server -m your-model.gguf --port 8080
+```
+
+Отсюда и значения по умолчанию: `base_url` — это `http://localhost:11434` для
+ollama и `http://localhost:8080` для llama.cpp. [Установщик](binaries.md)
+скачает любой из них и сам пропишет обе настройки.
+
 ## Настройки
 
 ```toml

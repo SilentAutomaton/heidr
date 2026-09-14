@@ -6,6 +6,11 @@ Python 3.11 or newer. Everything past that is optional and the program says so
 at startup: `heidr --self-check` lists what works on this machine and what is
 missing.
 
+This page installs from source, which is the way to work on the program. To
+simply run it, there is a binary that needs no Python and a script that fetches
+it together with the outside programs: see
+[binaries and installers](binaries.md).
+
 ## Linux
 
 ```
@@ -77,9 +82,13 @@ instructions apply unchanged.
 ## One file, no install
 
 `heidr.spec` builds a single executable with Python and every dependency inside
-it. See the README for the three commands. The external programs stay external
-even then: `rtl_fm`, `whisper-cli` and ollama are looked for on the path at run
-time, and a missing one only removes the sources that need it.
+it. See the README for the three commands, or `tools/build_release.sh` for the
+containers the released binaries are built in. The external programs stay
+external even then: `rtl_fm`, `whisper-cli` and ollama are looked for on the
+path at run time, and a missing one only removes the sources that need it.
+
+The built binaries and the installer scripts are described in
+[binaries and installers](binaries.md).
 
 ## Checking
 

@@ -55,12 +55,66 @@ def _undocumented() -> list[str]:
     return complaints()
 
 
+def as_value(written: str):
+    """A setting as a shell wrote it, read back as what it is.
+
+    Everything arrives from a command line as text, and a thread count stored
+    as "4" is read back as a string the next time the program starts.
+    """
+    lowered = written.strip().lower()
+    if lowered in ("true", "false"):
+        return lowered == "true"
+    for kind in (int, float):
+        try:
+            return kind(written)
+        except ValueError:
+            continue
+    return written
+
+
+def apply_settings(settings, pairs: list[str]) -> int:
+    """Write settings from the command line, which is how an installer finishes.
+
+    Nothing is saved until every pair is understood: half a configuration is
+    harder to undo than none.
+    """
+    wanted = []
+    for pair in pairs:
+        key, sign, value = pair.partition("=")
+        if not sign:
+            print(text("config.not_a_pair", pair=pair), file=sys.stderr)
+            return 1
+        if settings.get(key.strip()) is None and not _known(key.strip()):
+            print(text("config.unknown_key", name=key.strip()), file=sys.stderr)
+            return 1
+        wanted.append((key.strip(), as_value(value)))
+
+    for key, value in wanted:
+        settings.set(key, value)
+    print(text("status.saved", path=config.save(settings)))
+    return 0
+
+
+def _known(dotted: str) -> bool:
+    # Module settings are declared by the modules themselves rather than by the
+    # defaults, so `modules.fm_voice.stops` is a name the defaults never hold.
+    return dotted.startswith("modules.")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="heidr", description=f"{NAME} terminal oracle")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument("--splash", action="store_true", help="print the wordmark and exit")
     parser.add_argument("--print-config", action="store_true", help="print the merged configuration")
     parser.add_argument("--self-check", action="store_true", help="report what works here")
+    parser.add_argument(
+        "--set",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        dest="settings",
+        help="write one setting and exit, as in --set stt.provider=whisper_cpp",
+    )
     args = parser.parse_args(argv)
 
     if args.splash:
@@ -72,6 +126,9 @@ def main(argv: list[str] | None = None) -> int:
         print(text("config.copied", path=copied))
 
     settings = config.load()
+
+    if args.settings:
+        return apply_settings(settings, args.settings)
 
     if args.print_config:
         print(tomli_w.dumps(settings.data).rstrip())
