@@ -51,7 +51,14 @@ mark() {
 }
 
 fetch() {
-    curl -fL --progress-bar -o "$2" "$1"
+    echo "  downloading ${2##*/}"
+    # A progress bar drawn where nothing can erase it — a log, a pipe — comes out
+    # as one very long line across the middle of the questions.
+    if [ -t 2 ]; then
+        curl -fL --progress-bar -o "$2" "$1"
+    else
+        curl -fLsS -o "$2" "$1"
+    fi
 }
 
 die() {
