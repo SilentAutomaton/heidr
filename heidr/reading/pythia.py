@@ -63,21 +63,33 @@ def fragment(material: Material, limit: int) -> str:
 def run(ctx, question: str, material: Material):
     voice = voice_for(material)
     limit = int(ctx.config.get("llm.fragment_chars", FRAGMENT_CHARS))
+    asked = [
+        Message("system", INSTRUCTION.format(voice=voice)),
+        # The question is repeated at the end: a model follows the last thing it
+        # read, and answering a Russian question in English is the failure this
+        # prevents.
+        Message(
+            "user",
+            f"question: {question}\n\nfound:\n{fragment(material, limit)}\n\n"
+            f"Now answer, in the language of this question: {question}",
+        ),
+    ]
 
     # A reading yields lines, so the stream is put back together before it
-    # leaves: otherwise the answer arrives one word per line.
-    yield from lines(
-        ctx.llm.stream(
-            [
-                Message("system", INSTRUCTION.format(voice=voice)),
-                # The question is repeated at the end: a model follows the
-                # last thing it read, and answering a Russian question in
-                # English is the failure this prevents.
-                Message(
-                    "user",
-                    f"question: {question}\n\nfound:\n{fragment(material, limit)}\n\n"
-                    f"Now answer, in the language of this question: {question}",
-                ),
-            ]
-        )
-    )
+    # leaves: otherwise the answer arrives one word per line. Putting it back
+    # together also holds it back, so the answer as far as it has been written
+    # is reported separately and the screen can show it a token at a time.
+    ctx.emit("working", "writing")
+    yield from lines(_told(ctx, asked))
+
+
+def _told(ctx, asked):
+    held = ""
+    try:
+        for piece in ctx.llm.stream(asked):
+            held += piece
+            ctx.emit("writing", held)
+            yield piece
+    finally:
+        # A stream that broke halfway must not leave its half on the panel.
+        ctx.emit("writing", "")

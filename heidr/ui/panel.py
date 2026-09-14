@@ -58,6 +58,15 @@ def notice(message: str, accent: str) -> Text:
     return out
 
 
+def working(message: str, frame: str, dim: str) -> Text:
+    """A step that is still running, marked by the turning glyph of the moment.
+
+    The same mark as the status line, put where the reader is already looking,
+    so an answer that has not arrived yet does not look like one that never will.
+    """
+    return Text(f"{frame}  {message}", dim)
+
+
 def note(message: str, dim: str) -> Text:
     """Something that happened on the way, which is not a fault to answer for."""
     return Text(f"{QUIET_MARKER}  {message}", dim)

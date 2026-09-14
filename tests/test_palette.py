@@ -212,7 +212,7 @@ async def test_a_silent_step_names_itself_and_turns_the_gears(default_config):
         app = pilot.app
         app.show_visual("waterfall")
 
-        app._working("listening back to 45s")
+        app._working("transcribing 2/4")
 
-        assert app.query_one("StatusLine").rite == "listening back to 45s"
+        assert app.query_one("StatusLine").rite == "transcribing 2/4"
         assert tinted(app)

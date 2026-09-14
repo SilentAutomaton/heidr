@@ -109,6 +109,11 @@ class HeidrApp(App):
         self.asked = ""
         self.found = ("", "")
         self.said: list[str] = []
+        # The label of a step that cannot report progress, and the answer as
+        # far as a reading has written it. Both are on screen only while a draw
+        # is running, and both turn the panel into something that moves.
+        self.working = ""
+        self.writing = ""
         self.notice = ""
         self.notes: list[str] = []
         # Where the rows begin on screen, and which row is at the top of them.
@@ -272,6 +277,8 @@ class HeidrApp(App):
         self.asked = question
         self.found = ("", "")
         self.said = []
+        self.working = ""
+        self.writing = ""
         self.notice = ""
         self.notes = []
         self.unanswered = ("", "")
@@ -330,6 +337,8 @@ class HeidrApp(App):
         where the eye is waiting. The bottom line repeats it in one breath.
         """
         self.drawing = False
+        self.working = ""
+        self.writing = ""
         self._show_hint()
         self.show_idle()
         self.unanswered = (note, message)
@@ -349,6 +358,8 @@ class HeidrApp(App):
 
     def _drawn(self, drawn) -> None:
         self.drawing = False
+        self.working = ""
+        self.writing = ""
         self._show_hint()
         # A silent rite never announces its reading, so the finished bar is
         # filled from the rite itself: those three were drawn, whatever spoke.
@@ -388,6 +399,7 @@ class HeidrApp(App):
         self.bus.subscribe("found", lambda material: self._on_thread(self._found, material))
         self.bus.subscribe("instead", lambda names: self._on_thread(self._instead, names))
         self.bus.subscribe("working", lambda label: self._on_thread(self._working, label))
+        self.bus.subscribe("writing", lambda body: self._on_thread(self._writing, body))
 
     def _on_thread(self, handler, payload) -> None:
         if threading.current_thread() is threading.main_thread():
@@ -397,6 +409,8 @@ class HeidrApp(App):
 
     def _stage(self, name: str) -> None:
         """Each stage brings its own animation with it."""
+        self.working = ""
+        self.writing = ""
         self.query_one(StatusLine).rite = str(name)
         module = self._module_named(str(name))
         if module is not None and module.name not in self.stages:
@@ -420,23 +434,42 @@ class HeidrApp(App):
         freezes. The gears mean work is happening and nothing knows how far
         along it is — which is the honest amount to say here too.
         """
+        self.working = str(label)
         self.query_one(StatusLine).rite = str(label)
         self.show_visual("cog")
+        self._render_body()
+
+    def _writing(self, body: str) -> None:
+        """The answer as far as it has been written, which is not drawn here.
+
+        A model sends fifty pieces a second and each of them would be a whole
+        repaint of the panel. The spinner timer paints it instead, so the text
+        grows at the speed the spinner turns.
+        """
+        self.working = ""
+        self.writing = str(body)
 
     def _title(self) -> str:
         """What the window is called, which is all you see when it is hidden."""
         if not self.drawing:
             return NAME
-        frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
         done, total = self.progress or (len(self.stages), SLOTS)
         # Before the first stage announces itself there is nothing to name, and
         # a dash with a gap after it looks like a fault rather than a title.
         told = f"{self.stages[-1]} {done}/{total}" if self.stages else f"{done}/{total}"
-        return f"{frames[self.spin % len(frames)]} {NAME} — {told}"
+        return f"{self._spinner_frame()} {NAME} — {told}"
+
+    def _spinner_frame(self) -> str:
+        frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
+        return frames[self.spin % len(frames)]
 
     def _show_title(self) -> None:
         self.spin += 1
         self._show_spinner()
+        if self.drawing and (self.working or self.writing):
+            # The one thing on the panel that moves, and the text arriving under
+            # it, both advance on this beat rather than on every event.
+            self._render_body()
         wanted = self._title()
         if wanted == self.shown_title:
             return
@@ -459,8 +492,7 @@ class HeidrApp(App):
         line = self._status()
         if line is None:
             return
-        frames = SPINNERS.get(self.terminal.glyphs, SPINNERS["ascii"])
-        line.spinner = frames[self.spin % len(frames)] if self.drawing else ""
+        line.spinner = self._spinner_frame() if self.drawing else ""
 
     def _module_named(self, name: str):
         # Stages announce themselves with extra words sometimes, so match the
@@ -640,10 +672,14 @@ class HeidrApp(App):
         found, source = self.found
         if found:
             parts.append(panel.section("found", source, panel.shorten(found, width), dim))
-        if self.said:
+        if self.drawing and self.working:
+            parts.append(panel.working(self.working, self._spinner_frame(), dim))
+        # While a reading is streaming its own text carries everything said so
+        # far, so it stands in for the finished lines rather than beside them.
+        body = self.writing or "\n".join(self.said)
+        if body:
             reading = self.stages[-1] if len(self.stages) == SLOTS else ""
-            answer = panel.wrap("\n".join(self.said), width)
-            parts.append(panel.section("answer", reading, answer, dim))
+            parts.append(panel.section("answer", reading, panel.wrap(body, width), dim))
         elif self.unanswered[1]:
             note, said = self.unanswered
             parts.append(panel.section("answer", note, panel.wrap(said, width), dim))

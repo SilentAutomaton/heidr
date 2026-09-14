@@ -97,6 +97,20 @@ The answer arrives as a stream of fragments a few characters long, and a reading
 yields lines, so `llm.base.lines` puts them back together. Without that, the
 answer reached the screen one word per line.
 
+Putting them back together also holds them back: a line only leaves the reading
+once its newline arrives, so a six line answer used to land on screen as six
+sudden blocks. The reading therefore reports the answer so far as a `writing`
+event on every fragment, and the panel paints that instead of the finished
+lines while the model is still writing. The events are not drawn as they come —
+fifty a second would be fifty repaints — but on the same ten hertz beat that
+turns the spinner, which is also what the reader sees while the model is still
+thinking and no text has arrived at all.
+
+Both shapes stream the same way. `ollama` sends newline delimited JSON and
+`openai_compat` — the llama.cpp server among them — sends server sent events;
+both use chunked transfer encoding, so each fragment is delivered as it is
+written rather than at the end.
+
 ## The rule that outranks all of this
 
 **The model interprets the material. It never selects it.** A reading passes the

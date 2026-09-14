@@ -1,6 +1,8 @@
 import collections
 import random
 
+import pytest
+
 from heidr import registry
 from heidr.contracts import Material
 from heidr.reading import iching, pythia, tarot
@@ -110,11 +112,11 @@ class FakeProvider:
 
     def __init__(self):
         self.sent = None
+        self.pieces = ["a ", "sign"]
 
     def stream(self, messages):
         self.sent = messages
-        yield "a "
-        yield "sign"
+        yield from self.pieces
 
 
 def test_pythia_stays_out_of_the_lottery_without_a_provider(stub_context):
@@ -128,6 +130,39 @@ def test_pythia_streams_what_the_model_says(stub_context):
     found, scoped = ready(ctx, "pythia")
 
     assert "".join(found.run(scoped, QUESTION, MATERIAL)) == "a sign"
+
+
+def test_pythia_reports_the_answer_as_far_as_it_is_written(stub_context, events):
+    """The panel needs the half-written line; only whole lines leave the module."""
+    provider = FakeProvider()
+    provider.pieces = ["he", "llo wo", "rld"]
+    ctx = stub_context.with_capabilities("llm")
+    ctx.llm = provider
+    found, scoped = ready(ctx, "pythia")
+
+    said = list(found.run(scoped, QUESTION, MATERIAL))
+
+    assert said == ["hello world"]
+    written = [payload for name, payload in events if name == "writing"]
+    assert written == ["he", "hello wo", "hello world", ""]
+    assert ("working", "writing") in events
+
+
+def test_a_stream_that_broke_leaves_nothing_on_the_panel(stub_context, events):
+    class Broken(FakeProvider):
+        def stream(self, messages):
+            yield "half a "
+            raise OSError("the daemon went away")
+
+    ctx = stub_context.with_capabilities("llm")
+    ctx.llm = Broken()
+    found, scoped = ready(ctx, "pythia")
+
+    with pytest.raises(OSError):
+        list(found.run(scoped, QUESTION, MATERIAL))
+
+    written = [payload for name, payload in events if name == "writing"]
+    assert written[-1] == ""
 
 
 def test_pythia_sends_the_finding_and_the_question_only(stub_context):

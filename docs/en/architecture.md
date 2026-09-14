@@ -40,8 +40,10 @@ def run(ctx: Context, key: Key) -> Material                            # slot B
 def run(ctx: Context, question: str, m: Material) -> Iterator[str]     # slot C
 ```
 
-Slot C returns an iterator, which is why a language model's output reaches the
-screen token by token with no extra streaming machinery.
+Slot C returns an iterator of lines, because a line is what the ledger and the
+transcript are written in. A reading that wants the screen to move before the
+line ends reports the answer so far as a `writing` event as well; that is how
+[pythia](llm.md) arrives a token at a time rather than a line at a time.
 
 ## Registry
 
@@ -71,11 +73,20 @@ ctx.emit("spectrum", bins)
 ctx.emit("audio", pcm)
 ctx.emit("token", text)
 ctx.emit("stage", name)
+ctx.emit("progress", (done, total))
+ctx.emit("working", label)
+ctx.emit("writing", body)
 ```
 
 A visualisation does not know which module feeds it, and a module does not know
 who draws it. Adding a visualisation means subscribing to an event that already
 exists, and nothing else changes.
+
+The last three are for steps that take a long time and show nothing.
+`progress` counts them off, `working` names the one that is running, and
+`writing` carries text that is not finished yet. The interface answers all three
+with the same turning mark it puts in the status line, drawn in the panel as
+well, because that is where the reader is looking.
 
 ## Configuration
 

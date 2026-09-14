@@ -59,6 +59,44 @@ async def test_the_rite_panel_labels_what_it_shows(default_config):
         assert "answer · iching" in shown
 
 
+def test_a_running_step_is_marked_by_the_turning_glyph():
+    shown = str(panel.working("transcribing 2/4", "\u2839", ""))
+
+    assert shown.startswith("\u2839")
+    assert shown.endswith("transcribing 2/4")
+
+
+@pytest.mark.asyncio
+async def test_a_slow_step_says_so_in_the_panel(default_config):
+    """The eye is on the text, not on the status line."""
+    async with make_app(default_config).run_test(size=(80, 24)) as pilot:
+        app = pilot.app
+        app._enter("rite")
+        app.asked = "what now"
+        app.drawing = True
+        app._working("transcribing 2/4")
+        shown = str(app.query_one("#body").content)
+
+        assert "transcribing 2/4" in shown
+        assert app._spinner_frame() in shown
+
+
+@pytest.mark.asyncio
+async def test_a_half_written_answer_stands_in_for_the_finished_lines(default_config):
+    async with make_app(default_config).run_test(size=(80, 24)) as pilot:
+        app = pilot.app
+        app._enter("rite")
+        app.asked = "what now"
+        app.said = ["first line"]
+        app._writing("first line\nsecond li")
+        app._render_body()
+        shown = str(app.query_one("#body").content)
+
+        # The live text already holds the finished line, so it is not shown twice.
+        assert shown.count("first line") == 1
+        assert "second li" in shown
+
+
 @pytest.mark.asyncio
 async def test_the_answer_keeps_its_own_lines(default_config):
     async with make_app(default_config).run_test(size=(80, 24)) as pilot:
