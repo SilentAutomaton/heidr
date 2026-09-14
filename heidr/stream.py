@@ -113,7 +113,7 @@ def gather(
         if ctx.has("audio"):
             output.open()
     try:
-        heard, reached = _visit(ctx, candidates, reader or capture, output, rate)
+        captured, reached = _visit(ctx, candidates, reader or capture, output, rate)
     finally:
         if own:
             output.close()
@@ -123,7 +123,7 @@ def gather(
             "None of the stations answered. The network is down, or every one "
             "of them was offline at once. Check the connection, then draw again."
         )
-    return radio.matching(radio.transcribe(ctx, heard), key.anchors), reached
+    return radio.matching(radio.transcribe(ctx, captured), key.anchors), reached
 
 
 def _visit(ctx, candidates, reader, output, rate: int):
@@ -132,12 +132,15 @@ def _visit(ctx, candidates, reader, output, rate: int):
     What the speaker plays, what the waterfall draws and what the recogniser is
     given are the same block at the same moment. Nothing is collected first and
     played afterwards, or the picture would run ahead of the sound.
+
+    Each stop keeps its own list, so the recogniser is given one station at a
+    time rather than all of them joined end to end.
     """
     settings = ctx.settings
     wanted = max(1, int(settings["stops"]))
     bins = int(settings.get("bins", 64))
     dwell = float(settings["dwell_s"])
-    heard: list[np.ndarray] = []
+    captured: list[list[np.ndarray]] = []
     reached: list[Stop] = []
 
     for stop in candidates:
@@ -147,12 +150,12 @@ def _visit(ctx, candidates, reader, output, rate: int):
             raise Cancelled
         ctx.emit("progress", (len(reached) + 1, wanted))
         ctx.emit("stage", stop.label)
-        blocks = 0
+        heard: list[np.ndarray] = []
         for block in reader(stop, rate, dwell):
             output.play(block)
             ctx.emit("spectrum", audio.spectrum(block, bins))
             heard.append(radio.downsample(block, rate // SPEECH_RATE))
-            blocks += 1
-        if blocks:
+        if heard:
+            captured.append(heard)
             reached.append(stop)
-    return heard, reached
+    return captured, reached

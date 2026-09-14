@@ -24,12 +24,16 @@ class FakeSpeech:
     def __init__(self, phrases):
         self.phrases = phrases
         self.blocks = 0
+        # One entry per call, so a test can see that the sources were kept apart.
+        self.calls: list[int] = []
 
     def available(self):
         return True
 
     def transcribe(self, blocks):
-        self.blocks = len(list(blocks))
+        given = list(blocks)
+        self.blocks = len(given)
+        self.calls.append(len(given))
         for phrase in self.phrases:
             yield Partial(phrase, final=True)
 
@@ -121,7 +125,7 @@ def test_every_block_reaches_the_speaker_the_screen_and_the_recogniser(stub_cont
     # Read, play, read, play: nothing is collected first and played afterwards.
     assert log == ["read", "play", "read", "play", "read", "play"]
     assert [name for name, _ in events].count("spectrum") == 3
-    assert ctx.stt.blocks == 3
+    assert ctx.stt.calls == [3]
 
 
 def test_the_speaker_is_opened_once_for_the_whole_visit(stub_context):
@@ -715,24 +719,48 @@ def test_a_receiver_whose_owner_asked_programs_away_is_left_alone():
 # Saying that a slow step is still running
 
 
-def test_the_recogniser_says_it_has_started(stub_context, events):
+def test_the_recogniser_counts_the_sources_off(stub_context, events):
     """A capture is transcribed after the sweep, in silence, for minutes."""
     ctx = listening(stub_context)
     ctx.stt = FakeSpeech(["a phrase"])
 
-    radio.transcribe(ctx, [tone(16000), tone(16000)])
+    radio.transcribe(ctx, [[tone(16000)], [tone(16000)]])
 
     working = [payload for name, payload in events if name == "working"]
-    assert working == ["listening back to 2s"]
+    assert working == ["transcribing 1/2", "transcribing 2/2"]
+    progress = [payload for name, payload in events if name == "progress"]
+    assert progress == [(1, 2), (2, 2)]
 
 
-def test_it_says_so_even_when_nothing_was_heard(stub_context, events):
+def test_nothing_captured_is_nothing_to_say(stub_context, events):
     ctx = listening(stub_context)
     ctx.stt = FakeSpeech([])
 
-    radio.transcribe(ctx, [])
+    assert radio.transcribe(ctx, []) == []
+    assert [name for name, _ in events].count("working") == 0
 
-    assert [name for name, _ in events].count("working") == 1
+
+def test_each_source_is_recognised_on_its_own(stub_context):
+    """Two stations are two calls, never one buffer with a seam in the middle."""
+    ctx = listening(stub_context, ["one said"])
+    _found, scoped = ready(ctx, "net_voice")
+    scoped.stt = ctx.stt
+    scoped.settings["stops"] = 2
+    stops = [stream.Stop("one", "http://a"), stream.Stop("two", "http://b")]
+    lengths = {"http://a": 2, "http://b": 3}
+
+    def reader(stop, rate, seconds):
+        for _ in range(lengths[stop.url]):
+            yield tone()
+
+    said, reached = stream.gather(
+        scoped, Key(seed=1), stops, reader=reader, output=FakeOutput([])
+    )
+
+    assert len(reached) == 2
+    # Two calls of their own lengths: 2 + 3 blocks, not one call of 5.
+    assert ctx.stt.calls == [2, 3]
+    assert said == ["one said", "one said"]
 
 
 def test_every_module_that_listens_says_when_it_is_recognising(stub_context, events, monkeypatch):

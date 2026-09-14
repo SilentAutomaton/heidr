@@ -46,6 +46,20 @@ threads = 0                 # 0 lets whisper.cpp decide
 As everywhere else, `api_key_env` is the name of an environment variable, never
 the key.
 
+## One source at a time
+
+A sweep visits several stations, and every one of them is recognised on its own.
+The blocks of a stop are kept in their own list and given to the provider in
+their own call, so nothing is joined end to end. A single buffer of four
+stations has three seams in it, and a model answers a seam by inventing a
+sentence across it — whisper because its thirty second window straddles the
+joint, vosk because one recogniser carries the last words of one station into
+the first words of the next.
+
+Recognition is the longest silent step in the program, so it counts itself off:
+`transcribing 2/4` stands in the status line and in the panel, beside the mark
+that turns.
+
 ## Which model for radio
 
 For dictation almost anything works: you speak close to the microphone, clearly,

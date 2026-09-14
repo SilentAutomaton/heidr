@@ -21,12 +21,16 @@ class FakeSpeech:
     def __init__(self, phrases):
         self.phrases = phrases
         self.blocks = 0
+        # One entry per call, so a test can see that the stops were kept apart.
+        self.calls: list[int] = []
 
     def available(self):
         return True
 
     def transcribe(self, blocks):
-        self.blocks = len(list(blocks))
+        given = list(blocks)
+        self.blocks = len(given)
+        self.calls.append(len(given))
         for phrase in self.phrases:
             yield Partial(phrase, final=True)
 
@@ -119,9 +123,12 @@ def test_a_sweep_plays_transcribes_and_reports(stub_context, events, monkeypatch
 
     material = found.run(scoped, Key(seed=3, anchors=()))
 
-    assert material.text == "a voice from the band"
-    assert material.extra["stops"] == scoped.settings["stops"]
-    assert [name for name, _ in events].count("spectrum") == 2 * scoped.settings["stops"]
+    stops = scoped.settings["stops"]
+    # Every stop is recognised on its own, so every stop brings its own phrase.
+    assert material.text == " / ".join(["a voice from the band"] * stops)
+    assert scoped.stt.calls == [2] * stops
+    assert material.extra["stops"] == stops
+    assert [name for name, _ in events].count("spectrum") == 2 * stops
     assert any(name == "stage" for name, _ in events)
     assert output.stream is None
 
@@ -465,7 +472,7 @@ def test_a_machine_with_no_sound_card_still_draws(stub_context, monkeypatch):
 
     material = found.run(scoped, Key(seed=3, anchors=()))
 
-    assert material.text == "heard"
+    assert material.text == " / ".join(["heard"] * scoped.settings["stops"])
     assert scoped.speaker.opened == 0
     assert scoped.speaker.closed == 1
 

@@ -243,24 +243,24 @@ def gather(ctx, key, output: audio.Output | None = None) -> tuple[list[str], lis
         if ctx.has("audio"):
             output.open()
     try:
-        heard, blocks = _sweep(ctx, stops, output, rate)
+        captured = _sweep(ctx, stops, output, rate)
     finally:
         if own:
             output.close()
 
-    if blocks == 0:
+    if not captured:
         raise Unavailable(
             "The radio gave nothing across the whole sweep. Either another "
             "program is holding the dongle or rtl_fm cannot open it. Close the "
             "other program, then draw again."
         )
-    return transcribe(ctx, heard), stops
+    return transcribe(ctx, captured), stops
 
 
-def _sweep(ctx, stops, output, rate: int) -> tuple[list[np.ndarray], int]:
+def _sweep(ctx, stops, output, rate: int) -> list[list[np.ndarray]]:
+    """The blocks of each stop kept apart, one list per frequency."""
     settings = ctx.settings
-    heard: list[np.ndarray] = []
-    blocks = 0
+    captured: list[list[np.ndarray]] = []
     for number, frequency in enumerate(stops, start=1):
         # The sweep is the longest thing the program does, so it says how far
         # along it is; the window title is the only place that shows when the
@@ -271,6 +271,7 @@ def _sweep(ctx, stops, output, rate: int) -> tuple[list[np.ndarray], int]:
             # time to keep someone who has changed their mind.
             raise Cancelled
         ctx.emit("stage", f"{frequency / 1e6:.3f} MHz")
+        heard: list[np.ndarray] = []
         for block in capture(
             frequency,
             settings["mode"],
@@ -283,8 +284,9 @@ def _sweep(ctx, stops, output, rate: int) -> tuple[list[np.ndarray], int]:
             output.play(block)
             ctx.emit("spectrum", audio.spectrum(block, int(settings.get("bins", 64))))
             heard.append(downsample(block, rate // SPEECH_RATE))
-            blocks += 1
-    return heard, blocks
+        if heard:
+            captured.append(heard)
+    return captured
 
 
 def _carriers(ctx, band: str) -> list[float]:
@@ -331,17 +333,23 @@ def downsample(block: np.ndarray, factor: int) -> np.ndarray:
     return block[:usable].reshape(-1, factor).mean(axis=1).astype(np.float32)
 
 
-def transcribe(ctx, blocks: list[np.ndarray]) -> list[str]:
-    # Nothing reaches the screen while a recogniser works, and a large model on
-    # a long capture takes minutes. Saying so is the whole difference between
-    # waiting and wondering whether it died.
-    heard = sum(block.size for block in blocks) / SPEECH_RATE
-    ctx.emit("working", f"listening back to {heard:.0f}s")
+def transcribe(ctx, captured: list[list[np.ndarray]]) -> list[str]:
+    """One recogniser call per source, never one call for all of them.
+
+    Four stations butt-joined into a single buffer give the recogniser three
+    seams, and a model answers a seam by inventing a sentence across it. A call
+    per source keeps them apart. It is also the only arrangement that can say
+    honestly how far along it is: nothing reaches the screen while a recogniser
+    works, and a large model on a long capture takes minutes.
+    """
     said = []
-    for partial in ctx.stt.transcribe(blocks):
-        if partial.final and partial.text:
-            said.append(partial.text)
-            ctx.emit("token", partial.text)
+    for number, blocks in enumerate(captured, start=1):
+        ctx.emit("working", f"transcribing {number}/{len(captured)}")
+        ctx.emit("progress", (number, len(captured)))
+        for partial in ctx.stt.transcribe(blocks):
+            if partial.final and partial.text:
+                said.append(partial.text)
+                ctx.emit("token", partial.text)
     return said
 
 

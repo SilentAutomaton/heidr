@@ -18,6 +18,7 @@ class Vosk:
 
     def __init__(self, config):
         self.model_path = config.get("stt.model_path", "")
+        self.model = None
 
     def available(self) -> bool:
         if not self.model_path or not Path(self.model_path).expanduser().is_dir():
@@ -29,10 +30,18 @@ class Vosk:
         return True
 
     def _recogniser(self):
+        """A fresh recogniser on the loaded model.
+
+        The recogniser has to be new for every source, or the last words of one
+        station form the first words of the next. The model behind it does not:
+        loading it takes seconds and it is the same file every time.
+        """
         import vosk
 
         vosk.SetLogLevel(-1)
-        return vosk.KaldiRecognizer(vosk.Model(str(Path(self.model_path).expanduser())), RATE)
+        if self.model is None:
+            self.model = vosk.Model(str(Path(self.model_path).expanduser()))
+        return vosk.KaldiRecognizer(self.model, RATE)
 
     def transcribe(self, blocks: Iterable[np.ndarray]) -> Iterator[Partial]:
         recogniser = self._recogniser()
