@@ -155,9 +155,10 @@ curl -fLO https://raw.githubusercontent.com/SilentAutomaton/heidr/master/install
 sh install.sh
 ```
 
-On Windows the same script is `install.ps1`. Both are described in
-[binaries and installers](docs/en/binaries.md), along with the binaries on their
-own.
+On Windows the same script is `install.ps1`; it installs everything around the
+program, and the program itself still comes from source there, because the
+binary is Linux only so far. Both scripts are described in
+[binaries and installers](docs/en/binaries.md), along with the binary on its own.
 
 ### Linux
 

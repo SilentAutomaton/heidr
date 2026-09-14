@@ -7,6 +7,9 @@ run, and a script that downloads the binary and the outside programs with it.
 Neither replaces the source install in [installing](install.md); they are the
 short way for somebody who wants to try the program today.
 
+The binary is Linux only so far. On Windows the script still installs everything
+around the program, and the program itself comes from source.
+
 ## The installer
 
 Linux:
@@ -56,12 +59,16 @@ released binary carries its own Python and cannot load anything `pip` installs,
 so vosk needs a source install. whisper.cpp is a separate program the binary
 runs, and works either way. The installer warns before it does anything.
 
+**Windows, for now.** There is no Windows binary in the release, so on Windows
+the script installs the outside programs and says that heidr itself has to come
+from source. The reason is in *building them yourself* below.
+
 **macOS.** Nothing is built for it, because nothing here can build it. macOS is
 installed from source, as [installing](install.md) describes.
 
 ## The binary alone
 
-Every release carries the binaries and `SHA256SUMS`. To use one without the
+Every release carries the Linux binary and `SHA256SUMS`. To use it without the
 installer:
 
 ```
@@ -79,7 +86,9 @@ What it does not carry is the outside programs. `rtl_fm`, `ffmpeg`,
 `whisper-cli` and ollama are run as subprocesses or reached over a socket, so
 they are looked for on the path when the program starts, exactly as with an
 ordinary install. A missing one removes the sources that need it and nothing
-else.
+else. Sound is the one thing inside the binary that still needs a system
+library: `sounddevice` looks for `libportaudio2`, and without it the oracle runs
+silently.
 
 ## Settings from the command line
 
@@ -101,10 +110,20 @@ described in [settings and modules](settings-editor.md).
 sh tools/build_release.sh
 ```
 
-The Linux binary is built in `python:3.12-bullseye` and the Windows one under
-wine in `tobix/pywine`, both through docker, both from the same `heidr.spec` the
-README documents. Pass `linux` or `windows` to build one of them. The result
-lands in `dist/` with a `SHA256SUMS` beside it.
+The Linux binary is built in `python:3.12-bullseye` through docker, from the
+same `heidr.spec` the README documents. It is not built on the machine that
+publishes it: a PyInstaller binary carries the C library it was linked against,
+and one built on a rolling distribution runs on that distribution and nowhere
+else. Debian bullseye is old enough to reach everything still in use.
+
+The same script has a Windows target, under wine in `tobix/pywine`, and it does
+not currently work: PyInstaller runs its collectors in subprocesses, and those
+die under wine before the build begins. The script reports the failure and
+carries on rather than pretending. A Windows binary needs a Windows machine, or
+somebody who knows why those subprocesses die.
+
+Pass `linux` or `windows` to build one of them. The result lands in `dist/` with
+a `SHA256SUMS` beside it.
 
 ## Checking
 

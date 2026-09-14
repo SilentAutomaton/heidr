@@ -25,8 +25,13 @@ build_linux() {
 # wine is the only way to a Windows binary from here, and it is the part that
 # may not work. A failure is reported and the release goes out without it.
 build_windows() {
-    docker run --rm -v "$PWD:/src" -w /src "$windows_image" sh -c '
+    docker run --rm -v "$PWD:/src" -w /src -e WINEDEBUG=-all "$windows_image" sh -c '
         set -e
+        # The prefix is created fresh for every container, and PyInstaller runs
+        # its collectors in subprocesses. Starting those while wineboot is still
+        # settling kills them, which looks like a PyInstaller fault and is not.
+        wineboot -u >/dev/null 2>&1 || true
+        wineserver -w
         wine python -m pip install --quiet pyinstaller ".[audio,effects]"
         wine python -m PyInstaller --clean --distpath /tmp/dist --workpath /tmp/work heidr.spec
         cp /tmp/dist/heidr.exe dist/heidr-windows-x86_64.exe
