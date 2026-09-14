@@ -3,9 +3,10 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/release-v0.1.0-f0a63a" alt="Релиз v0.1.0">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-f0a63a" alt="Лицензия: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-f0a63a" alt="Python 3.11 и новее">
-  <img src="https://img.shields.io/badge/tests-824%20passing-f0a63a" alt="824 теста проходят">
+  <img src="https://img.shields.io/badge/tests-861%20passing-f0a63a" alt="861 тест проходит">
   <img src="https://img.shields.io/badge/modules-33-f0a63a" alt="33 модуля">
 </p>
 
