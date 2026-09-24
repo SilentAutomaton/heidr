@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/release-v0.2.0-3db4c8" alt="Release v0.2.0">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Licence: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 or newer">
-  <img src="https://img.shields.io/badge/tests-876%20passing-3db4c8" alt="876 tests passing">
+  <img src="https://img.shields.io/badge/tests-878%20passing-3db4c8" alt="878 tests passing">
   <img src="https://img.shields.io/badge/modules-33-3db4c8" alt="33 modules">
 </p>
 
@@ -15,7 +15,7 @@
 <p align="center">
   <picture>
     <source srcset="docs/demo/menu.webp" type="image/webp">
-    <img src="docs/demo/menu.gif" alt="The menu, with a plasma field behind it" width="800">
+    <img src="docs/demo/menu.gif" alt="The menu, between two runestones" width="800">
   </picture>
 </p>
 
@@ -71,7 +71,16 @@ point.
 the Merkle root of a recent block and the messages people wrote into it, and a
 local model reads that back.
 
-`tools/make_demo.py` records both, and
+<p align="center">
+  <img src="docs/demo/draw-norns.webp" alt="A run: acrostic, an earthquake, a model reading it" width="800">
+</p>
+
+`acrostic//quake//pythia`. The first letters of the question are kept, the
+material is the latest earthquake, this time near Húsavík, and a local model
+reads that back. Afterwards the ash grows behind the answer and the Norns cut
+their runes at its roots.
+
+`tools/make_demo.py` records all three, and
 [the animations document](docs/en/animations.md#recording-them) says how.
 
 ## Modules

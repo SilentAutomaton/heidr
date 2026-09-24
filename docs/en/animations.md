@@ -210,6 +210,9 @@ python tools/make_demo.py plasma     one of them
 <p align="center">
   <img src="../demo/plasma.webp" alt="plasma" width="420">
   <img src="../demo/waterfall.webp" alt="waterfall" width="420">
+  <img src="../demo/runestone.webp" alt="runestone" width="420">
+  <img src="../demo/yggdrasil.webp" alt="yggdrasil" width="420">
+  <img src="../demo/etch.webp" alt="etch" width="420">
 </p>
 
 Nothing here records a screen. The interface is run headless, the frame number
@@ -230,8 +233,14 @@ Several painters build a random generator on their first frame, so the tool
 hands them a seeded one. And Rich names a font in its export that almost nobody
 has, so the tool names the family instead of leaving it to be guessed.
 
-Two of the recordings are whole rites rather than one animation: `draw-radio`
-and `draw-pythia`. Those are played a step at a time from a table at the top of
+The export also draws a desktop window around the terminal, with a title bar and
+three coloured buttons. The tool moves the view box onto the terminal area, so
+the pictures show the program and nothing around it. A painter with a cycle of
+its own, such as `runestone`, `yggdrasil` or `etch`, is recorded for exactly one
+cycle, which is the only length at which its loop closes.
+
+Three of the recordings are whole rites rather than one animation:
+`draw-radio`, `draw-pythia` and `draw-norns`. Those are played a step at a time from a table at the top of
 the tool. Every field a scene sets is one a real run sets and every event it
 emits is one a real run emits, so the interface does its own work rather than
 being drawn over; what the table supplies is the material and the answer, which

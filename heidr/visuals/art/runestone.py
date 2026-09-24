@@ -32,6 +32,9 @@ SIDE = 5
 INSET = 2
 CUT = 3
 HOLD = 48
+# Half the inscription is cut on each stone, so the length of a whole pass is
+# known before any stone is drawn.
+CYCLE = len(INSCRIPTION) // 2 * 2 * CUT + HOLD
 
 
 def halves(height: int, half: int) -> list[int]:
@@ -87,8 +90,7 @@ class Runestone(Painter):
             # start, so a tall stone is not cut on one side only.
             places += [(top + row, column) for row, column in (path[number * len(path) // share] for number in range(share))]
 
-        cycle = len(places) * CUT + HOLD
-        age = frame.tick % cycle
+        age = frame.tick % CYCLE
         cut = min(len(places), age // CUT)
         for number in range(cut):
             row, column = places[number]

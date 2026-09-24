@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/release-v0.2.0-3db4c8" alt="Релиз v0.2.0">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Лицензия: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 и новее">
-  <img src="https://img.shields.io/badge/tests-876%20passing-3db4c8" alt="876 тестов проходят">
+  <img src="https://img.shields.io/badge/tests-878%20passing-3db4c8" alt="878 тестов проходят">
   <img src="https://img.shields.io/badge/modules-33-3db4c8" alt="33 модуля">
 </p>
 
@@ -15,7 +15,7 @@
 <p align="center">
   <picture>
     <source srcset="docs/demo/menu.webp" type="image/webp">
-    <img src="docs/demo/menu.gif" alt="Главное меню и плазменное поле за ним" width="800">
+    <img src="docs/demo/menu.gif" alt="Главное меню между двумя рунными камнями" width="800">
   </picture>
 </p>
 
@@ -74,7 +74,16 @@
 корень Меркла свежего блока и надписи, которые люди в этот блок вписали, а
 локальная модель всё это перечитывает.
 
-Оба ролика записывает `tools/make_demo.py`, а как именно — написано в
+<p align="center">
+  <img src="docs/demo/draw-norns.webp" alt="Прогон: акростих, землетрясение, толкование моделью" width="800">
+</p>
+
+`acrostic//quake//pythia`. От вопроса остаются первые буквы, материалом служит
+последнее землетрясение — на этот раз у Хусавика, — и локальная модель читает
+его. Когда ответ готов, за ним вырастает ясень, а у его корней норны вырезают
+свои руны.
+
+Все три ролика записывает `tools/make_demo.py`, а как именно — написано в
 [документе про анимации](docs/ru/animations.md#как-их-записывают).
 
 ## Модули

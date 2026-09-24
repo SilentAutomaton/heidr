@@ -16,6 +16,7 @@ import asyncio
 import math
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -53,11 +54,16 @@ FONTS = (
 COVERAGE = ":charset=2800 2588:spacing=100"
 
 # name: animation, frames, frames a second, whether the interface is in shot.
+# No count means one whole pass of the painter's own cycle, which is the only
+# length at which its loop closes.
 DEMOS = {
-    "menu": ("plasma", 44, 10, True),
+    "menu": ("runestone", None, 12, True),
     "plasma": ("plasma", 40, 10, False),
     "lattice": ("lattice", 56, 12, False),
     "waterfall": ("waterfall", 44, 12, False),
+    "runestone": ("runestone", None, 12, False),
+    "yggdrasil": ("yggdrasil", None, 12, False),
+    "etch": ("etch", None, 16, False),
 }
 # Two whole rites, played in front of the recorder a step at a time. Every field
 # set here is one a real run sets and every event is one a real run emits, so
@@ -91,6 +97,18 @@ SCENES = {
             "blockchain",
         ),
         "said": ["Nope, lol"],
+        "fps": 16,
+    },
+    "draw-norns": {
+        "question": "did the norns already write my commit message",
+        "rite": ("acrostic", "quake", "pythia"),
+        "entry": "0033",
+        "found": ("M 4.1 - 12 km NNE of Húsavík, Iceland", "earthquake"),
+        "said": ["Yes. It says 'fix'."],
+        # What stands behind the menu before the question and behind the
+        # answer after it. Left out, the lottery of the idle pool decides, as
+        # it does in the program.
+        "idle": "yggdrasil",
         "fps": 16,
     },
 }
@@ -128,6 +146,9 @@ async def scene(name: str, into: Path) -> int:
     async with app.run_test(size=SIZE) as pilot:
         for _ in range(SETTLE):
             await pilot.pause()
+        if "idle" in plan:
+            random.seed(SEED)
+            app.show_visual(plan["idle"])
         canvas = app.query_one("#visual", Canvas)
 
         async def hold(count: int) -> None:
@@ -138,7 +159,7 @@ async def scene(name: str, into: Path) -> int:
                 board.tick = number
                 board.refresh()
                 await pilot.pause()
-                (into / f"{number:04d}.svg").write_text(app.export_screenshot(title="HEID//R"))
+                (into / f"{number:04d}.svg").write_text(frameless(app.export_screenshot()))
                 number += 1
 
         take_over(canvas)
@@ -210,6 +231,13 @@ async def scene(name: str, into: Path) -> int:
         board.feed("\n".join(plan["said"]))
         app._render_body()
         await hold(HOLD * 3)
+        if "idle" in plan:
+            # The program goes back to idle once the answer has resolved, and
+            # the scene stays long enough to see it.
+            random.seed(SEED)
+            app.show_visual(plan["idle"])
+            take_over(app.query_one("#visual", Canvas))
+            await hold(HOLD * 6)
     return number
 
 
@@ -231,6 +259,7 @@ async def frames(name: str, into: Path) -> int:
     if name in SCENES:
         return await scene(name, into)
     animation, count, _fps, chrome = DEMOS[name]
+    count = count or whole_cycle(animation)
     settings = config.Config(config.merge(config.DEFAULTS, {}), into / "config.toml")
     # The flickering slogan is a timer of its own and would move between one
     # frame and the next. It is a thing to see in the program rather than in a
@@ -278,8 +307,28 @@ async def frames(name: str, into: Path) -> int:
             canvas.tick = number
             canvas.refresh()
             await pilot.pause()
-            (into / f"{number:04d}.svg").write_text(app.export_screenshot(title="HEID//R"))
+            (into / f"{number:04d}.svg").write_text(frameless(app.export_screenshot()))
     return count
+
+
+def frameless(svg: str) -> str:
+    """The terminal alone, without the window drawn around it.
+
+    The export draws a desktop window with a title bar and three coloured
+    buttons, which says nothing about the program. Moving the view box onto the
+    terminal area crops them away and leaves every cell where it was.
+    """
+    left, top = re.search(r"translate\(([\d.]+), ([\d.]+)\)", svg).groups()
+    width, height = re.search(r'clip-terminal">\s*<rect x="0" y="0" width="([\d.]+)" height="([\d.]+)"', svg).groups()
+    return re.sub(r'viewBox="[^"]*"', f'viewBox="{left} {top} {width} {height}"', svg, count=1)
+
+
+def whole_cycle(animation: str) -> int:
+    from heidr.visuals.art import etch, runestone, yggdrasil
+
+    if animation == "etch":
+        return len(etch.film())
+    return {"runestone": runestone.CYCLE, "yggdrasil": yggdrasil.CYCLE}[animation]
 
 
 def listens(animation: str) -> bool:

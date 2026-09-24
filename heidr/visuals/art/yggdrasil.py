@@ -54,6 +54,10 @@ def branches() -> tuple[tuple[float, float, float, float, int], ...]:
     return tuple(strokes)
 
 
+# Grown, three runes cut, then a rest.
+CYCLE = (max(depth for *_, depth in branches()) + 1) * GROW + len(NORNS["ascii"]) * CUT + HOLD
+
+
 def stroke(dx: float, dy: float) -> str:
     """The carved mark for a direction: a stave, a slant, or a flat cut."""
     angle = math.degrees(math.atan2(dy, dx)) % 180
@@ -77,8 +81,7 @@ class Yggdrasil(Painter):
 
         strokes = branches()
         tallest = max(depth for *_, depth in strokes) + 1
-        cycle = tallest * GROW + len(NORNS[self.glyphs]) * CUT + HOLD
-        age = frame.tick % cycle
+        age = frame.tick % CYCLE
         grown = age // GROW
 
         # The crown is stretched to the whole width and the whole height. The
