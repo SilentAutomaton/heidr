@@ -12,7 +12,8 @@ Screen {
     /* The status and command lines cover the last two rows; an animation
        drawn under them would lose its ground line. */
     margin-bottom: 2;
-    color: $accent;
+    /* The accent of `heidr/ui/mark.py`, not Textual's own, which is orange. */
+    color: #3db4c8;
     overflow: hidden;
 }
 

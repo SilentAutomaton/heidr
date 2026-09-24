@@ -1,5 +1,6 @@
 import random
 import re
+from pathlib import Path
 
 import pytest
 
@@ -227,3 +228,10 @@ def test_no_tint_can_be_taken_for_the_accent():
             channels = [int(exact[start : start + 2], 16) for start in (1, 3, 5)]
             assert sum((a - b) ** 2 for a, b in zip(channels, accent)) ** 0.5 > 55
             assert near != index
+
+
+def test_the_stylesheet_gives_the_canvas_the_program_accent():
+    """An animation that keeps the accent falls back to the stylesheet colour."""
+    stylesheet = (Path(__file__).parent.parent / "heidr" / "ui" / "theme_full.tcss").read_text()
+
+    assert mark.TRUECOLOR in stylesheet
