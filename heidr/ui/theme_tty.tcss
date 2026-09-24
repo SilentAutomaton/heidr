@@ -6,12 +6,16 @@ Screen {
     color: white;
     layers: back front;
     align: center middle;
+    overflow: hidden;
 }
 
 #visual {
     layer: back;
     width: 100%;
     height: 100%;
+    /* The status and command lines cover the last two rows; an animation
+       drawn under them would lose its ground line. */
+    margin-bottom: 2;
     color: white;
     overflow: hidden;
 }

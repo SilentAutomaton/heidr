@@ -39,6 +39,11 @@ not carelessness: the point is that the hand cannot miss.
 | `Enter` | choose the line under the cursor |
 | `Esc`, `Ctrl-O` | back one level; during a run, `Esc` stops it |
 
+The same keys, and the mouse wheel, move a text or a reading that is taller than
+the panel. There is no scrollbar. A dim line at the edge says how much is hidden
+that way, `▲ 8 more` above and `▼ 23 more` below, and a list says `1-20 of 40`
+under itself. A scrollbar would take two columns from the panel to say the same.
+
 ## Changing a value
 
 | Key | Here |

@@ -235,3 +235,24 @@ def test_the_self_check_builds_the_providers_before_it_reports(default_config, m
     main_module.self_check(default_config)
 
     assert any("language model" in line and "fake" in line for line in printed)
+
+
+@pytest.mark.asyncio
+async def test_the_screen_has_no_scrollbar(default_config):
+    async with make_app(default_config).run_test(size=(80, 24)) as pilot:
+        await pilot.pause()
+        for widget in [pilot.app.screen, *pilot.app.screen.walk_children()]:
+            assert not widget.show_vertical_scrollbar
+
+
+@pytest.mark.asyncio
+async def test_a_long_text_says_how_much_is_hidden_and_pages(default_config):
+    async with make_app(default_config).run_test(size=(80, 24)) as pilot:
+        pilot.app._show_text("\n".join(f"line {number}" for number in range(60)))
+        await pilot.pause()
+        shown = str(pilot.app._body().render())
+        assert "line 0" in shown and "more" in shown.splitlines()[-1]
+
+        await pilot.press("pagedown")
+        shown = str(pilot.app._body().render())
+        assert "line 0" not in shown and "more" in shown.splitlines()[0]

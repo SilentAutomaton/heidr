@@ -49,6 +49,7 @@ EN = {
     "empty.modules": "No modules registered. Something is wrong with the install.",
     "empty.settings": "No settings to show.",
     "empty.material": "Nothing drawn yet. The rite starts with a question.",
+    "more": "{mark} {count} more",
     "error.small_terminal": "Terminal too small. Resize to at least {cols} by {rows}.",
     "error.repeat_question": (
         "This question was drawn in entry {entry}. Ask a different one, or ask "

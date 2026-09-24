@@ -99,6 +99,8 @@ class HeidrApp(App):
         self.panes: dict[str, tuple[list[tuple[str, str]], str]] = {}
         self.cursors: dict[str, int] = {}
         self.body_text = ""
+        # How far a text or a reading too long for the panel is scrolled.
+        self.scroll_top = 0
         self.tick = 0
         self.spin = 0
         self.progress: tuple[int, int] | None = None
@@ -275,6 +277,7 @@ class HeidrApp(App):
         self._enter("rite")
         self.stages = []
         self.asked = question
+        self.scroll_top = 0
         self.found = ("", "")
         self.said = []
         self.working = ""
@@ -527,6 +530,7 @@ class HeidrApp(App):
     def _show_text(self, body: str) -> None:
         self._enter("text")
         self.body_text = body
+        self.scroll_top = 0
         self._render_body()
 
     @property
@@ -643,10 +647,27 @@ class HeidrApp(App):
                 text("hint.ask"),
             )
         if self.view == "text":
-            return "\n".join(panel.wrap(self.body_text, panel.room(size.width)))
+            return self._scrolled(Text("\n".join(panel.wrap(self.body_text, panel.room(size.width)))), room)
         if not self.asked:
             return self._splash()
-        return self._rite_panel(panel.room(size.width))
+        return self._scrolled(self._rite_panel(panel.room(size.width)), room)
+
+    def _scrolled(self, body: Text, room: int) -> Text:
+        """The part of a long body that fits, with how much is hidden each way.
+
+        A scrollbar would take two columns from the panel to say the same thing.
+        """
+        lines = body.split("\n", allow_blank=True)
+        if len(lines) <= room:
+            return body
+        shown = max(1, room - 2)
+        self.scroll_top = max(0, min(self.scroll_top, len(lines) - shown))
+        end = self.scroll_top + shown
+        up, down = ("^", "v") if self.terminal.glyphs == "ascii" else ("▲", "▼")
+        dim, _accent = self._panel_styles()
+        above = text("more", mark=up, count=self.scroll_top) if self.scroll_top else ""
+        below = text("more", mark=down, count=len(lines) - end) if end < len(lines) else ""
+        return Text("\n").join([Text(above, dim), *lines[self.scroll_top : end], Text(below, dim)])
 
     def _listed(self, room: int, above: int, empty: str) -> str:
         """Draw the rows, and remember where they landed for the mouse.
@@ -945,6 +966,8 @@ class HeidrApp(App):
 
     def _move_cursor(self, step: int) -> None:
         if not self.rows:
+            self.scroll_top = max(0, self.scroll_top + step)
+            self._render_body()
             return
         self.cursor = max(0, min(len(self.rows) - 1, self.cursor + step))
         self._show_rows()
