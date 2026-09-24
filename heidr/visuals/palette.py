@@ -26,6 +26,10 @@ TINTS: dict[str, tuple[tuple[str, int], ...]] = {
     "runes": (("#c8a45c", 179), ("#8fae86", 108)),
     "rings": (("#7fa0d8", 110), ("#9fb3c4", 110)),
     "rule30": (("#7f9bd0", 110), ("#c07a55", 173)),
+    # Granite, and the red the stones were painted with once the cut was made.
+    "runestone": (("#b9b3a6", 145), ("#c8613f", 166)),
+    "etch": (("#d3c49f", 180), ("#c8a45c", 179)),
+    "yggdrasil": (("#8fae86", 108), ("#a9c68a", 150)),
     # Instruments
     "waterfall": (("#5cc98c", 78),),
     "scope": (("#4fc97a", 77), ("#dba55a", 179)),

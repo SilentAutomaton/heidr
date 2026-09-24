@@ -113,6 +113,9 @@ at rather than only the named ones.
 | `rule30` | idle | Wolfram's rule, one new line a frame, scrolling up |
 | `rings` | idle | Ripples spreading from four drops on still water |
 | `runes` | idle | The Elder Futhark, rising and fading |
+| `runestone` | idle | Two stones at the edges, a line of the Völuspá cut into them rune by rune |
+| `etch` | idle | The same line burnt in by the laser of TerminalTextEffects, where the library is installed |
+| `yggdrasil` | idle | The ash growing to the edges of the screen, and the Norns' runes cut at its roots |
 | `rain` | idle | Falling columns of glyphs |
 | `starfield` | `planetary`, idle | Stars with parallax |
 | `moon` | `moment`, `calendar`, idle | The phase of the moon, growing with the terminal |
@@ -142,6 +145,16 @@ at rather than only the named ones.
 | `cards` | `tarot` | A card turning over |
 | `scissors` | `cutup`, `oblique` | Text cut up and scattered |
 | `reveal` | the answer | The reading resolving out of noise |
+
+The three runic animations keep clear of the middle. The panel stands there
+and hides whatever is drawn behind it, so the stones and the burnt text stand at
+the two edges, and the ash is stretched until its branches reach them and its
+roots run below the panel. The line they carry is stanza 22 of the Völuspá,
+"Heiði hana hétu", in the Younger Futhark: the only place the name of this
+program is written down. `etch` exists only where
+[terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) is
+installed, which is the `effects` extra and the released binary; elsewhere it is
+simply not among the choices.
 
 The gears are worth one line of explanation, because they are not a progress
 bar: nothing in the mechanism knows how far along the answer is. It says only
@@ -389,8 +402,22 @@ by Abishek V Ashok, GPL-3.0.
 The rules of the game of life are John Conway's, 1970, and are not ours to
 adjust.
 
+`etch` runs the LaserEtch effect of
+[TerminalTextEffects](https://github.com/ChrisBuilds/terminaltexteffects) by
+Chris Builds, MIT, as it is: the library is called, nothing is copied.
+`runestone` takes only its idea, a spark at the cut and the finished letters
+behind it, and cuts by hand.
+
+The tree of `yggdrasil` is a Lindenmayer system, published by Aristid
+Lindenmayer in 1968; the rules are nobody's. The runes, the Völuspá and the
+Norns are a thousand years old and belong to nobody either. The runes of the
+[ASCII art collection at ascii.co.uk](https://ascii.co.uk/art/runes), by John
+Magne Trane and Jon Melusky, were looked at and not copied: the page states no
+licence, and no licence means all rights reserved.
+
 The garbled slogan copies the register of obfuscated text in Minecraft.
 
-Heiðr herself, the cards, the dish and the gears are drawn for this project.
+Heiðr herself, the cards, the dish, the gears and the runestones are drawn for
+this project.
 Kaomoji such as `¯\_(ツ)_/¯` are folklore with no clear author and are taken as
 they are; anything with a named author would be named here beside the rest.

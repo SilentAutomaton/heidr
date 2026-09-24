@@ -57,7 +57,10 @@ MIN_COLUMNS = 40
 MIN_ROWS = 12
 # Drawn by lot, like everything else here. The fallback is fixed so that a
 # missing animation cannot send the chooser round in circles.
-IDLE_POOL = ("plasma", "life", "rain", "starfield", "moon", "runes", "rings", "rule30")
+IDLE_POOL = (
+    "plasma", "life", "rain", "starfield", "moon", "runes", "rings", "rule30",
+    "runestone", "etch", "yggdrasil",
+)
 IDLE = "plasma"
 # The status line and the command line, which never change height, and the
 # blank row above and below the panel. The stylesheets must agree, and a test
@@ -751,7 +754,9 @@ class HeidrApp(App):
     # Visualisations
 
     def show_idle(self) -> None:
-        self.show_visual(random.choice(IDLE_POOL))
+        # `etch` is there only where its library is installed.
+        drawable = [name for name in IDLE_POOL if name in registry.ANIMATIONS]
+        self.show_visual(random.choice(drawable or IDLE_POOL))
 
     def show_visual(self, name: str) -> None:
         """Swap the painter on the one canvas; nothing is mounted or removed."""

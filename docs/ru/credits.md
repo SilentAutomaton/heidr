@@ -49,6 +49,9 @@
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | Северная звезда: смысл находится в том, что люди сказали случайно, а не порождается |
 | [Урок про плазму](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Четыре синусоиды, расходящиеся из четырёх точек, — это и есть плазма |
 | [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | Регистр падающих столбцов глифов |
+| [TerminalTextEffects](https://github.com/ChrisBuilds/terminaltexteffects) | Крис Билдс (Chris Builds) | MIT | Лазерная гравировка как образец для `runestone`: искра на месте реза и готовые буквы позади. `etch` вызывает саму библиотеку |
+| L-системы | Аристид Линденмайер, 1968 | общественное достояние | Грамматика переписывания, по которой растёт ясень в `yggdrasil` |
+| [Руны на ascii.co.uk](https://ascii.co.uk/art/runes) | Джон Магне Тране, Джон Мелуски | лицензия не указана | Изучены, не скопированы |
 | Игра «Жизнь» Конвея | Джон Конвей, 1970 | общественное достояние | Правила, которые не нам менять |
 | Правило 30 | Стивен Вольфрам, 1983 | общественное достояние | Само правило и причина его взять: выйдя из одной живой клетки, оно никогда не успокаивается, из-за чего годами служило генератором случайных чисел |
 | Старший футарк | — | общественное достояние | Ему восемнадцать веков, и это тот алфавит, который знала вёльва, чьим именем названа программа |
@@ -78,7 +81,7 @@ GPL.
 | Пакет | Лицензия |
 |---|---|
 | [textual](https://github.com/Textualize/textual), rich | MIT |
-| [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) | MIT |
+| [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects), необязательная, для `etch` | MIT |
 | numpy, requests, tomli-w, sounddevice | BSD или MIT |
 
 ## Шрифты

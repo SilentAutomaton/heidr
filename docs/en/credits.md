@@ -47,6 +47,9 @@ knowing.
 | [Pentametron](http://pentametron.com) | Ranjit Bhatnagar | — | The north star: meaning is found in what people said by accident, never generated |
 | [Plasma tutorial](http://lodev.org/cgtutor/plasma.html) | Lode Vandevenne | — | Four sine waves radiating from four points, which is what a plasma field is |
 | [cmatrix](https://github.com/abishekvashok/cmatrix) | Abishek V Ashok | GPL-3.0 | The register of falling glyph columns |
+| [TerminalTextEffects](https://github.com/ChrisBuilds/terminaltexteffects) | Chris Builds | MIT | The laser etch as the register of `runestone`: a spark at the cut, finished letters behind it. `etch` calls the library itself |
+| L-systems | Aristid Lindenmayer, 1968 | public domain | The rewriting grammar that grows the ash in `yggdrasil` |
+| [Runes at ascii.co.uk](https://ascii.co.uk/art/runes) | John Magne Trane, Jon Melusky | no licence stated | Studied, not copied |
 | Conway's Game of Life | John Conway, 1970 | public domain | The rules, which are not ours to adjust |
 | Rule 30 | Stephen Wolfram, 1983 | public domain | The rule, and the reason for taking it: from one live cell it never settles, which is why it was used as a random number generator for years |
 | The Elder Futhark | — | public domain | Eighteen centuries old, and the alphabet the völva this program is named for would have known |
@@ -74,7 +77,7 @@ These are executed, not linked. Their licences do not reach this code.
 | Package | Licence |
 |---|---|
 | [textual](https://github.com/Textualize/textual), rich | MIT |
-| [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) | MIT |
+| [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects), optional, for `etch` | MIT |
 | numpy, requests, tomli-w, sounddevice | BSD or MIT |
 
 ## Fonts
