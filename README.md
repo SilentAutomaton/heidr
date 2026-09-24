@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/release-v0.1.0-f0a63a" alt="Release v0.1.0">
-  <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-f0a63a" alt="Licence: GPL-3.0-or-later">
-  <img src="https://img.shields.io/badge/python-3.11%2B-f0a63a" alt="Python 3.11 or newer">
-  <img src="https://img.shields.io/badge/tests-861%20passing-f0a63a" alt="861 tests passing">
-  <img src="https://img.shields.io/badge/modules-33-f0a63a" alt="33 modules">
+  <img src="https://img.shields.io/badge/release-v0.2.0-3db4c8" alt="Release v0.2.0">
+  <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Licence: GPL-3.0-or-later">
+  <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 or newer">
+  <img src="https://img.shields.io/badge/tests-876%20passing-3db4c8" alt="876 tests passing">
+  <img src="https://img.shields.io/badge/modules-33-3db4c8" alt="33 modules">
 </p>
 
 <p align="center"><a href="README.ru.md">По-русски</a></p>
