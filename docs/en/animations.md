@@ -89,8 +89,8 @@ carrier, the oscilloscope from a dim trace to a bright one, the seismograph from
 quiet slate to violent clay. That is what the instruments they imitate do, and
 it is the reason a spectrum display is legible at a glance.
 
-The canvas returns a `rich.text.Text` for those and a plain string for
-everything else. The colour is chosen by the character's place in the ramp, and
+The canvas returns a `rich.text.Text` for every animation, coloured by level
+for those three and flat for the rest. The colour is chosen by the character's place in the ramp, and
 neighbouring characters that land on the same colour share one span, so a row
 costs a few dozen spans rather than one per cell. It is built as a `Text` and
 never as markup, because a painter is free to draw a square bracket and markup

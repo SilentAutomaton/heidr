@@ -5,7 +5,7 @@ import pytest
 from heidr import registry
 from heidr.capabilities import Terminal
 from heidr.visuals.art import plasma, reveal
-from heidr.visuals.canvas import Canvas, Frame
+from heidr.visuals.canvas import Canvas, Drawn, Frame
 from heidr.visuals.paint import ASCII, BLOCKS, BRAILLE, blank, centre, lines, resample, row, stamp
 
 from tests.test_app import make_app
@@ -68,7 +68,7 @@ async def test_the_canvas_shows_what_its_painter_paints(default_config):
         canvas = pilot.app.query_one("#visual", Canvas)
 
         assert canvas.painter is not None
-        assert canvas.render() != ""
+        assert canvas.render().plain != ""
 
 
 @pytest.mark.asyncio
@@ -434,3 +434,13 @@ def test_the_question_panel_fits_the_room_it_is_given():
         drawn = prompt.panel("ok", 0, width, "blocks", "a hint that is fairly long, as hints go")
 
         assert max(len(line) for line in drawn.splitlines()) <= width
+
+
+@pytest.mark.asyncio
+async def test_a_square_bracket_on_the_canvas_is_drawn_rather_than_read_as_markup(default_config):
+    async with make_app(default_config).run_test() as pilot:
+        canvas = pilot.app.query_one("#visual", Canvas)
+        canvas.show(Drawn(lambda frame: ["g[m :he /o\\s:"], ASCII))
+        await pilot.pause()
+
+        assert canvas.render().plain == "g[m :he /o\\s:"

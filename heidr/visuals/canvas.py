@@ -88,10 +88,10 @@ class Canvas(Static):
             self.painter.feed(payload)
             self.refresh()
 
-    def render(self) -> str | Text:
+    def render(self) -> Text:
         width, height = self.size.width, self.size.height
         if self.painter is None or width <= 0 or height <= 0:
-            return ""
+            return Text()
         frame = Frame(
             width=width,
             height=height,
@@ -103,7 +103,9 @@ class Canvas(Static):
         drawn = self.painter.paint(frame)[:height]
         if len(self.tint) > 1:
             return shaded(drawn, frame.ramp, self.tint)
-        return "\n".join(drawn)
+        # Never a plain string: the widget would read it as markup, and a
+        # painter that draws a square bracket would take the interface down.
+        return Text("\n".join(drawn))
 
 
 def shaded(drawn: list[str], ramp: str, tint: tuple[str, ...]) -> Text:
