@@ -55,9 +55,9 @@ is one line naming a character ramp; everything else is shared.
 ## Colour
 
 Every animation used to be drawn in one colour, so the plasma field, the gears
-and the falling glyphs were the same orange as the sign above them. Now each
+and the falling glyphs were the same colour as the sign above them. Now each
 one has a colour of its own, and several are offered per animation with one
-drawn when it starts: the gears are teal today and brass tomorrow.
+drawn when it starts: the gears are copper today and brass tomorrow.
 
 The table is `heidr/visuals/palette.py`, and it has rules worth keeping.
 
@@ -78,7 +78,8 @@ where there are sixteen million colours, the nearest xterm index where there are
 with reversed video, and tinting it would only spoil the one thing it does well.
 
 Two animations are excluded and keep the accent. `seeress` is the sign of the
-program and `reveal` is the answer, and the orange belongs to those.
+program and `reveal` is the answer, and the accent belongs to those. No tint
+in the table sits near the accent or shares its xterm index; a test holds that.
 
 ### Coloured by level
 
@@ -316,10 +317,12 @@ before it is really chosen.
 
 ## The sign and the slogan
 
-The wordmark is white and its slashes are orange, and nothing else in the
-program takes that orange except the answer. The exact value steps down with the
-terminal: `#e08b1e` where there are sixteen million colours, xterm index 214
-where there are 256, and plain yellow below that. The animation behind the sign
+The wordmark is cut in strokes, the way runes are, because a rune is made of
+straight lines that a knife can cut across the grain. It is white and its
+slashes are the blue green of old ice, and nothing else in the program takes
+that colour except the answer. The exact value steps down with the terminal:
+`#3db4c8` where there are sixteen million colours, xterm index 74 where there
+are 256, and plain cyan below that. The animation behind the sign
 has [a colour of its own](#colour); the sign does not share it.
 
 A slogan is drawn under it, one of a dozen. One entry in that pool is not a

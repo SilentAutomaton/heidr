@@ -5,11 +5,11 @@ from rich.text import Text
 
 from heidr.strings import BANNER_ROWS, NAME
 
-# The one colour in the program. It is the same signal orange the plan page
-# uses for the slashes, stepped down to whatever the terminal really has.
-TRUECOLOR = "#e08b1e"
-INDEXED = "color(214)"
-POOR = "yellow"
+# The one colour in the program: the blue green of old ice, the same as the
+# slashes in the README image, stepped down to whatever the terminal really has.
+TRUECOLOR = "#3db4c8"
+INDEXED = "color(74)"
+POOR = "cyan"
 SLASHES = "//"
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@%&$?!"
 MOTION_GLYPHS = ("blocks", "braille")

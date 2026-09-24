@@ -5,6 +5,7 @@ import pytest
 
 from heidr import registry
 from heidr.capabilities import Terminal
+from heidr.ui import mark
 from heidr.visuals import canvas, palette
 from heidr.visuals.canvas import Canvas
 from heidr.visuals.paint import ASCII
@@ -216,3 +217,13 @@ async def test_a_silent_step_names_itself_and_turns_the_gears(default_config):
 
         assert app.query_one("StatusLine").rite == "transcribing 2/4"
         assert tinted(app)
+
+
+def test_no_tint_can_be_taken_for_the_accent():
+    accent = [int(mark.TRUECOLOR[start : start + 2], 16) for start in (1, 3, 5)]
+    index = int(mark.INDEXED.strip("color()"))
+    for offered in [*palette.TINTS.values(), *palette.GRADIENTS.values()]:
+        for exact, near in offered:
+            channels = [int(exact[start : start + 2], 16) for start in (1, 3, 5)]
+            assert sum((a - b) ** 2 for a, b in zip(channels, accent)) ** 0.5 > 55
+            assert near != index

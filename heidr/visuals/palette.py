@@ -12,28 +12,29 @@ video, and colouring it would only spoil that.
 
 import random
 
-# The sign and the answer keep the accent orange, and nothing else may take it.
+# The sign and the answer keep the accent teal, and nothing else may take it:
+# no tint here sits near it or shares its xterm index.
 KEEPS_ACCENT = ("seeress", "reveal", "chainblocks")
 
 TINTS: dict[str, tuple[tuple[str, int], ...]] = {
     # Behind the main screen
     "plasma": (("#a06cd5", 140), ("#7f8fd6", 104)),
     "life": (("#5cc98c", 78), ("#d3a24c", 179)),
-    "rain": (("#43c76a", 77), ("#5fc9d0", 80)),
+    "rain": (("#43c76a", 77), ("#9fbf6f", 143)),
     "starfield": (("#a9c6f0", 152), ("#e0cf9a", 223)),
     "moon": (("#c2ccd8", 252), ("#d8cdb4", 187)),
     "runes": (("#c8a45c", 179), ("#8fae86", 108)),
-    "rings": (("#5fb0c8", 74), ("#9fb3c4", 110)),
+    "rings": (("#7fa0d8", 110), ("#9fb3c4", 110)),
     "rule30": (("#7f9bd0", 110), ("#c07a55", 173)),
     # Instruments
-    "waterfall": (("#4fc0c8", 73),),
+    "waterfall": (("#5cc98c", 78),),
     "scope": (("#4fc97a", 77), ("#dba55a", 179)),
     "radar": (("#46c77e", 77),),
     "seismo": (("#93a4b4", 145),),
     "dish": (("#8db6d6", 110), ("#c8d2dc", 252)),
-    "globe": (("#4f9fc0", 74), ("#6fbf9f", 79)),
+    "globe": (("#6f8fc0", 67), ("#6fbf9f", 79)),
     "relay": (("#8fa8c8", 110), ("#79c9b0", 79)),
-    "scanlines": (("#9a7ac0", 140), ("#5fb8c8", 74)),
+    "scanlines": (("#9a7ac0", 140), ("#d0a860", 179)),
     "bits": (("#c3ccd8", 252), ("#7fbf8f", 108)),
     # The question, read apart
     "hexlib": (("#d3c49f", 180), ("#a89b84", 144)),
@@ -43,7 +44,7 @@ TINTS: dict[str, tuple[tuple[str, int], ...]] = {
     "abacus": (("#b8785a", 173), ("#c5a253", 179)),
     "codepage": (("#bf7bb0", 176), ("#9fbf6f", 149)),
     # The mechanism
-    "cog": (("#3fb8af", 73), ("#c9a227", 178), ("#8fa3b8", 110)),
+    "cog": (("#b8785a", 137), ("#c9a227", 178), ("#8fa3b8", 110)),
     "mirror": (("#b4c0cc", 251),),
     "lattice": (("#7f8fd6", 104),),
     "vapour": (("#a887c8", 140), ("#8fbf9f", 108)),
@@ -61,7 +62,7 @@ TINTS: dict[str, tuple[tuple[str, int], ...]] = {
 # there is. Cold floor to hot carrier is what a spectrum display has looked like
 # since they were made of paper; quiet slate to violent clay is a seismograph.
 GRADIENTS: dict[str, tuple[tuple[str, int], ...]] = {
-    "waterfall": (("#2b6f9c", 24), ("#4fc0c8", 73), ("#e0b45c", 179)),
+    "waterfall": (("#2b6f9c", 24), ("#5cc98c", 78), ("#e0b45c", 179)),
     "scope": (("#2f7f5f", 29), ("#4fc97a", 77)),
     "seismo": (("#93a4b4", 145), ("#c9695f", 167)),
 }

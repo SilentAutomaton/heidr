@@ -13,7 +13,7 @@ class CommandLine(Static):
     buffer = reactive("")
     message = reactive("")
     level = reactive(INFO)
-    accent = reactive("yellow")
+    accent = reactive("cyan")
     echo = reactive(True)
     # What can be pressed here, shown while the line has nothing else to say.
     # The line is empty most of the time, so the help costs no room at all.
