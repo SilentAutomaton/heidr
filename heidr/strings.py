@@ -22,15 +22,17 @@ SLOGANS = (
 
 TAGLINE = f"{NAME} — {SLOGANS[0]}"
 
-# Block wordmark for terminals with block glyphs. Each row is split where the
-# slashes begin and end, because the slashes are the one thing on the screen
-# that is allowed a colour of its own.
+# The wordmark, cut rather than printed: every letter is staves and branches,
+# the straight strokes a knife makes across the grain, and each one leans on
+# the rune it resembles (ᚺ, ᛖ, ᛁ, ᚦ, ᚱ). Each row is split where the slashes begin
+# and end, because the slashes are the one thing on the screen that is allowed
+# a colour of its own.
 BANNER_ROWS = (
-    ("█ █ ███ ███ ██ ", "   █   █ ", "██ "),
-    ("█ █ █    █  █ █", "  █   █  ", "█ █"),
-    ("███ ██   █  █ █", "  █   █  ", "██ "),
-    ("█ █ █    █  █ █", " █   █   ", "█ █"),
-    ("█ █ ███ ███ ██ ", " █   █   ", "█ █"),
+    ("|   |  |\\   |  |\\   ", "    /  /", " |\\ "),
+    ("|\\  |  |    |  | \\  ", "   /  / ", " | \\"),
+    ("| \\ |  |\\   |  |  | ", "  /  /  ", " | /"),
+    ("|  \\|  |    |  | /  ", " /  /   ", " |\\ "),
+    ("|   |  |\\   |  |/   ", "/  /    ", " | \\"),
 )
 BANNER_BLOCK = "\n".join("".join(row) for row in BANNER_ROWS)
 

@@ -77,6 +77,16 @@ These are executed, not linked. Their licences do not reach this code.
 | [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) | MIT |
 | numpy, requests, tomli-w, sounddevice | BSD or MIT |
 
+## Fonts
+
+Used to render the README image. Neither is shipped: `tools/make_brand.sh`
+fetches both, and only the rendered pictures are committed.
+
+| Font | Author | Licence | Used for |
+|---|---|---|---|
+| [Norse](https://www.1001fonts.com/norse-font.html) | Joël Carrouché | Joël Carrouché Free Font License: free for any use, not to be modified or redistributed | The wordmark and the slogan |
+| [Noto Sans Runic](https://github.com/notofonts/runic) | The Noto Project Authors | OFL-1.1 | The line of runes under the wordmark |
+
 ## Data
 
 Public endpoints the sources use: USGS earthquake feed,

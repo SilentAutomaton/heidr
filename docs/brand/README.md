@@ -1,11 +1,14 @@
 # The wordmark
 
-White `HEID`, orange slashes, white `R`, and the slogan spaced out underneath.
+`HEID//R` cut in runic letters: bone white, with the slashes in the blue green of
+old ice. Under it runs a band of runes, the name `ᚺᛖᛁᚦᚱ` and then the Elder
+Futhark in its three ættir, the way a runestone carries its text between two
+lines. The slogan is spaced out underneath.
 
-The orange is reserved. In the interface it marks the sign and the answer and
+The blue green is reserved. In the interface it marks the sign and the answer and
 nothing else; the animation behind them has a colour of its own, from the table
 in `heidr/visuals/palette.py`. Reserved is not the same as only: those colours
-are chosen to sit behind the orange rather than to compete with it.
+are chosen to sit behind it rather than to compete with it.
 
 | File | Size | Where it is used |
 |---|---|---|
@@ -14,13 +17,13 @@ are chosen to sit behind the orange rather than to compete with it.
 
 ## Colours
 
-Taken from the dark theme of the project status page.
 
 | Role | Value |
 |---|---|
 | Ground | `#0e1216` |
-| Wordmark | `#e4e9ef` |
-| Slashes | `#f0a63a` |
+| Wordmark | `#e6e1d6` |
+| Slashes, runes | `#3db4c8` |
+| Band | `#2a6f7a` |
 | Slogan | `#7c8895` |
 
 ## Rebuilding
@@ -29,10 +32,11 @@ Taken from the dark theme of the project status page.
 ./tools/make_brand.sh
 ```
 
-The script fetches IBM Plex Sans Condensed Bold and IBM Plex Mono, both
-OFL-1.1, into `~/.local/share/fonts/heidr-brand`, then renders both PNGs with
-`rsvg-convert`. The fonts are not committed: the repository does not modify
-them, so it has no business carrying them.
+The script fetches Norse by Joël Carrouché and Noto Sans Runic into
+`~/.local/share/fonts/heidr-brand`, then renders both PNGs with `rsvg-convert`.
+The fonts are not committed. Norse is free to use but not to redistribute, and
+the repository does not modify either, so it has no business carrying them.
+The licences are in [credits](../en/credits.md#fonts).
 
 Edit the SVG, run the script, commit both. The PNGs are committed because
 GitHub renders them everywhere, including in the social preview, where an SVG

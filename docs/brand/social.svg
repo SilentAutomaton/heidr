@@ -1,8 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="HEID//R — For the Rationally Desperate">
   <rect width="1280" height="640" fill="#0e1216"/>
-  <g font-family="IBM Plex Sans Condensed" font-weight="700" font-size="190" letter-spacing="-4">
-    <text x="640" y="330" text-anchor="middle" fill="#e4e9ef">HEID<tspan fill="#f0a63a">//</tspan>R</text>
+  <text x="640" y="300" text-anchor="middle" font-family="Norse" font-weight="700" font-size="190" letter-spacing="8" fill="#e6e1d6">HEID<tspan fill="#3db4c8">//</tspan>R</text>
+  <g stroke="#2a6f7a" stroke-width="2">
+    <line x1="190" y1="336" x2="1090" y2="336"/>
+    <line x1="190" y1="376" x2="1090" y2="376"/>
   </g>
-  <text x="640" y="392" text-anchor="middle" font-family="IBM Plex Mono" font-size="26" letter-spacing="3.7" fill="#7c8895">FOR THE RATIONALLY DESPERATE</text>
-  <text x="640" y="470" text-anchor="middle" font-family="IBM Plex Mono" font-size="24" fill="#a3aeba">A modal terminal oracle. The answer is found, not written.</text>
+  <text x="640" y="366" text-anchor="middle" font-family="Noto Sans Runic" font-size="26" letter-spacing="7" fill="#3db4c8">ᚺᛖᛁᚦᚱ ᛫ ᚠᚢᚦᚨᚱᚲᚷᚹ ᛫ ᚺᚾᛁᛃᛇᛈᛉᛊ ᛫ ᛏᛒᛖᛗᛚᛜᛞᛟ</text>
+  <text x="640" y="430" text-anchor="middle" font-family="Norse" font-size="32" letter-spacing="7" fill="#7c8895">FOR THE RATIONALLY DESPERATE</text>
+  <text x="640" y="500" text-anchor="middle" font-family="Norse" font-size="28" letter-spacing="2" fill="#a3aeba">A modal terminal oracle. The answer is found, not written.</text>
 </svg>

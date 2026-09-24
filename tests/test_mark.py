@@ -13,7 +13,7 @@ def test_only_the_slashes_carry_the_colour():
     coloured = "".join(drawn.plain[span.start : span.end] for span in drawn.spans)
 
     assert coloured.strip("\n ") != ""
-    assert "█" in coloured
+    assert set(coloured) <= set("/ \n")
     assert len(coloured) < len(drawn.plain) / 2
 
 

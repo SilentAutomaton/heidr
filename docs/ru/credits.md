@@ -81,6 +81,16 @@ GPL.
 | [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) | MIT |
 | numpy, requests, tomli-w, sounddevice | BSD или MIT |
 
+## Шрифты
+
+Ими набрана картинка в README. В репозитории их нет: `tools/make_brand.sh`
+скачивает оба, а в коммит попадают только готовые изображения.
+
+| Шрифт | Автор | Лицензия | Для чего |
+|---|---|---|---|
+| [Norse](https://www.1001fonts.com/norse-font.html) | Жоэль Карруше (Joël Carrouché) | Joël Carrouché Free Font License: пользоваться можно как угодно, изменять и распространять нельзя | Логотип и лозунг |
+| [Noto Sans Runic](https://github.com/notofonts/runic) | The Noto Project Authors | OFL-1.1 | Строка рун под логотипом |
+
 ## Данные
 
 Публичные адреса, к которым ходят источники: лента землетрясений USGS,
