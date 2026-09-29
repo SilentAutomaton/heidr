@@ -1,0 +1,29 @@
+name: build-macos-arm64
+
+# The arm64 binary has to be built on arm64 hardware: PyInstaller packages
+# the interpreter and the prebuilt wheels it runs under, so an Intel machine
+# cannot produce it. Public repositories get arm64 macOS runners for free.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "release tag to build, for example v0.2.1"
+        required: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyinstaller ".[audio,effects]"
+      - run: pyinstaller --clean heidr.spec
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heidr-macos-arm64
+          path: dist/heidr
+          if-no-files-found: error
