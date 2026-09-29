@@ -1,9 +1,12 @@
 name: build-binaries
 
-# One workflow builds every released binary. A PyInstaller binary has to be
-# built on the architecture it runs under — it packages the interpreter and
-# the prebuilt wheels, it does not compile — so each target gets its own
-# runner. Public repositories get all of these for free.
+# One workflow builds the released binaries that actions can reach. A
+# PyInstaller binary has to be built on the architecture it runs under — it
+# packages the interpreter and the prebuilt wheels, it does not compile — so
+# each target gets its own runner. The Linux job builds inside the same
+# Debian bullseye image as tools/build_release.sh, so the binary keeps the
+# old glibc 2.31 floor. Intel macOS is missing on purpose: only the paid
+# -large runners have it, so that binary comes from a real Mac instead.
 on:
   workflow_dispatch:
     inputs:
@@ -14,11 +17,11 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { runs-on: windows-latest, os: windows, arch: x86_64 }
           - { runs-on: macos-15, os: macos, arch: arm64 }
-          - { runs-on: macos-15-large, os: macos, arch: x86_64 }
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v4
@@ -32,5 +35,20 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: heidr-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/heidr*
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-latest
+    container: python:3.12-bullseye
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - run: python -m pip install pyinstaller ".[audio,effects]"
+      - run: pyinstaller --clean heidr.spec
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heidr-linux-x86_64
           path: dist/heidr*
           if-no-files-found: error
