@@ -165,10 +165,10 @@ curl -fLO https://raw.githubusercontent.com/SilentAutomaton/heidr/master/install
 sh install.sh
 ```
 
-On Windows the same script is `install.ps1`; it installs everything around the
-program, and the program itself still comes from source there, because the
-binary is Linux only so far. Both scripts are described in
-[binaries and installers](docs/en/binaries.md), along with the binary on its own.
+On Windows the same script is `install.ps1`. On macOS `install.sh` brings the
+program and leaves the outside programs to you. Both scripts are described in
+[binaries and installers](docs/en/binaries.md), along with the binaries on
+their own.
 
 ### Linux
 
@@ -220,10 +220,6 @@ build-env/bin/pyinstaller heidr.spec
 every dependency. The external programs stay external: `rtl_fm`, `whisper-cli`
 and the rest are run as subprocesses, so they are found on the path or the
 capability is simply absent, exactly as with an ordinary install.
-
-`tools/build_release.sh` does the same in a container, which is how the released
-binaries are built: on a rolling distribution the result would carry a C library
-too new for anything else to run it.
 
 ## Configure
 

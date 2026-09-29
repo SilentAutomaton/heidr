@@ -7,8 +7,9 @@ run, and a script that downloads the binary and the outside programs with it.
 Neither replaces the source install in [installing](install.md); they are the
 short way for somebody who wants to try the program today.
 
-The binary is Linux only so far. On Windows the script still installs everything
-around the program, and the program itself comes from source.
+Every release carries a binary for each system: Linux, Windows, and macOS on
+both Intel and Apple silicon. The script fetches the binary everywhere, and on
+Linux it installs the outside programs around it too.
 
 ## The installer
 
@@ -59,17 +60,20 @@ released binary carries its own Python and cannot load anything `pip` installs,
 so vosk needs a source install. whisper.cpp is a separate program the binary
 runs, and works either way. The installer warns before it does anything.
 
-**Windows, for now.** There is no Windows binary in the release, so on Windows
-the script installs the outside programs and says that heidr itself has to come
-from source. The reason is in *building them yourself* below.
+**A signature.** No binary is signed. Windows SmartScreen and macOS Gatekeeper
+will say so before the first run, and a binary downloaded through a browser
+carries a quarantine mark on macOS: `xattr -d com.apple.quarantine heidr-macos-*`
+takes it off.
 
-**macOS.** Nothing is built for it, because nothing here can build it. macOS is
-installed from source, as [installing](install.md) describes.
+**The outside programs on macOS.** The script brings the binary alone there.
+The receiver, the speech recogniser and the rest are yours to install by hand;
+the program says at every start which ones it found.
 
 ## The binary alone
 
-Every release carries the Linux binary and `SHA256SUMS`. To use it without the
-installer:
+The binaries are `heidr-linux-x86_64`, `heidr-windows-x86_64.exe`,
+`heidr-macos-x86_64` and `heidr-macos-arm64`, with a `SHA256SUMS` beside them.
+Linux, without the installer:
 
 ```
 curl -fLO https://github.com/SilentAutomaton/heidr/releases/latest/download/heidr-linux-x86_64
@@ -77,10 +81,12 @@ chmod +x heidr-linux-x86_64
 ./heidr-linux-x86_64 --self-check
 ```
 
-The Linux binary is built inside Debian bullseye, so it runs on any distribution
-with glibc 2.31 or newer — Ubuntu 20.04, Debian 11, and everything since. It
-carries Python and every Python dependency inside it and needs nothing
-installed.
+The same address with another file name brings the Windows or macOS binary;
+on macOS, `chmod +x` after it.
+
+The Linux binary runs on any distribution with glibc 2.31 or newer — Ubuntu
+20.04, Debian 11, and everything since. It carries Python and every Python
+dependency inside it and needs nothing installed.
 
 What it does not carry is the outside programs. `rtl_fm`, `ffmpeg`,
 `whisper-cli` and ollama are run as subprocesses or reached over a socket, so
@@ -110,20 +116,16 @@ described in [settings and modules](settings-editor.md).
 sh tools/build_release.sh
 ```
 
-The Linux binary is built in `python:3.12-bullseye` through docker, from the
-same `heidr.spec` the README documents. It is not built on the machine that
-publishes it: a PyInstaller binary carries the C library it was linked against,
-and one built on a rolling distribution runs on that distribution and nowhere
-else. Debian bullseye is old enough to reach everything still in use.
-
-The same script has a Windows target, under wine in `tobix/pywine`, and it does
-not currently work: PyInstaller runs its collectors in subprocesses, and those
-die under wine before the build begins. The script reports the failure and
-carries on rather than pretending. A Windows binary needs a Windows machine, or
-somebody who knows why those subprocesses die.
-
-Pass `linux` or `windows` to build one of them. The result lands in `dist/` with
-a `SHA256SUMS` beside it.
+Windows and macOS binaries are built where they run. PyInstaller packages the
+interpreter and the prebuilt wheels of the architecture it runs under, so a
+Windows binary needs Windows and a macOS binary needs a Mac; a cross-build is
+not a thing it can do. The workflow in `.github/workflows/build-binaries.yml`
+builds Linux, Windows and macOS on Apple silicon through GitHub Actions and
+leaves the binaries in the run's artifacts — start it from the Actions tab with
+the tag of the release to build. Intel macOS is the one target its free runners
+do not carry, so that binary is built by hand on a Mac: a venv with
+`pip install pyinstaller '.[audio,effects]'`, then `pyinstaller heidr.spec`,
+exactly as the README describes for Linux.
 
 ## Checking
 

@@ -85,8 +85,21 @@ asset_url() {
         head -n 1
 }
 
-[ "$(uname -s)" = "Linux" ] ||
-    die "This installer is for Linux. There is no binary for $(uname -s); see docs/en/install.md for the source route."
+case "$(uname -s):$(uname -m)" in
+    Linux:*) asset=heidr-linux-x86_64 ;;
+    Darwin:arm64) asset=heidr-macos-arm64 ;;
+    Darwin:*) asset=heidr-macos-x86_64 ;;
+    *) die "This installer is for Linux and macOS. There is no binary for $(uname -s); see docs/en/install.md for the source route." ;;
+esac
+
+# Everything past the first item is wired up for Linux: the package managers
+# are Linux ones and the downloaded builds are Linux builds. On macOS the
+# script brings the binary alone.
+linux_only() {
+    [ "$(uname -s)" = "Linux" ] && return 0
+    note_skipped "$1 — on macOS, install it by hand"
+    return 1
+}
 
 manager=""
 for candidate in pacman apt-get dnf zypper; do
@@ -133,15 +146,16 @@ need_tool() {
 }
 
 install_heidr() {
-    url=$(asset_url "$repo" heidr-linux-x86_64)
+    url=$(asset_url "$repo" "$asset")
     [ -n "$url" ] ||
-        die "The latest release has no Linux binary. Install from source instead: see docs/en/install.md."
+        die "The latest release has no binary for this system. Install from source instead: see docs/en/install.md."
     mkdir -p "$bin"
     fetch "$url" "$bin/heidr"
     chmod +x "$bin/heidr"
 }
 
 install_radio() {
+    linux_only "the radio tools" || return 0
     install_packages rtl-sdr
     if confirm "Also install rtl_433 and dump1090? Two sources need them."; then
         install_packages "$(package_named rtl433)" "$(package_named dump1090)"
@@ -149,6 +163,7 @@ install_radio() {
 }
 
 install_stream() {
+    linux_only "ffmpeg and yt-dlp" || return 0
     install_packages ffmpeg
     url=$(asset_url yt-dlp/yt-dlp yt-dlp_linux)
     if [ -z "$url" ]; then
@@ -161,6 +176,7 @@ install_stream() {
 }
 
 install_whisper() {
+    linux_only "whisper.cpp" || return 0
     need_tool tar
     url=$(asset_url ggml-org/whisper.cpp whisper-bin-ubuntu-x64.tar.gz)
     if [ -z "$url" ]; then
@@ -189,6 +205,7 @@ install_whisper() {
 }
 
 install_vosk() {
+    linux_only "vosk" || return 0
     # vosk is imported by the program rather than run as a subprocess, so it has
     # to live in the same Python. A released binary carries its own interpreter
     # and cannot see anything pip installs, which is the whole answer here.
@@ -220,6 +237,7 @@ install_vosk() {
 }
 
 install_ollama() {
+    linux_only "ollama" || return 0
     curl -fsSL https://ollama.com/install.sh | sh
     model=$(ask "Which model should ollama pull? [qwen3.5:9B], or '-' to skip: ")
     [ -n "$model" ] || model=qwen3.5:9B
@@ -234,6 +252,7 @@ install_ollama() {
 }
 
 install_llama() {
+    linux_only "llama.cpp" || return 0
     need_tool tar
     url=$(asset_url ggml-org/llama.cpp bin-ubuntu-x64.tar.gz)
     if [ -z "$url" ]; then
