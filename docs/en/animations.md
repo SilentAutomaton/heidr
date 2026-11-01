@@ -113,7 +113,7 @@ at rather than only the named ones.
 | `life` | idle | Conway's rules, seeded from the measured entropy |
 | `rule30` | idle | Wolfram's rule, one new line a frame, scrolling up |
 | `rings` | idle | Ripples spreading from four drops on still water |
-| `runes` | idle | The Elder Futhark, rising and fading |
+| `runes` | idle, `runes` | The Elder Futhark, rising and fading |
 | `runestone` | idle | Two stones at the edges, a line of the Völuspá cut into them rune by rune |
 | `etch` | idle | The same line burnt in by the laser of TerminalTextEffects, where the library is installed |
 | `yggdrasil` | idle | The ash growing to the edges of the screen, and the Norns' runes cut at its roots |

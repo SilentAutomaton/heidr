@@ -133,6 +133,7 @@ choice, and `:checkhealth` says what is missing.
 | [oblique](docs/en/modules/oblique.md) | — | One terse instruction, and nothing else |
 | [iching](docs/en/modules/iching.md) | — | A real Da Yan casting, not a coin toss |
 | [tarot](docs/en/modules/tarot.md) | — | A spread dealt from the material, not from chance |
+| [runes](docs/en/modules/runes.md) | — | Three runes of the Elder Futhark, one for each Norn |
 | [mute](docs/en/modules/mute.md) | — | Returns nothing on purpose; the material stands on its own |
 | [pythia](docs/en/modules/pythia.md) | `llm` | A model interprets, in a voice picked at random too |
 

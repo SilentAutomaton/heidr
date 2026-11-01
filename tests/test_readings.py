@@ -5,7 +5,7 @@ import pytest
 
 from heidr import registry
 from heidr.contracts import Material
-from heidr.reading import iching, pythia, tarot
+from heidr.reading import iching, pythia, runes, tarot
 
 QUESTION = "should the antenna go on the roof"
 MATERIAL = Material("a fragment of found text", numbers=(3, 14), source="mojibake")
@@ -215,3 +215,36 @@ def test_the_voice_follows_the_finding():
     assert pythia.voice_for(MATERIAL) == pythia.voice_for(MATERIAL)
     voices = {pythia.voice_for(Material(f"text {n}", source="s")) for n in range(40)}
     assert len(voices) > 1
+
+
+# Runes
+
+
+def test_the_futhark_has_all_its_runes():
+    assert len({name for name, gloss in runes.load(runes.FUTHARK)}) == 24
+
+
+def test_each_norn_gets_a_different_rune(stub_context):
+    found, ctx = ready(stub_context, "runes")
+    lines = list(found.run(ctx, QUESTION, MATERIAL))
+    known = dict(runes.load(runes.FUTHARK))
+
+    assert lines[0::3] == list(runes.NORNS)
+    assert len(set(lines[1::3])) == 3 and set(lines[1::3]) <= set(known)
+    assert [known[name] for name in lines[1::3]] == lines[2::3]
+
+
+def test_the_material_decides_the_runes(stub_context):
+    found, ctx = ready(stub_context, "runes")
+    other = Material("something else entirely", numbers=(1,), source="babel")
+
+    first = list(found.run(ctx, QUESTION, MATERIAL))
+
+    assert first == list(found.run(ctx, "another question", MATERIAL))
+    assert first != list(found.run(ctx, QUESTION, other))
+
+
+def test_runes_answer_a_source_with_no_text(stub_context):
+    found, ctx = ready(stub_context, "runes")
+
+    assert list(found.run(ctx, QUESTION, Material("", numbers=(7,), source="rtl_sdr")))

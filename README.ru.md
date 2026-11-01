@@ -136,6 +136,7 @@
 | [oblique](docs/ru/modules/oblique.md) | — | Одно короткое указание и больше ничего |
 | [iching](docs/ru/modules/iching.md) | — | Настоящий расклад Да Янь, а не подбрасывание монет |
 | [tarot](docs/ru/modules/tarot.md) | — | Расклад сдаётся из материала, а не из генератора случайных чисел |
+| [runes](docs/ru/modules/runes.md) | — | Три руны Старшего футарка, по одной на каждую норну |
 | [mute](docs/ru/modules/mute.md) | — | Намеренно не выдаёт ни строки: остаётся только материал |
 | [pythia](docs/ru/modules/pythia.md) | `llm` | Толкует модель — голосом, который тоже выбран случайно |
 

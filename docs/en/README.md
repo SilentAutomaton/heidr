@@ -77,5 +77,6 @@ Thirty-three of them, one document each, in [modules/](modules/). The tables in 
 [oblique](modules/oblique.md) ·
 [iching](modules/iching.md) ·
 [tarot](modules/tarot.md) ·
+[runes](modules/runes.md) ·
 [mute](modules/mute.md) ·
 [pythia](modules/pythia.md)

@@ -1,0 +1,28 @@
+# The twenty-four runes of the Elder Futhark, in their order.
+# name|gloss
+# The names are reconstructions and belong to nobody. The glosses are ours:
+# published readings are under copyright and are not shipped.
+Fehu|Wealth that moves. Hold it too tightly and it stops being wealth.
+Uruz|Raw strength, with no opinion about where it goes.
+Thurisaz|A thorn on the path. It was there before you were.
+Ansuz|A word from above. Check who is really speaking.
+Raidho|The road, and the wagon, and the wheel that is already loose.
+Kenaz|A torch in a closed room. Now you can see the room.
+Gebo|A gift, which is a debt nobody has named yet.
+Wunjo|Joy, for as long as you do not ask how long.
+Hagalaz|Hail. It falls on the just field and the other one.
+Nauthiz|Need. The fire you make when there is nothing else to do.
+Isa|Ice. Nothing moves, and you can walk across.
+Jera|The harvest, which arrives when it arrives.
+Eihwaz|The yew: green all winter, poison all the way through.
+Perthro|The cup the lots are shaken in. Nobody has looked yet.
+Algiz|An open hand held up. It stops things, and it asks for help.
+Sowilo|The sun, which does not check whether you are ready.
+Tiwaz|The god who gave up a hand to keep a promise.
+Berkano|Birch: the first tree back after the fire.
+Ehwaz|The horse. Two animals agreeing on a direction.
+Mannaz|Other people, and what you owe them.
+Laguz|Water. Deeper than it looks from the boat.
+Ingwaz|The seed before it is anything.
+Dagaz|Daybreak. The same field, now visible.
+Othala|The inherited land, with everything buried in it.
