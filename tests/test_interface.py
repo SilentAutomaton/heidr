@@ -10,11 +10,13 @@ from heidr import entropy, registry
 from heidr.capabilities import Terminal
 from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
+from heidr.visuals import palette
 
 from tests.test_app import make_app
 
 SIZES = [(40, 12), (60, 20), (80, 24), (120, 40), (200, 50)]
 CONSOLE = Terminal(colours=16, glyphs="blocks", graphics="none")
+INDEXED = Terminal(colours=256, glyphs="braille", graphics="none")
 
 
 @pytest.fixture
@@ -413,6 +415,14 @@ def test_the_animation_lies_behind_the_panel():
         style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
         assert "layers: back front;" in style
         assert "layer: back;" in style.split("#visual")[1].split("}")[0]
+
+
+@pytest.mark.asyncio
+async def test_an_indexed_terminal_draws_every_tint(default_config):
+    async with make_app(default_config, INDEXED).run_test(size=(80, 24)) as pilot:
+        for name in palette.TINTS:
+            pilot.app.show_visual(name)
+            await pilot.pause()
 
 
 # A rite chosen instead of drawn

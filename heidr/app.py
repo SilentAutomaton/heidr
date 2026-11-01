@@ -4,8 +4,10 @@ import threading
 from dataclasses import replace
 from pathlib import Path
 
+from rich.color import Color as RichColor
 from rich.text import Text
 from textual.app import App, ComposeResult
+from textual.color import Color
 from textual.containers import Vertical
 from textual.reactive import reactive
 from textual.widgets import Static
@@ -786,7 +788,8 @@ class HeidrApp(App):
     def _tint(self, canvas: Canvas, name: str) -> None:
         colour = palette.tint(name, self.terminal.colours, random)
         if colour:
-            canvas.styles.color = colour
+            # A Textual style does not accept the color(N) form of an xterm index.
+            canvas.styles.color = Color.from_rich_color(RichColor.parse(colour))
         else:
             # Back to whatever the stylesheet says, which in a bare console is
             # white and is meant to stay white.
