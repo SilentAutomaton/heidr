@@ -54,9 +54,9 @@ py -m heidr
 ```
 
 Two conditions. Use Windows Terminal rather than the old console host: the old
-one draws neither the block glyphs nor the colours. And run it from a shell that
-leaves the escape sequences alone, which PowerShell and cmd inside Windows
-Terminal both do.
+one shows the colours, but it draws neither the block glyphs nor braille. And run
+it from a shell that leaves the escape sequences alone, which PowerShell and cmd
+inside Windows Terminal both do.
 
 What works: the interface, the animations, sound through `sounddevice`, a local
 model through the Windows build of ollama, and copying with `y`, which Windows

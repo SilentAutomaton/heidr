@@ -14,6 +14,9 @@ UTF8 = {"LANG": "en_US.UTF-8"}
         ({"TERM": "xterm-kitty", "COLORTERM": "truecolor", **UTF8}, 16777216, "braille", "kitty"),
         ({"TERM": "dumb"}, 8, "ascii", "none"),
         ({"TERM": "xterm-256color", "LANG": "C"}, 256, "ascii", "sixel"),
+        ({"OS": "Windows_NT"}, 16777216, "braille", "none"),
+        ({"TERM": "dumb", "OS": "Windows_NT"}, 8, "ascii", "none"),
+        ({"TERM": "xterm", "TERM_PROGRAM": "Apple_Terminal", **UTF8}, 256, "braille", "sixel"),
     ],
 )
 def test_terminal_detection(environ, colours, glyphs, graphics):

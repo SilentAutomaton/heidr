@@ -34,16 +34,23 @@ def detect_terminal(environ: dict[str, str] | None = None) -> Terminal:
 
 
 def _colours(env: dict[str, str], term: str) -> int:
-    if env.get("COLORTERM", "") in ("truecolor", "24bit"):
+    if env.get("COLORTERM", "") in ("truecolor", "24bit") or _windows_console(env, term):
         return 16777216
-    if "256" in term or "direct" in term:
+    if "256" in term or "direct" in term or env.get("TERM_PROGRAM") == "Apple_Terminal":
         return 256
     if term in ("", "dumb"):
         return 8
     return 16
 
 
+def _windows_console(env: dict[str, str], term: str) -> bool:
+    # Windows sets neither TERM nor LANG, so the usual questions have no answer.
+    return not term and env.get("OS") == "Windows_NT"
+
+
 def _glyphs(env: dict[str, str], term: str) -> str:
+    if _windows_console(env, term):
+        return "braille"
     if term.startswith(BLOCK_ONLY_TERMS):
         return "blocks" if term != "dumb" else "ascii"
     charset = (env.get("LC_ALL") or env.get("LC_CTYPE") or env.get("LANG") or "").lower()
