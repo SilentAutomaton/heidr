@@ -1,0 +1,20 @@
+# The sixteen figures of geomancy.
+# head neck body foot|name|gloss
+# 1 is one point and 0 is two. The Latin names are traditional and belong to
+# nobody. The glosses are ours: published readings are not shipped.
+0000|Populus|The crowd. It goes where it is pushed, and so will this.
+1111|Via|The road. Nothing stays, including the reason for asking.
+0110|Conjunctio|Two roads meet. Who else is standing at the crossing?
+1001|Carcer|The cell. Walls keep things out as well.
+0011|Fortuna Major|Luck that comes from below and lasts. It was earned somewhere.
+1100|Fortuna Minor|Luck that comes quickly from outside. Spend it today.
+0101|Acquisitio|Something comes into the hand. Close the hand.
+1010|Amissio|Something leaves the hand. The hand is free now.
+1000|Laetitia|Laughter, with its head in the air. Mind the step.
+0001|Tristitia|The weight sinks to the bottom, and the bottom holds.
+1011|Puella|She is pleasant, and she has not told you what she wants.
+1101|Puer|He has a sword, and no idea yet what it is for.
+0010|Albus|White. Clear water, slow thought, a good day to wait.
+0100|Rubeus|Red. Do not act on this tonight.
+0111|Caput Draconis|The way in. Something is beginning whether you agree or not.
+1110|Cauda Draconis|The way out. Leave by the door you can still see.

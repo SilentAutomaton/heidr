@@ -78,5 +78,6 @@ Thirty-three of them, one document each, in [modules/](modules/). The tables in 
 [iching](modules/iching.md) ·
 [tarot](modules/tarot.md) ·
 [runes](modules/runes.md) ·
+[geomancy](modules/geomancy.md) ·
 [mute](modules/mute.md) ·
 [pythia](modules/pythia.md)

@@ -5,7 +5,7 @@ import pytest
 
 from heidr import registry
 from heidr.contracts import Material
-from heidr.reading import iching, pythia, runes, tarot
+from heidr.reading import geomancy, iching, pythia, runes, tarot
 
 QUESTION = "should the antenna go on the roof"
 MATERIAL = Material("a fragment of found text", numbers=(3, 14), source="mojibake")
@@ -248,3 +248,42 @@ def test_runes_answer_a_source_with_no_text(stub_context):
     found, ctx = ready(stub_context, "runes")
 
     assert list(found.run(ctx, QUESTION, Material("", numbers=(7,), source="rtl_sdr")))
+
+
+# Geomancy
+
+
+def test_the_table_has_all_sixteen_figures():
+    assert len(geomancy.load(geomancy.TABLE)) == 16
+
+
+def test_the_judge_always_has_an_even_number_of_points():
+    rng = random.Random(1)
+    for _ in range(2000):
+        mothers = [tuple(rng.getrandbits(1) for _ in range(4)) for _ in range(4)]
+        # A one in the figure is a row of one point, so an even count of ones
+        # is an even count of points.
+        assert sum(geomancy.raise_shield(mothers).judge) % 2 == 0
+
+
+def test_the_shield_matches_one_worked_by_hand():
+    via, populus = (1, 1, 1, 1), (0, 0, 0, 0)
+    laetitia = (1, 0, 0, 0)
+
+    shield = geomancy.raise_shield([via, populus, populus, laetitia])
+
+    # Daughters (1,0,0,1), (1,0,0,0), (1,0,0,0), (1,0,0,0). Nieces via, laetitia,
+    # (0,0,0,1), populus. Witnesses (0,1,1,1) and (0,0,0,1).
+    assert shield.right == (0, 1, 1, 1)
+    assert shield.left == (0, 0, 0, 1)
+    assert shield.judge == (0, 1, 1, 0)
+
+
+def test_the_material_decides_the_judge_and_a_textless_source_gets_one(stub_context):
+    found, ctx = ready(stub_context, "geomancy")
+    textless = Material("", numbers=(7,), source="rtl_sdr")
+
+    lines = list(found.run(ctx, QUESTION, textless))
+
+    assert lines == list(found.run(ctx, "another question", textless))
+    assert lines[2].startswith("judge: ") and len(lines) == 8

@@ -142,7 +142,7 @@ at rather than only the named ones.
 | `lattice` | `embed` | A cloud of points settling onto one direction |
 | `vapour` | `pythia` | Fumes rising from a tripod |
 | `hush` | `mute` | The reading that returns nothing |
-| `hexagram` | `iching` | Six lines building from the bottom up |
+| `hexagram` | `iching`, `geomancy` | Six lines building from the bottom up |
 | `cards` | `tarot` | A card turning over |
 | `scissors` | `cutup`, `oblique` | Text cut up and scattered |
 | `reveal` | the answer | The reading resolving out of noise |
