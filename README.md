@@ -109,6 +109,7 @@ choice, and `:checkhealth` says what is missing.
 |---|---|---|
 | [mojibake](docs/en/modules/mojibake.md) | — | Random bytes read through the wrong code page |
 | [babel](docs/en/modules/babel.md) | — | A page of the Library of Babel, by invertible bijection |
+| [sortes](docs/en/modules/sortes.md) | — | A stanza of the Elder Edda, opened at a place the key chooses |
 | [quake](docs/en/modules/quake.md) | `net` | An earthquake from the last hour |
 | [chain](docs/en/modules/chain.md) | `net` | A block's Merkle root, and what people wrote into it |
 | [sky](docs/en/modules/sky.md) | `net` | An aircraft overhead, through a public receiver network |

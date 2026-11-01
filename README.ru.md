@@ -112,6 +112,7 @@
 |---|---|---|
 | [mojibake](docs/ru/modules/mojibake.md) | — | Случайные байты, прочитанные не той кодовой страницей |
 | [babel](docs/ru/modules/babel.md) | — | Страница Вавилонской библиотеки через обратимое отображение |
+| [sortes](docs/ru/modules/sortes.md) | — | Строфа Старшей Эдды, открытая там, куда указал ключ |
 | [quake](docs/ru/modules/quake.md) | `net` | Землетрясение последнего часа |
 | [chain](docs/ru/modules/chain.md) | `net` | Корень Меркла блока и то, что люди в него вписали |
 | [sky](docs/ru/modules/sky.md) | `net` | Самолёт над головой, через публичную сеть приёмников |

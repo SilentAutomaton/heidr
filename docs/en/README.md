@@ -56,6 +56,7 @@ Thirty-three of them, one document each, in [modules/](modules/). The tables in 
 **Sources** find the material:
 [mojibake](modules/mojibake.md) ·
 [babel](modules/babel.md) ·
+[sortes](modules/sortes.md) ·
 [quake](modules/quake.md) ·
 [chain](modules/chain.md) ·
 [sky](modules/sky.md) ·

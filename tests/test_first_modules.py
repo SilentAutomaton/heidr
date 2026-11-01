@@ -1,7 +1,10 @@
+import re
+
 import pytest
 
 from heidr import registry
 from heidr.contracts import Key, Material
+from heidr.world import sortes
 
 
 QUESTION = "should the antenna go on the roof"
@@ -88,3 +91,45 @@ def test_mute_yields_nothing(stub_context):
 def test_question_modules_survive_an_empty_question(stub_context, slot, name):
     found, ctx = ready(stub_context, slot, name)
     assert isinstance(found.run(ctx, ""), Key)
+
+
+# Sortes
+
+
+def test_the_shipped_book_is_clean_stanzas():
+    found = sortes.passages(sortes.BOOK.read_text(encoding="utf-8"))
+
+    assert len(found) == 203
+    assert not any(re.search(r"\[\d+\]|Gutenberg|^\d+\. ", passage) for passage in found)
+    assert found[25].startswith("Heidi they called her")
+
+
+def test_the_key_chooses_the_stanza(stub_context):
+    found = registry.MODULES["world"]["sortes"]
+    ctx = stub_context.for_module("sortes", found.defaults)
+
+    first, second = found.run(ctx, Key(seed=0)), found.run(ctx, Key(seed=1))
+
+    assert first.text != second.text
+    assert first == found.run(ctx, Key(seed=203))
+    assert first.numbers == (1, 203) and first.source == "edda"
+
+
+def test_another_book_can_be_opened(stub_context, tmp_path):
+    book = tmp_path / "virgil.txt"
+    book.write_text("# a note\n\nArms and\nthe man.\n\n\nI sing.\n", encoding="utf-8")
+    found = registry.MODULES["world"]["sortes"]
+    ctx = stub_context.for_module("sortes", {"book": str(book)})
+
+    assert found.run(ctx, Key(seed=0)).text == "Arms and the man."
+    assert found.run(ctx, Key(seed=1)).text == "I sing."
+
+
+def test_an_empty_book_gives_empty_material(stub_context, tmp_path):
+    book = tmp_path / "empty.txt"
+    book.write_text("# nothing here\n", encoding="utf-8")
+    found = registry.MODULES["world"]["sortes"]
+    ctx = stub_context.for_module("sortes", {"book": str(book)})
+
+    material = found.run(ctx, Key(seed=5))
+    assert (material.text, material.numbers) == ("", ())

@@ -128,7 +128,7 @@ at rather than only the named ones.
 | `scope` | `ism`, `rtl_peak` | The live waveform |
 | `radar` | `sky`, `adsb_local` | A sweep with a mark on it |
 | `seismo` | `quake` | A seismograph trace |
-| `hexlib` | `babel` | A wall of hexagons with letters falling through it |
+| `hexlib` | `babel`, `sortes` | A wall of hexagons with letters falling through it |
 | `codepage` | `mojibake` | A page re-read through one wrong encoding after another |
 | `bits` | `sdr_noise` | Bits raining, pairs cancelling, the survivors becoming a digest |
 | `sieve` | `skeleton` | Words shaken until their vowels fall out |
