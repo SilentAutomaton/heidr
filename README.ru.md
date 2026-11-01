@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/release-v0.2.1-3db4c8" alt="Релиз v0.2.1">
+  <img src="https://img.shields.io/badge/release-v0.3.0-3db4c8" alt="Релиз v0.3.0">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Лицензия: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 и новее">
   <img src="https://img.shields.io/badge/tests-901%20passing-3db4c8" alt="901 тест проходит">
