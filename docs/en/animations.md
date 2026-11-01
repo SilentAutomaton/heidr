@@ -74,8 +74,9 @@ in. Where an animation imitates a real instrument, the instrument decides.
 
 Colour steps down with the terminal exactly as the accent does: the hex value
 where there are sixteen million colours, the nearest xterm index where there are
-256, and **nothing at all below that**. The bare console theme is white on black
-with reversed video, and tinting it would only spoil the one thing it does well.
+256, and **nothing at all below that**. The bare console theme is the terminal's
+own text colour and nothing else, and tinting it would only spoil the one thing
+it does well.
 
 Two animations are excluded and keep the accent. `seeress` is the sign of the
 program and `reveal` is the answer, and the accent belongs to those. No tint
@@ -256,8 +257,13 @@ braille dots boils.
 ## Where it is drawn
 
 The animation fills the whole terminal. The text sits on top of it in a panel
-that is centred and sized by what it holds, and the panel carries its own opaque
-background so the animation behind it never makes the reading harder to read.
+that is centred and sized by what it holds. The panel hides the animation behind
+it, so the animation never makes the reading harder to read.
+
+No part of the screen has a background colour of its own. Every cell uses the
+default background of the terminal, so a transparent window stays transparent.
+This needs `ansi_color=True` on the app as well as `ansi_default` in the
+stylesheet: without it Textual converts the default colours to RGB.
 
 **Nothing else may cover the canvas.** A widget above it hides its characters
 even when that widget's background is fully transparent: the compositor gives

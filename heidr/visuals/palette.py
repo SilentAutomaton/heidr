@@ -6,8 +6,8 @@ saturation. A pure primary vibrates on a dark ground and reads as a screensaver,
 and a large red field reads as an error, so neither is in the table.
 
 Each entry is a hex value and the xterm index nearest it. Below 256 colours
-there is no tint at all: the bare console theme is white on black with reversed
-video, and colouring it would only spoil that.
+there is no tint at all: the bare console theme is the terminal's own text colour
+and nothing else, and colouring it would only spoil that.
 """
 
 import random

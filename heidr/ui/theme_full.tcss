@@ -1,5 +1,7 @@
+/* The terminal's own colours, so a transparent window stays transparent. */
 Screen {
-    background: $surface;
+    background: ansi_default;
+    color: ansi_default;
     layers: back front;
     align: center middle;
     overflow: hidden;
@@ -32,8 +34,6 @@ Screen {
     max-width: 90%;
     max-height: 100%;
     padding: 1 2;
-    background: $surface;
-    color: $text;
     overflow: hidden;
 }
 
@@ -45,14 +45,10 @@ Screen {
 
 StatusLine {
     height: 1;
-    background: $primary-darken-2;
-    color: $text;
     padding: 0 1;
 }
 
 CommandLine {
     height: 1;
-    background: $surface;
-    color: $text-muted;
     padding: 0 1;
 }

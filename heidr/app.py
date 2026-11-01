@@ -150,7 +150,9 @@ class HeidrApp(App):
         self.context = Context(
             config=self.settings, emit=self.bus.emit, cancelled=self.stop_draw.is_set
         )
-        super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss")
+        # Without ansi_color Textual turns the terminal's default colours into RGB
+        # and paints over a transparent window.
+        super().__init__(css_path=THEMES / f"theme_{self.terminal.theme}.tcss", ansi_color=True)
 
     def probe(self) -> Context:
         allowed = self.capabilities_found
@@ -792,7 +794,7 @@ class HeidrApp(App):
             canvas.styles.color = Color.from_rich_color(RichColor.parse(colour))
         else:
             # Back to whatever the stylesheet says, which in a bare console is
-            # white and is meant to stay white.
+            # the terminal's own text colour and is meant to stay that.
             canvas.styles.clear_rule("color")
 
     def _forward(self, widget, payload) -> None:

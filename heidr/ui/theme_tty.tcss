@@ -1,9 +1,9 @@
 /* The bare Linux console gives eight colours and no dim text worth relying on,
-   so this theme uses reversed video instead of shades. */
+   so this theme uses no shades: all text is the terminal's own colour. */
 
 Screen {
-    background: black;
-    color: white;
+    background: ansi_default;
+    color: ansi_default;
     layers: back front;
     align: center middle;
     overflow: hidden;
@@ -16,7 +16,6 @@ Screen {
     /* The status and command lines cover the last two rows; an animation
        drawn under them would lose its ground line. */
     margin-bottom: 2;
-    color: white;
     overflow: hidden;
 }
 
@@ -32,8 +31,6 @@ Screen {
     max-width: 90%;
     max-height: 100%;
     padding: 1 2;
-    background: black;
-    color: white;
     overflow: hidden;
 }
 
@@ -45,14 +42,10 @@ Screen {
 
 StatusLine {
     height: 1;
-    background: white;
-    color: black;
     padding: 0 1;
 }
 
 CommandLine {
     height: 1;
-    background: black;
-    color: white;
     padding: 0 1;
 }

@@ -12,7 +12,7 @@ from heidr.ui.commandline import CommandLine
 from heidr.ui.statusline import StatusLine
 from heidr.visuals import palette
 
-from tests.test_app import make_app
+from tests.test_app import FULL, make_app
 
 SIZES = [(40, 12), (60, 20), (80, 24), (120, 40), (200, 50)]
 CONSOLE = Terminal(colours=16, glyphs="blocks", graphics="none")
@@ -415,6 +415,22 @@ def test_the_animation_lies_behind_the_panel():
         style = (Path(__file__).parent.parent / "heidr/ui" / name).read_text()
         assert "layers: back front;" in style
         assert "layer: back;" in style.split("#visual")[1].split("}")[0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("terminal", [FULL, INDEXED, CONSOLE])
+async def test_the_screen_keeps_the_background_of_the_terminal(default_config, terminal):
+    """A transparent window stays transparent, and the panel still hides the canvas."""
+    async with make_app(default_config, terminal).run_test(size=(80, 24)) as pilot:
+        pilot.app.show_visual("plasma")
+        await pilot.pause()
+        strips = pilot.app.screen._compositor.render_strips()
+        panel = pilot.app.query_one("#body").region
+        rows = ["".join(segment.text for segment in strip) for strip in strips]
+
+        assert {segment.style.bgcolor.name for strip in strips for segment in strip} == {"default"}
+        assert rows[0][:panel.x].strip()
+        assert not rows[panel.y][panel.x : panel.right].strip()
 
 
 @pytest.mark.asyncio
