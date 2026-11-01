@@ -109,7 +109,7 @@ at rather than only the named ones.
 
 | Animation | Shown for | What it is |
 |---|---|---|
-| `plasma` | `blind`, idle | Four sine waves radiating from four points |
+| `plasma` | `blind`, `solar`, idle | Four sine waves radiating from four points |
 | `life` | idle | Conway's rules, seeded from the measured entropy |
 | `rule30` | idle | Wolfram's rule, one new line a frame, scrolling up |
 | `rings` | idle | Ripples spreading from four drops on still water |

@@ -111,6 +111,7 @@ choice, and `:checkhealth` says what is missing.
 | [babel](docs/en/modules/babel.md) | — | A page of the Library of Babel, by invertible bijection |
 | [sortes](docs/en/modules/sortes.md) | — | A stanza of the Elder Edda, opened at a place the key chooses |
 | [quake](docs/en/modules/quake.md) | `net` | An earthquake from the last hour |
+| [solar](docs/en/modules/solar.md) | `net` | A paragraph of today's space weather forecast, and the K index |
 | [chain](docs/en/modules/chain.md) | `net` | A block's Merkle root, and what people wrote into it |
 | [sky](docs/en/modules/sky.md) | `net` | An aircraft overhead, through a public receiver network |
 | [sdr_noise](docs/en/modules/sdr_noise.md) | `sdr` | The noise floor of an empty frequency, debiased |

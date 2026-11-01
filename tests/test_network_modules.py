@@ -1,6 +1,10 @@
+from pathlib import Path
+
+import pytest
+
 from heidr import net, registry
 from heidr.contracts import Key
-from heidr.world import chain, quake, sky
+from heidr.world import chain, quake, sky, solar
 
 
 def ready(ctx, name: str):
@@ -100,3 +104,48 @@ def test_sky_with_an_empty_sky_returns_empty_material(stub_context, fake_get, fi
 def test_network_modules_are_absent_when_the_network_is(stub_context):
     for name in ("quake", "chain", "sky"):
         assert registry.MODULES["world"][name].available(stub_context) is False
+
+
+# Solar
+
+DISCUSSION = (Path(__file__).parent / "fixtures" / "swpc_discussion.txt").read_text()
+
+
+def test_the_discussion_keeps_only_the_sentences():
+    found = solar.paragraphs(DISCUSSION)
+
+    assert found[0].startswith("Solar activity continued at very low levels. Region 4564")
+    assert all(paragraph.endswith(".") and "\n" not in paragraph for paragraph in found)
+    assert not any(
+        paragraph.startswith((":", "#", ".")) or "Prepared by" in paragraph for paragraph in found
+    )
+    assert "Solar Wind" not in found and "Geospace" not in found
+
+
+def test_solar_picks_a_paragraph_by_the_key(stub_context, monkeypatch, fixture_json):
+    monkeypatch.setattr(net, "fetch_text", lambda url, timeout: DISCUSSION)
+    monkeypatch.setattr(net, "fetch_json", lambda url, timeout: fixture_json("swpc_kp"))
+    found, ctx = ready(stub_context, "solar")
+
+    first, second = found.run(ctx, Key(seed=0)), found.run(ctx, Key(seed=1))
+
+    assert first.text != second.text
+    assert first.numbers == (300, 15)
+    assert first.source == "swpc"
+
+
+def test_solar_finds_nothing_in_an_empty_discussion(stub_context, monkeypatch):
+    monkeypatch.setattr(net, "fetch_text", lambda url, timeout: ":Product: nothing\n#\n")
+    found, ctx = ready(stub_context, "solar")
+
+    assert found.run(ctx, Key(seed=0)).text == ""
+
+
+def test_solar_refuses_an_index_in_another_shape(stub_context, monkeypatch):
+    """Refusing hands the slot to another source, which reading nonsense would not."""
+    monkeypatch.setattr(net, "fetch_text", lambda url, timeout: DISCUSSION)
+    monkeypatch.setattr(net, "fetch_json", lambda url, timeout: [["time_tag", "Kp"], ["now", "3"]])
+    found, ctx = ready(stub_context, "solar")
+
+    with pytest.raises(TypeError):
+        found.run(ctx, Key(seed=0))

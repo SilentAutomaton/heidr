@@ -1,0 +1,58 @@
+:Product: Forecast Discussion
+:Issued: 2026 Nov 01 1230 UTC
+# Prepared by the U.S. Dept. of Commerce, NOAA, Space Weather Prediction Center
+#
+Solar Activity
+
+.24 hr Summary...
+Solar activity continued at very low levels. Region 4564 (N04E36,
+Dri/beta) developed a few additional rudimentary spots this period while
+Region 4565 (N13E55, Hsx/alpha) remained unchanged.
+
+No Earth-directed CMEs were observed at the available coronagraph
+imagery.
+
+.Forecast...
+Solar activity is expected to be at very low levels with a chance for
+isolated C-class flares through 03 Nov.
+
+Energetic Particle
+
+.24 hr Summary...
+The greater than 2 MeV electron flux was at normal to moderate levels.
+The greater than 10 MeV proton flux remained steady at background
+levels.
+
+.Forecast...
+The greater than 2 MeV electron flux is expected to continue at normal
+to moderate levels through 02 Nov, with high levels likely on 03 Nov.
+The greater than 10 MeV proton flux is expected to continue at
+background levels through 03 Nov.
+
+Solar Wind
+
+.24 hr Summary...
+Solar wind parameters reflected the onset of CIR ahead of a positive
+polarity CH HSS. Total magnetic field strength reached a peak of 13 nT.
+The Bz component was sustained southward at times this period, and
+reached as far south as -11 nT. Solar wind speeds increased from a low
+of around 430 km/s to a peak near 615 km/s by around 31/2200 UTC, before
+beginning a gradual decline in the hours after. Phi angle was
+predominantly oriented in the positive solar sector.
+
+.Forecast...
+Enhanced solar wind conditions are likely to continue through 02 Nov due
+to positive polarity CH HSS influences. A return to mostly nominal
+conditions is expected over 03 Nov.
+
+Geospace
+
+.24 hr Summary...
+The geomagnetic field reached G1-G2 (Minor-Moderate) storm levels due to
+positive polarity CH HSS influences.
+
+.Forecast...
+The geomagnetic field is likely to reach G1 (Minor) geomagnetic storm
+levels on 01 Nov due to continued influence from a positive polarity CH
+HSS. Quiet to unsettled levels are likely on 02 Nov, with mostly quiet
+conditions likely on 03 Nov, as CH HSS influence wanes.

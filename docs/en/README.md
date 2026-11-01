@@ -58,6 +58,7 @@ Thirty-three of them, one document each, in [modules/](modules/). The tables in 
 [babel](modules/babel.md) ·
 [sortes](modules/sortes.md) ·
 [quake](modules/quake.md) ·
+[solar](modules/solar.md) ·
 [chain](modules/chain.md) ·
 [sky](modules/sky.md) ·
 [sdr_noise](modules/sdr_noise.md) ·

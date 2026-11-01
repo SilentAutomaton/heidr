@@ -114,6 +114,7 @@
 | [babel](docs/ru/modules/babel.md) | — | Страница Вавилонской библиотеки через обратимое отображение |
 | [sortes](docs/ru/modules/sortes.md) | — | Строфа Старшей Эдды, открытая там, куда указал ключ |
 | [quake](docs/ru/modules/quake.md) | `net` | Землетрясение последнего часа |
+| [solar](docs/ru/modules/solar.md) | `net` | Абзац сегодняшнего прогноза космической погоды и индекс K |
 | [chain](docs/ru/modules/chain.md) | `net` | Корень Меркла блока и то, что люди в него вписали |
 | [sky](docs/ru/modules/sky.md) | `net` | Самолёт над головой, через публичную сеть приёмников |
 | [sdr_noise](docs/ru/modules/sdr_noise.md) | `sdr` | Шумовой пол пустой частоты после дебиасинга |
