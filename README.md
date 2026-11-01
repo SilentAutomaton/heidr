@@ -6,8 +6,8 @@
   <img src="https://img.shields.io/badge/release-v0.2.1-3db4c8" alt="Release v0.2.1">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Licence: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 or newer">
-  <img src="https://img.shields.io/badge/tests-878%20passing-3db4c8" alt="878 tests passing">
-  <img src="https://img.shields.io/badge/modules-33-3db4c8" alt="33 modules">
+  <img src="https://img.shields.io/badge/tests-901%20passing-3db4c8" alt="901 tests passing">
+  <img src="https://img.shields.io/badge/modules-37-3db4c8" alt="37 modules">
 </p>
 
 <p align="center"><a href="README.ru.md">По-русски</a></p>
@@ -40,8 +40,8 @@ question ──> [question module] ──> Key ──> [source] ──> Material
 One module is chosen at random for each slot before every run, so the chain
 differs each time. The choice is seeded from measurements rather than from a
 pseudo random generator: radio noise, a public randomness beacon, the Merkle
-root of a recent block. Ten question modules, seventeen sources and six readings
-make 1020 distinct chains. The interface calls a chain a "rite", and so does the
+root of a recent block. Ten question modules, nineteen sources and eight readings
+make 1520 distinct chains. The interface calls a chain a "rite", and so does the
 code (`Rite`).
 
 The ledger records the question before anything is fetched, and each entry is

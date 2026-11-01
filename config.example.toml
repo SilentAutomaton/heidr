@@ -118,6 +118,12 @@ reversals = true
 [modules.iching]
 corpus = ""             # path to your own hexagram texts
 
+[modules.sortes]
+book = ""               # path to your own text, a blank line between passages
+
+[modules.solar]
+timeout = 10
+
 [modules.rtl_peak]
 band = "88M:108M"
 step = "100k"

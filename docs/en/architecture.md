@@ -13,7 +13,7 @@ picked at random for each slot before every run.
 question ──> [slot A: question] ──> Key ──> [slot B: source] ──> Material ──> [slot C: reading] ──> answer
 ```
 
-Ten question modules, seventeen sources and six readings make 1020 distinct
+Ten question modules, nineteen sources and eight readings make 1520 distinct
 chains. The schema never settles long enough to be learnt. The code calls a
 chain a `Rite` and the interface calls it a "rite"; this document calls it a
 run, because that is what it is.

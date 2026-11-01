@@ -53,6 +53,8 @@ knowing.
 | Conway's Game of Life | John Conway, 1970 | public domain | The rules, which are not ours to adjust |
 | Rule 30 | Stephen Wolfram, 1983 | public domain | The rule, and the reason for taking it: from one live cell it never settles, which is why it was used as a random number generator for years |
 | The Elder Futhark | — | public domain | Eighteen centuries old, and the alphabet the völva this program is named for would have known |
+| The Elder Edda | Translated by Benjamin Thorpe, 1866 | public domain | The two poems `sortes` opens, in `heidr/data/edda.txt` |
+| Geomancy | — | public domain | The sixteen figures and the shield, as old as the Middle Ages |
 | [Joan Stark's gallery](https://oldcompcz.github.io/jgs/joan_stark/), [Christopher Johnson's collection](https://asciiart.website/), [ASCII Art Archive](https://www.asciiart.eu/) | Joan G. Stark and others | all rights reserved | Studied, not copied. Density as tone, shadow inside a cowl, a face made of three marks. Their terms require the artist's initials to stay on every copy, which this licence cannot honour, so nothing was taken |
 | Minecraft obfuscated text | Mojang | — | The register of the flickering slogan: letters change, word shapes do not |
 
@@ -93,8 +95,8 @@ fetches both, and only the rendered pictures are committed.
 ## Data
 
 Public endpoints the sources use: USGS earthquake feed,
-blockchain.info, api.adsb.lol, NIST Randomness Beacon, Certificate Transparency
-logs, libraryofbabel.info, the
+NOAA Space Weather Prediction Center, blockchain.info, api.adsb.lol, NIST
+Randomness Beacon, Certificate Transparency logs, libraryofbabel.info, the
 [Radio Browser](https://api.radio-browser.info/) station directory. Each
 module's document names the exact endpoint and its terms.
 

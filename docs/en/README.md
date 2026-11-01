@@ -38,7 +38,7 @@ Everything here has a Russian mirror under `docs/ru/` with the same file name.
 
 ## Modules
 
-Thirty-three of them, one document each, in [modules/](modules/). The tables in the
+Thirty-seven of them, one document each, in [modules/](modules/). The tables in the
 [project README](../../README.md#modules) list them with what they need.
 
 **Question modules** turn the question into a key:

@@ -30,7 +30,7 @@ change `base_url` and `model`.
 
 ## Installing one
 
-Neither is required. Five of the six readings need no model at all, and only
+Neither is required. Seven of the eight readings need no model at all, and only
 `pythia` does.
 
 **ollama** installs itself and runs as a daemon on port 11434:

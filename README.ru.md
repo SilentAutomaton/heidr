@@ -6,8 +6,8 @@
   <img src="https://img.shields.io/badge/release-v0.2.1-3db4c8" alt="Релиз v0.2.1">
   <img src="https://img.shields.io/badge/licence-GPL--3.0--or--later-3db4c8" alt="Лицензия: GPL-3.0-or-later">
   <img src="https://img.shields.io/badge/python-3.11%2B-3db4c8" alt="Python 3.11 и новее">
-  <img src="https://img.shields.io/badge/tests-878%20passing-3db4c8" alt="878 тестов проходят">
-  <img src="https://img.shields.io/badge/modules-33-3db4c8" alt="33 модуля">
+  <img src="https://img.shields.io/badge/tests-901%20passing-3db4c8" alt="901 тест проходят">
+  <img src="https://img.shields.io/badge/modules-37-3db4c8" alt="37 модулей">
 </p>
 
 <p align="center"><a href="README.md">In English</a></p>
@@ -41,8 +41,8 @@
 текст ответа.
 
 Модуль для каждого слота выбирается случайно перед запуском, так что цепочка
-всякий раз другая: десять модулей вопроса, семнадцать источников и шесть
-толкований дают 1020 сочетаний. Начальное число берётся из измерений, а не из
+всякий раз другая: десять модулей вопроса, девятнадцать источников и восемь
+толкований дают 1520 сочетаний. Начальное число берётся из измерений, а не из
 псевдослучайного генератора: радиошум, публичный маяк случайности, корень
 Меркла свежего блока. В коде цепочка называется `Rite`, в документации — прогоном.
 
